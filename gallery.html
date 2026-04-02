@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery — Kol Tregaskes Photography</title>
+    <meta name="description" content="Full photography gallery by Kol Tregaskes. Browse landscapes, architecture, urban scenes, and more.">
+    <link rel="canonical" href="https://koltregaskesphotography.com/gallery.html">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="site-header" id="header">
+        <div class="header-inner">
+            <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
+            <nav class="main-nav" id="nav">
+                <a href="index.html">Home</a>
+                <a href="gallery.html" class="active">Gallery</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <h1>Gallery</h1>
+        <p>A selection of work across landscape, architecture, urban, and documentary photography.</p>
+    </section>
+
+    <!-- Category filter -->
+    <div style="text-align: center; padding: 0 var(--pad-x) 2rem;">
+        <div style="display: inline-flex; gap: 0.5rem; flex-wrap: wrap; justify-content: center;">
+            <button class="filter-btn active" data-filter="all">All</button>
+            <button class="filter-btn" data-filter="landscape">Landscape</button>
+            <button class="filter-btn" data-filter="architecture">Architecture</button>
+            <button class="filter-btn" data-filter="urban">Urban</button>
+            <button class="filter-btn" data-filter="portrait">Portrait</button>
+            <button class="filter-btn" data-filter="documentary">Documentary</button>
+        </div>
+    </div>
+
+    <section class="gallery-section" style="padding-top: 0;">
+        <div class="gallery-section-inner">
+            <div class="gallery-masonry" id="gallery">
+                <!-- Gallery items will be populated from data/gallery.json -->
+                <!-- Placeholder structure: -->
+                <div class="gallery-item" data-category="landscape">
+                    <img src="images/placeholder-1.jpg" alt="Landscape photograph" loading="lazy">
+                    <div class="gallery-item-overlay"><div><div class="gallery-item-title">Placeholder</div><div class="gallery-item-meta">Landscape</div></div></div>
+                </div>
+                <div class="gallery-item" data-category="architecture">
+                    <img src="images/placeholder-2.jpg" alt="Architecture photograph" loading="lazy">
+                    <div class="gallery-item-overlay"><div><div class="gallery-item-title">Placeholder</div><div class="gallery-item-meta">Architecture</div></div></div>
+                </div>
+                <div class="gallery-item" data-category="urban">
+                    <img src="images/placeholder-3.jpg" alt="Urban photograph" loading="lazy">
+                    <div class="gallery-item-overlay"><div><div class="gallery-item-title">Placeholder</div><div class="gallery-item-meta">Urban</div></div></div>
+                </div>
+                <div class="gallery-item" data-category="landscape">
+                    <img src="images/placeholder-4.jpg" alt="Landscape photograph" loading="lazy">
+                    <div class="gallery-item-overlay"><div><div class="gallery-item-title">Placeholder</div><div class="gallery-item-meta">Landscape</div></div></div>
+                </div>
+                <div class="gallery-item" data-category="portrait">
+                    <img src="images/placeholder-5.jpg" alt="Portrait photograph" loading="lazy">
+                    <div class="gallery-item-overlay"><div><div class="gallery-item-title">Placeholder</div><div class="gallery-item-meta">Portrait</div></div></div>
+                </div>
+                <div class="gallery-item" data-category="documentary">
+                    <img src="images/placeholder-6.jpg" alt="Documentary photograph" loading="lazy">
+                    <div class="gallery-item-overlay"><div><div class="gallery-item-title">Placeholder</div><div class="gallery-item-meta">Documentary</div></div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <span class="footer-copy">&copy; 2026 Kol Tregaskes</span>
+            <div class="footer-links">
+                <a href="https://x.com/koltregaskespho" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+                <a href="https://500px.com/p/koltregaskes" target="_blank" rel="noopener noreferrer">500px</a>
+                <a href="https://www.flickr.com/photos/koltregaskes" target="_blank" rel="noopener noreferrer">Flickr</a>
+            </div>
+        </div>
+    </footer>
+
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" aria-label="Close">&times;</button>
+        <img src="" alt="" id="lightbox-img">
+    </div>
+
+    <style>
+        .filter-btn {
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            transition: all 0.2s;
+        }
+        .filter-btn:hover { border-color: var(--border-hover); color: var(--text-secondary); }
+        .filter-btn.active { border-color: var(--accent); color: var(--accent); }
+    </style>
+
+    <script>
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
+
+        const navToggle = document.getElementById('nav-toggle');
+        const nav = document.getElementById('nav');
+        navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
+
+        // Category filter
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const filter = btn.dataset.filter;
+                document.querySelectorAll('.gallery-item').forEach(item => {
+                    if (filter === 'all' || item.dataset.category === filter) {
+                        item.style.display = '';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Lightbox
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const img = item.querySelector('img');
+                if (img) { lightboxImg.src = img.src; lightboxImg.alt = img.alt; lightbox.classList.add('active'); }
+            });
+        });
+        lightbox?.addEventListener('click', e => { if (e.target !== lightboxImg) lightbox.classList.remove('active'); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') lightbox?.classList.remove('active'); });
+    </script>
+</body>
+</html>

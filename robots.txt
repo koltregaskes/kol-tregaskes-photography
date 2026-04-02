@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://koltregaskesphotography.com/sitemap.xml

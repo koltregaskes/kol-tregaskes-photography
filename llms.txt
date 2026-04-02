@@ -1,0 +1,20 @@
+# Kol Tregaskes Photography
+
+> Photography portfolio by Kol Tregaskes. Landscape, urban, architecture, and documentary photography from the UK and beyond.
+
+## Pages
+
+- [Homepage](/): Featured work and introduction
+- [Gallery](/gallery.html): Full photography gallery with category filters
+- [About](/about.html): About Kol Tregaskes
+- [Contact](/contact.html): Get in touch for prints, licensing, and collaborations
+
+## About
+
+Kol Tregaskes is a UK-based photographer working across landscape, architecture, urban, and documentary photography. Previously published on 500px and Adobe Portfolio.
+
+## Contact
+
+- X/Twitter: https://x.com/koltregaskespho
+- 500px: https://500px.com/p/koltregaskes
+- Flickr: https://www.flickr.com/photos/koltregaskes

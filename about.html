@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About — Kol Tregaskes Photography</title>
+    <meta name="description" content="About Kol Tregaskes — photographer based in the UK, specialising in landscape, architecture, and documentary photography.">
+    <link rel="canonical" href="https://koltregaskesphotography.com/about.html">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="site-header scrolled" id="header">
+        <div class="header-inner">
+            <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
+            <nav class="main-nav" id="nav">
+                <a href="index.html">Home</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="about.html" class="active">About</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="about-section">
+        <div class="about-inner" style="text-align: center;">
+            <!-- Portrait placeholder -->
+            <img class="about-portrait" src="images/portrait.jpg" alt="Kol Tregaskes" style="background: var(--bg-card);">
+
+            <div class="about-text" style="margin: 0 auto;">
+                <h1 style="text-align: center;">Kol Tregaskes</h1>
+
+                <p style="text-align: center; margin: 0 auto 1rem;">
+                    <span class="highlight">Photographer based in the United Kingdom.</span>
+                    Working across landscape, architecture, urban, and documentary photography.
+                </p>
+
+                <p style="text-align: center; margin: 0 auto 1rem;">
+                    My work tends toward the quiet and observational — finding composition in everyday structures,
+                    light in ordinary places, and the visual rhythms that most people walk past without noticing.
+                </p>
+
+                <p style="text-align: center; margin: 0 auto 1rem;">
+                    I shoot primarily with natural light and favour clean, considered compositions.
+                    I'm drawn to geometry in architecture, atmosphere in landscape, and honesty in documentary work.
+                </p>
+
+                <p style="text-align: center; margin: 0 auto 2rem;">
+                    Previously published on 500px and Adobe Portfolio. This site is the permanent home for my work.
+                </p>
+
+                <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                    <a href="gallery.html" class="hero-cta" style="color: var(--text); border-color: var(--border);">View the gallery</a>
+                    <a href="contact.html" class="hero-cta" style="color: var(--text); border-color: var(--border);">Get in touch</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <span class="footer-copy">&copy; 2026 Kol Tregaskes</span>
+            <div class="footer-links">
+                <a href="https://x.com/koltregaskespho" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+                <a href="https://500px.com/p/koltregaskes" target="_blank" rel="noopener noreferrer">500px</a>
+                <a href="https://www.flickr.com/photos/koltregaskes" target="_blank" rel="noopener noreferrer">Flickr</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
+        const navToggle = document.getElementById('nav-toggle');
+        const nav = document.getElementById('nav');
+        navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
+    </script>
+</body>
+</html>
