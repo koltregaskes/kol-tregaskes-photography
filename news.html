@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photography News — Kol Tregaskes Photography</title>
+    <meta name="description" content="Photography news, camera releases, editing tools, and industry updates curated by Kol Tregaskes.">
+    <link rel="canonical" href="https://koltregaskesphotography.com/news.html">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="site-header scrolled" id="header">
+        <div class="header-inner">
+            <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
+            <nav class="main-nav" id="nav">
+                <a href="index.html">Home</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="news.html" class="active">News</a>
+                <a href="blog.html">Blog</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <h1>Photography News</h1>
+        <p>Camera releases, editing tools, technique, and industry updates from across the photography world.</p>
+    </section>
+
+    <section class="gallery-section" style="padding-top: 0;">
+        <div class="gallery-section-inner" style="max-width: 800px;">
+
+            <div class="news-feed" id="news-feed">
+                <!-- News items will be populated from the shared pipeline -->
+                <div class="news-empty">
+                    <p>The photography news feed is being set up. Stories from PetaPixel, DPReview, Fstoppers, and other photography sources will appear here automatically.</p>
+                    <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">Powered by the same news pipeline that feeds the wider website estate.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <span class="footer-copy">&copy; 2026 Kol Tregaskes</span>
+            <div class="footer-links">
+                <a href="https://x.com/koltregaskespho" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+                <a href="https://500px.com/p/koltregaskes" target="_blank" rel="noopener noreferrer">500px</a>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        .news-feed { display: flex; flex-direction: column; gap: 1px; }
+        .news-item {
+            display: block;
+            padding: 1.5rem 0;
+            border-bottom: 1px solid var(--border);
+            transition: opacity 0.2s;
+        }
+        .news-item:hover { opacity: 0.8; }
+        .news-item-source {
+            font-size: 0.7rem;
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+        .news-item-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 400;
+            color: var(--text);
+            margin-top: 0.3rem;
+            line-height: 1.35;
+        }
+        .news-item-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.4rem;
+        }
+        .news-item-summary {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            line-height: 1.7;
+        }
+        .news-empty {
+            text-align: center;
+            padding: 60px 20px;
+            border: 1px dashed var(--border);
+            border-radius: 4px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+    </style>
+
+    <script>
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
+        const navToggle = document.getElementById('nav-toggle');
+        const nav = document.getElementById('nav');
+        navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
+    </script>
+</body>
+</html>

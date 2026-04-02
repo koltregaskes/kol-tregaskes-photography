@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog — Kol Tregaskes Photography</title>
+    <meta name="description" content="Behind the lens — thoughts on photography, editing workflow, gear, and creative process by Kol Tregaskes.">
+    <link rel="canonical" href="https://koltregaskesphotography.com/blog.html">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="site-header scrolled" id="header">
+        <div class="header-inner">
+            <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
+            <nav class="main-nav" id="nav">
+                <a href="index.html">Home</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="news.html">News</a>
+                <a href="blog.html" class="active">Blog</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <h1>Blog</h1>
+        <p>Behind the lens — process, places, editing notes, and the occasional gear thought.</p>
+    </section>
+
+    <section class="gallery-section" style="padding-top: 0;">
+        <div class="gallery-section-inner" style="max-width: 800px;">
+
+            <div class="blog-feed">
+                <div class="news-empty">
+                    <p>Blog posts are coming soon. Expect write-ups on locations, editing workflow, gear reviews, and the thinking behind specific photographs.</p>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <span class="footer-copy">&copy; 2026 Kol Tregaskes</span>
+            <div class="footer-links">
+                <a href="https://x.com/koltregaskespho" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+                <a href="https://500px.com/p/koltregaskes" target="_blank" rel="noopener noreferrer">500px</a>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        .blog-post {
+            display: block;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .blog-post-date {
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+        .blog-post-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: var(--text);
+            margin-top: 0.3rem;
+        }
+        .blog-post-excerpt {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+            line-height: 1.7;
+        }
+        .blog-post-image {
+            width: 100%;
+            aspect-ratio: 16/7;
+            object-fit: cover;
+            margin-top: 1rem;
+            border-radius: 2px;
+        }
+    </style>
+
+    <script>
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
+        const navToggle = document.getElementById('nav-toggle');
+        const nav = document.getElementById('nav');
+        navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
+    </script>
+</body>
+</html>
