@@ -3,13 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photography News — Kol Tregaskes Photography</title>
+    <title>Photography News - Kol Tregaskes Photography</title>
     <meta name="description" content="Photography news, camera releases, editing tools, and industry updates curated by Kol Tregaskes.">
     <link rel="canonical" href="https://koltregaskesphotography.com/news.html">
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .news-page-shell { max-width: var(--content-max); margin: 0 auto; padding: 0 var(--pad-x); }
+        .news-kicker { display: inline-flex; align-items: center; gap: 0.55rem; font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); }
+        .news-kicker::before { content: ""; width: 30px; height: 1px; background: currentColor; opacity: 0.7; }
+        .news-page-hero { padding-bottom: 44px; }
+        .news-page-hero p { max-width: 64ch; }
+        .news-hero-layout { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.95fr); gap: 1.5rem; margin-top: 2.5rem; text-align: left; }
+        .news-hero-panel, .news-status-panel { border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+        .news-hero-panel { padding: 2rem; }
+        .news-hero-panel h2, .news-status-panel h2 { font-family: var(--font-display); font-size: clamp(1.7rem, 3.5vw, 2.6rem); font-weight: 300; line-height: 1.05; }
+        .news-hero-panel p, .news-status-panel p { color: var(--text-secondary); font-size: 0.92rem; line-height: 1.75; margin-top: 1rem; }
+        .news-status-panel { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.25rem; }
+        .news-status-note { padding: 0.9rem 1rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.025); color: var(--text-secondary); font-size: 0.85rem; line-height: 1.65; }
+        .news-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.75rem; }
+        .news-metric { padding: 0.95rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.025); }
+        .news-metric span { display: block; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.45rem; }
+        .news-metric strong { display: block; font-family: var(--font-display); font-size: 1.6rem; font-weight: 400; color: var(--text); }
+        .news-dashboard { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 2rem; padding: 0 0 90px; }
+        .news-sidebar { position: sticky; top: 104px; align-self: start; padding: 1.35rem; border: 1px solid var(--border); background: var(--bg-elevated); }
+        .news-sidebar-section + .news-sidebar-section { margin-top: 1.4rem; padding-top: 1.4rem; border-top: 1px solid var(--border); }
+        .news-sidebar h3 { font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.8rem; }
+        .news-sidebar p { color: var(--text-secondary); font-size: 0.82rem; line-height: 1.65; }
+        .news-search { width: 100%; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.025); color: var(--text); padding: 0.9rem 1rem; font: inherit; }
+        .news-search::placeholder { color: var(--text-muted); }
+        .news-chip-grid { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+        .news-chip { border: 1px solid var(--border); color: var(--text-secondary); padding: 0.55rem 0.75rem; font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; transition: border-color 0.2s, color 0.2s, background 0.2s; }
+        .news-chip:hover, .news-chip.active { border-color: rgba(196, 168, 130, 0.45); color: var(--text); background: rgba(196, 168, 130, 0.08); }
+        .news-source-list { display: grid; gap: 0.6rem; }
+        .news-source-toggle { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem 0.85rem; border: 1px solid var(--border); background: rgba(255, 255, 255, 0.02); }
+        .news-source-toggle label { display: flex; align-items: center; gap: 0.65rem; width: 100%; cursor: pointer; font-size: 0.84rem; color: var(--text-secondary); }
+        .news-source-toggle input { accent-color: var(--accent); }
+        .news-source-count { font-size: 0.72rem; color: var(--text-muted); }
+        .news-clear { width: 100%; margin-top: 1.5rem; padding: 0.9rem 1rem; border: 1px solid var(--border); color: var(--text); letter-spacing: 0.12em; text-transform: uppercase; font-size: 0.72rem; }
+        .news-main { min-width: 0; }
+        .news-summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.25rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); font-size: 0.82rem; }
+        .news-loading, .news-empty { padding: 3rem 1.5rem; border: 1px dashed var(--border); color: var(--text-secondary); text-align: center; line-height: 1.75; }
+        .news-loading strong, .news-empty strong { display: block; font-family: var(--font-display); font-size: 1.35rem; font-weight: 400; color: var(--text); margin-bottom: 0.55rem; }
+        .news-group + .news-group { margin-top: 3rem; }
+        .news-group-header { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding-bottom: 0.8rem; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); }
+        .news-group-header h2 { font-family: var(--font-display); font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 300; }
+        .news-group-header span { color: var(--text-muted); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; }
+        .news-article-grid { display: grid; gap: 1rem; }
+        .news-card { padding: 1.35rem; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.015)); transition: border-color 0.2s, transform 0.2s; }
+        .news-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+        .news-card-topline { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.7rem; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+        .news-card-topline strong { color: var(--accent); font-weight: 500; }
+        .news-card h3 { font-family: var(--font-display); font-size: clamp(1.35rem, 2.4vw, 1.75rem); font-weight: 400; line-height: 1.18; }
+        .news-card h3 a { transition: color 0.2s; }
+        .news-card h3 a:hover { color: var(--accent); }
+        .news-card p { margin-top: 0.85rem; color: var(--text-secondary); font-size: 0.92rem; line-height: 1.75; }
+        .news-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+        .news-tag-list { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .news-tag { padding: 0.35rem 0.6rem; border: 1px solid var(--border); color: var(--text-secondary); font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; }
+        .news-read-link { color: var(--accent); font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; }
+
+        @media (max-width: 980px) {
+            .news-hero-layout, .news-dashboard { grid-template-columns: 1fr; }
+            .news-sidebar { position: static; }
+        }
+
+        @media (max-width: 640px) {
+            .news-metrics { grid-template-columns: 1fr; }
+            .news-summary, .news-group-header, .news-card-footer { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
 </head>
 <body>
-
     <header class="site-header scrolled" id="header">
         <div class="header-inner">
             <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
@@ -23,30 +87,99 @@
             </nav>
             <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+                    <line x1="4" y1="7" x2="20" y2="7"></line>
+                    <line x1="4" y1="12" x2="20" y2="12"></line>
+                    <line x1="4" y1="17" x2="20" y2="17"></line>
                 </svg>
             </button>
         </div>
     </header>
 
-    <section class="page-hero">
-        <h1>Photography News</h1>
-        <p>Camera releases, editing tools, technique, and industry updates from across the photography world.</p>
-    </section>
+    <section class="page-hero news-page-hero">
+        <div class="news-page-shell">
+            <span class="news-kicker">Shared News Pipeline</span>
+            <h1>Photography News</h1>
+            <p>Camera releases, editing tools, technique, AI photo workflow updates, and industry stories worth paying attention to.</p>
 
-    <section class="gallery-section" style="padding-top: 0;">
-        <div class="gallery-section-inner" style="max-width: 800px;">
-
-            <div class="news-feed" id="news-feed">
-                <!-- News items will be populated from the shared pipeline -->
-                <div class="news-empty">
-                    <p>The photography news feed is being set up. Stories from PetaPixel, DPReview, Fstoppers, and other photography sources will appear here automatically.</p>
-                    <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted);">Powered by the same news pipeline that feeds the wider website estate.</p>
+            <div class="news-hero-layout">
+                <div class="news-hero-panel">
+                    <h2>A working feed, filtered for photographers.</h2>
+                    <p>This page is now tied into the same estate newspipe as the other sites, but with a photography-specific filter on top. The goal is simple: fewer generic tech stories, more signal for cameras, post-processing, visual craft, and the business of image-making.</p>
+                    <p>New digests land here as the pipeline updates, and the page reads directly from those local outputs instead of sitting on placeholder copy.</p>
                 </div>
-            </div>
 
+                <aside class="news-status-panel" aria-label="Feed status">
+                    <div>
+                        <span class="news-kicker">Feed Status</span>
+                        <h2>Live from the local digests.</h2>
+                        <p>The frontend reads the generated markdown files directly, so the live site follows the same photography-filtered output the local estate creates each day.</p>
+                    </div>
+
+                    <div class="news-metrics">
+                        <div class="news-metric">
+                            <span>Stories</span>
+                            <strong id="news-story-count">0</strong>
+                        </div>
+                        <div class="news-metric">
+                            <span>Sources</span>
+                            <strong id="news-source-count">0</strong>
+                        </div>
+                        <div class="news-metric">
+                            <span>Latest</span>
+                            <strong id="news-latest-date">-</strong>
+                        </div>
+                    </div>
+
+                    <div class="news-status-note">
+                        Source of truth: the shared newspipe output in <code>news-digests/</code>. If the pipeline runs, this page updates with it.
+                    </div>
+                </aside>
+            </div>
         </div>
     </section>
+
+    <main class="news-page-shell">
+        <div class="news-dashboard">
+            <aside class="news-sidebar">
+                <div class="news-sidebar-section">
+                    <h3>Search</h3>
+                    <input id="news-search" class="news-search" type="search" placeholder="Search titles, sources, or summaries">
+                </div>
+
+                <div class="news-sidebar-section">
+                    <h3>Topics</h3>
+                    <p>These chips reflect the photography filter coming out of the shared pipeline.</p>
+                    <div id="news-topic-filters" class="news-chip-grid" aria-label="Topic filters"></div>
+                </div>
+
+                <div class="news-sidebar-section">
+                    <h3>Sources</h3>
+                    <div id="news-source-filters" class="news-source-list" aria-label="Source filters"></div>
+                </div>
+
+                <button id="news-clear" class="news-clear" type="button">Reset filters</button>
+            </aside>
+
+            <section class="news-main" aria-live="polite">
+                <div id="news-summary" class="news-summary" hidden>
+                    <span id="news-summary-text"></span>
+                    <span id="news-summary-note">Photography filter active</span>
+                </div>
+
+                <div id="news-loading" class="news-loading">
+                    <strong>Loading the latest photography digest.</strong>
+                    <span>Reading the shared pipeline output and building the feed.</span>
+                </div>
+
+                <div id="news-empty" class="news-empty" hidden>
+                    <strong>No stories match the current filters.</strong>
+                    <span>Try widening the source selection or clearing the search term.</span>
+                </div>
+
+                <div id="news-groups"></div>
+            </section>
+        </div>
+    </main>
 
     <footer class="site-footer">
         <div class="footer-inner">
@@ -58,52 +191,6 @@
         </div>
     </footer>
 
-    <style>
-        .news-feed { display: flex; flex-direction: column; gap: 1px; }
-        .news-item {
-            display: block;
-            padding: 1.5rem 0;
-            border-bottom: 1px solid var(--border);
-            transition: opacity 0.2s;
-        }
-        .news-item:hover { opacity: 0.8; }
-        .news-item-source {
-            font-size: 0.7rem;
-            font-weight: 400;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--accent);
-        }
-        .news-item-title {
-            font-family: var(--font-display);
-            font-size: 1.3rem;
-            font-weight: 400;
-            color: var(--text);
-            margin-top: 0.3rem;
-            line-height: 1.35;
-        }
-        .news-item-meta {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            margin-top: 0.4rem;
-        }
-        .news-item-summary {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-            line-height: 1.7;
-        }
-        .news-empty {
-            text-align: center;
-            padding: 60px 20px;
-            border: 1px dashed var(--border);
-            border-radius: 4px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            line-height: 1.7;
-        }
-    </style>
-
     <script>
         const header = document.getElementById('header');
         window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
@@ -111,6 +198,7 @@
         const nav = document.getElementById('nav');
         navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
     </script>
-<script src="cross-site-nav.js" defer></script>
+    <script src="news-app.js" defer></script>
+    <script src="cross-site-nav.js" defer></script>
 </body>
 </html>
