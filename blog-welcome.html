@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Kol Tregaskes Photography</title>
+    <meta name="description" content="A short introduction to Kol Tregaskes Photography and what will be published across the gallery, blog, and news sections.">
+    <link rel="canonical" href="https://koltregaskesphotography.com/blog-welcome.html">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <header class="site-header scrolled" id="header">
+        <div class="header-inner">
+            <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
+            <nav class="main-nav" id="nav">
+                <a href="index.html">Home</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="news.html">News</a>
+                <a href="blog.html" class="active">Blog</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+            </nav>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
+                </svg>
+            </button>
+        </div>
+    </header>
+
+    <section class="page-hero">
+        <h1>Welcome</h1>
+        <p>An introduction to the site and the work that will live here.</p>
+    </section>
+
+    <section class="gallery-section" style="padding-top: 0;">
+        <div class="gallery-section-inner" style="max-width: 760px;">
+            <article class="journal-entry">
+                <p class="section-label" style="margin-bottom: 1rem;">April 3, 2026</p>
+                <h2 class="section-title" style="margin-bottom: 1.5rem;">Welcome to Kol Tregaskes Photography</h2>
+
+                <p style="margin-bottom: 1rem;">
+                    This site is being built as the long-term home for my photography work. The goal is simple:
+                    one place for the images themselves, one place for short written pieces about the process behind them,
+                    and one place for the wider photography world that I want to keep an eye on.
+                </p>
+
+                <p style="margin-bottom: 1rem;">
+                    The gallery will hold the core portfolio work across landscape, architecture, urban scenes,
+                    documentary images, and quieter observational photographs. Over time that section will become more
+                    curated and more complete as the final image selection is added.
+                </p>
+
+                <p style="margin-bottom: 1rem;">
+                    The blog is for notes from behind the lens: places, workflow, editing decisions, publishing thoughts,
+                    and the occasional piece about gear when it is genuinely useful. The idea is not to flood the site
+                    with filler, but to add context where it helps the photographs land better.
+                </p>
+
+                <p style="margin-bottom: 1rem;">
+                    The news page is there to gather relevant photography updates in one place - camera releases,
+                    editing tools, industry shifts, and useful developments worth watching.
+                </p>
+
+                <p>
+                    For now, this is the starting point. The framework is in place. The next step is filling it with the
+                    final image set and shaping it into the clean, focused portfolio it is meant to become.
+                </p>
+            </article>
+        </div>
+    </section>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <span class="footer-copy">&copy; 2026 Kol Tregaskes</span>
+            <div class="footer-links">
+                <a href="https://x.com/koltregaskespho" target="_blank" rel="noopener noreferrer">X / Twitter</a>
+                <a href="https://500px.com/p/koltregaskes" target="_blank" rel="noopener noreferrer">500px</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
+        const navToggle = document.getElementById('nav-toggle');
+        const nav = document.getElementById('nav');
+        navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
+    </script>
+    <script src="cross-site-nav.js" defer></script>
+</body>
+</html>

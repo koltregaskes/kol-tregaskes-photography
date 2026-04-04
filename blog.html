@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog — Kol Tregaskes Photography</title>
-    <meta name="description" content="Behind the lens — thoughts on photography, editing workflow, gear, and creative process by Kol Tregaskes.">
+    <title>Blog - Kol Tregaskes Photography</title>
+    <meta name="description" content="Behind the lens - thoughts on photography, editing workflow, gear, and creative process by Kol Tregaskes.">
     <link rel="canonical" href="https://koltregaskesphotography.com/blog.html">
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -31,18 +31,20 @@
 
     <section class="page-hero">
         <h1>Blog</h1>
-        <p>Behind the lens — process, places, editing notes, and the occasional gear thought.</p>
+        <p>Behind the lens - process, places, editing notes, and the occasional gear thought.</p>
     </section>
 
     <section class="gallery-section" style="padding-top: 0;">
         <div class="gallery-section-inner" style="max-width: 800px;">
-
             <div class="blog-feed">
-                <div class="news-empty">
-                    <p>Blog posts are coming soon. Expect write-ups on locations, editing workflow, gear reviews, and the thinking behind specific photographs.</p>
-                </div>
+                <a class="blog-post" href="blog-welcome.html">
+                    <div class="blog-post-date">April 3, 2026</div>
+                    <div class="blog-post-title">Welcome to Kol Tregaskes Photography</div>
+                    <div class="blog-post-excerpt">
+                        A short introduction to the site, the kinds of photographs that will live here, and what to expect from the gallery, blog, and news sections.
+                    </div>
+                </a>
             </div>
-
         </div>
     </section>
 
@@ -61,6 +63,9 @@
             display: block;
             padding: 2rem 0;
             border-bottom: 1px solid var(--border);
+        }
+        .blog-post:hover {
+            opacity: 0.85;
         }
         .blog-post-date {
             font-size: 0.7rem;
@@ -81,13 +86,6 @@
             margin-top: 0.5rem;
             line-height: 1.7;
         }
-        .blog-post-image {
-            width: 100%;
-            aspect-ratio: 16/7;
-            object-fit: cover;
-            margin-top: 1rem;
-            border-radius: 2px;
-        }
     </style>
 
     <script>
@@ -97,6 +95,6 @@
         const nav = document.getElementById('nav');
         navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
     </script>
-<script src="cross-site-nav.js" defer></script>
+    <script src="cross-site-nav.js" defer></script>
 </body>
 </html>
