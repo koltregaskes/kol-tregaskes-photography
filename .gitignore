@@ -1,0 +1,38 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.code-workspace
+
+# Environment and local tooling
+.env
+.env.*
+node_modules/
+dist/
+build/
+.astro/
+logs/
+__pycache__/
+*.log
+
+# Local agent / planning files
+.claude/
+.codex/
+.cursor/
+.agents/
+.antigravity/
+AGENTS.md
+CLAUDE.md
+CODEX-HANDOFF.md
+HANDOFF*.md
+*HANDOFF*.md
+ACTION-PLAN.md
+DESIGN-PLAN.md
+SESSION-*.md
+TODO.md
+docs/DEEP-THINK-*.md
+docs/DT*-prompt*.md
+docs/DT*-response*.md
+docs/prompt-*.md
+docs/HANDOFF-*.md
