@@ -151,11 +151,17 @@ class PhotographyNewsApp {
         const linkMatch = section.match(/^##\s+\[([\s\S]+?)\]\((https?:\/\/[^\s)]+)\)/m);
         if (!linkMatch) return null;
 
-        const title = this.normalizeText(this.decodeEntities(linkMatch[1]));
+        const rawTitle = this.decodeEntities(linkMatch[1]);
+        const title = this.normalizeText(
+            rawTitle
+                .split('\n')
+                .map((line) => line.trim())
+                .find(Boolean) || rawTitle
+        );
         const url = linkMatch[2];
-        const sourceMatch = section.match(/\*([^*]+)\*\s+\|\s+Score:\s+([0-9.]+)/m);
+        const sourceMatch = section.match(/\*([^*]+)\*\s+\|\s+(?:(\d{2}\/\d{2}\/\d{4})\s+\|\s+)?Score:\s+([0-9.]+)/m);
         const source = sourceMatch ? this.normalizeText(this.decodeEntities(sourceMatch[1])) : this.extractSource(url);
-        const score = sourceMatch ? Number.parseFloat(sourceMatch[2]) : null;
+        const score = sourceMatch ? Number.parseFloat(sourceMatch[3]) : null;
         const tagsMatch = section.match(/^Tags:\s*(.+)$/m);
         const tags = tagsMatch
             ? tagsMatch[1].split(',').map((tag) => tag.trim()).filter(Boolean)
@@ -194,9 +200,11 @@ class PhotographyNewsApp {
             .split('\n')
             .map((line) => this.normalizeText(this.decodeEntities(line)))
             .filter(Boolean)
+            .filter((line) => !line.startsWith('>'))
+            .filter((line) => !/^undefined$/i.test(line))
             .filter((line) => !/^by$/i.test(line))
             .filter((line) => !/^published\b/i.test(line))
-            .filter((line) => !/^(opinion|review|lens|nasa|artemis|gear|guide)$/i.test(line))
+            .filter((line) => !/^(opinion|review|news|announcement|lens|nasa|artemis|gear|guide)$/i.test(line))
             .filter((line) => !/^[A-Z0-9\s/&-]{3,}$/.test(line));
 
         if (lines.length === 0) return '';
@@ -376,7 +384,7 @@ class PhotographyNewsApp {
                 title.textContent = group.label;
 
                 const meta = document.createElement('span');
-                meta.textContent = `${group.articles.length} story${group.articles.length === 1 ? '' : 'ies'}`;
+                meta.textContent = `${group.articles.length} ${group.articles.length === 1 ? 'story' : 'stories'}`;
 
                 header.append(title, meta);
                 section.appendChild(header);
