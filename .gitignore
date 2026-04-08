@@ -15,6 +15,7 @@ build/
 logs/
 __pycache__/
 *.log
+.playwright-cli/
 
 # Local agent / planning files
 .claude/

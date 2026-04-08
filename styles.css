@@ -55,6 +55,7 @@ html {
 }
 
 body { min-height: 100vh; }
+body.nav-open { overflow: hidden; }
 
 a { color: inherit; text-decoration: none; }
 img { display: block; max-width: 100%; height: auto; }
@@ -257,6 +258,18 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   transform: scale(1.03);
 }
 
+.gallery-item.is-placeholder {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+    linear-gradient(135deg, rgba(196, 168, 130, 0.12), rgba(20, 19, 18, 0.95));
+}
+
+.gallery-item.is-placeholder img,
+.gallery-item img.is-missing {
+  opacity: 0;
+  transform: none;
+}
+
 .gallery-item-overlay {
   position: absolute;
   inset: 0;
@@ -270,6 +283,11 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 
 .gallery-item:hover .gallery-item-overlay { opacity: 1; }
 
+.gallery-item.is-placeholder .gallery-item-overlay {
+  opacity: 1;
+  background: linear-gradient(to top, rgba(12, 11, 10, 0.82) 0%, rgba(12, 11, 10, 0.2) 100%);
+}
+
 .gallery-item-title {
   font-family: var(--font-display);
   font-size: 1rem;
@@ -282,6 +300,14 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   color: rgba(255,255,255,0.6);
   margin-top: 0.25rem;
   letter-spacing: 0.05em;
+}
+
+.gallery-item.is-placeholder .gallery-item-title {
+  color: var(--text);
+}
+
+.gallery-item.is-placeholder .gallery-item-meta {
+  color: var(--text-secondary);
 }
 
 /* Masonry variant */
@@ -330,6 +356,39 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   border-radius: 50%;
   object-fit: cover;
   margin: 0 auto;
+}
+
+.about-portrait-wrap {
+  display: grid;
+  place-items: center;
+  width: 200px;
+  margin: 0 auto;
+}
+
+.about-portrait,
+.about-portrait-fallback {
+  grid-area: 1 / 1;
+}
+
+.about-portrait.is-missing {
+  visibility: hidden;
+}
+
+.about-portrait-fallback {
+  width: 200px;
+  height: 200px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(circle at 30% 30%, rgba(196, 168, 130, 0.2), rgba(20, 19, 18, 0.98) 68%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+  color: var(--accent);
+  font-family: var(--font-display);
+  font-size: 2.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .about-text h1 {

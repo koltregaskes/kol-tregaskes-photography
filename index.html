@@ -5,10 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kol Tregaskes — Photography</title>
     <meta name="description" content="Photography portfolio by Kol Tregaskes. Landscape, urban, architecture, and documentary photography from the UK and beyond.">
+    <meta name="theme-color" content="#0c0b0a">
+    <meta name="twitter:site" content="@koltregaskespho">
+    <meta property="og:site_name" content="Kol Tregaskes Photography">
     <meta property="og:title" content="Kol Tregaskes — Photography">
     <meta property="og:description" content="Landscape, urban, and documentary photography">
     <meta property="og:type" content="website">
-    <link rel="canonical" href="https://koltregaskesphotography.com">
+    <meta property="og:url" content="https://koltregaskesphotography.com/">
+    <meta property="og:image" content="https://koltregaskesphotography.com/social-preview.png">
+    <meta property="og:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Kol Tregaskes — Photography">
+    <meta name="twitter:description" content="Landscape, urban, and documentary photography">
+    <meta name="twitter:image" content="https://koltregaskesphotography.com/social-preview.png">
+    <meta name="twitter:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
+    <link rel="canonical" href="https://koltregaskesphotography.com/">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -154,46 +169,7 @@
         <img src="" alt="" id="lightbox-img">
     </div>
 
-    <script>
-        // Header scroll effect
-        const header = document.getElementById('header');
-        window.addEventListener('scroll', () => {
-            header.classList.toggle('scrolled', window.scrollY > 50);
-        });
-
-        // Mobile nav
-        const navToggle = document.getElementById('nav-toggle');
-        const nav = document.getElementById('nav');
-        navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
-
-        // Lightbox
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightbox-img');
-        document.querySelectorAll('.gallery-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const img = item.querySelector('img');
-                if (img) {
-                    lightboxImg.src = img.src;
-                    lightboxImg.alt = img.alt;
-                    lightbox.classList.add('active');
-                }
-            });
-        });
-        lightbox?.addEventListener('click', (e) => {
-            if (e.target !== lightboxImg) lightbox.classList.remove('active');
-        });
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') lightbox?.classList.remove('active');
-        });
-
-        // Fade-up on scroll
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) entry.target.classList.add('fade-up');
-            });
-        }, { threshold: 0.1 });
-        document.querySelectorAll('.gallery-item').forEach(el => observer.observe(el));
-    </script>
-<script src="cross-site-nav.js" defer></script>
+    <script src="site.js" defer></script>
+    <script src="cross-site-nav.js" defer></script>
 </body>
 </html>

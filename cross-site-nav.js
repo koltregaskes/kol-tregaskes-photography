@@ -23,7 +23,8 @@
     'koltregaskes.github.io/kol-tregaskes-photography': 'koltregaskesphotography.com',
   };
 
-  const currentKey = CURRENT + window.location.pathname.split('/')[1];
+  const firstPathSegment = window.location.pathname.split('/').filter(Boolean)[0] || '';
+  const currentKey = firstPathSegment ? `${CURRENT}/${firstPathSegment}` : CURRENT;
   const mappedDomain = GITHUB_MAP[currentKey] || CURRENT;
 
   const siblings = SITES.filter(s => {

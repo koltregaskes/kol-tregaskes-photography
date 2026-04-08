@@ -99,6 +99,7 @@ class PhotographyNewsApp {
 
     async loadDigestList() {
         const files = new Set();
+        let hasManifestEntries = false;
 
         try {
             const response = await fetch('news-digests/index.json', { cache: 'no-store' });
@@ -106,13 +107,17 @@ class PhotographyNewsApp {
                 const payload = await response.json();
                 if (Array.isArray(payload.files)) {
                     payload.files.forEach((file) => files.add(file));
+                    hasManifestEntries = payload.files.length > 0;
                 }
             }
         } catch {
-            // Manifest is optional. We always fall back to recent date scanning.
+            // Manifest is optional. We fall back only if it is unavailable.
         }
 
-        this.generateFallbackDigestList(21).forEach((file) => files.add(file));
+        if (!hasManifestEntries) {
+            this.generateFallbackDigestList(21).forEach((file) => files.add(file));
+        }
+
         return Array.from(files).sort().reverse();
     }
 
@@ -196,20 +201,39 @@ class PhotographyNewsApp {
     }
 
     buildSummary(rawBody) {
-        const lines = rawBody
+        const normalizedLines = rawBody
             .split('\n')
             .map((line) => this.normalizeText(this.decodeEntities(line)))
-            .filter(Boolean)
+            .filter(Boolean);
+
+        const cleanLine = (line) => line
+            .replace(/^>\s*/, '')
+            .trim();
+
+        const isSummaryNoise = (line) => {
+            const value = cleanLine(line);
+            return !value
+                || /^undefined$/i.test(value)
+                || /^by$/i.test(value)
+                || /^published\b/i.test(value)
+                || /^(opinion|review|news|announcement|lens|nasa|artemis|gear|guide)$/i.test(value)
+                || /^[A-Z0-9\s/&-]{3,}$/.test(value);
+        };
+
+        const proseLines = normalizedLines
             .filter((line) => !line.startsWith('>'))
-            .filter((line) => !/^undefined$/i.test(line))
-            .filter((line) => !/^by$/i.test(line))
-            .filter((line) => !/^published\b/i.test(line))
-            .filter((line) => !/^(opinion|review|news|announcement|lens|nasa|artemis|gear|guide)$/i.test(line))
-            .filter((line) => !/^[A-Z0-9\s/&-]{3,}$/.test(line));
+            .filter((line) => !isSummaryNoise(line))
+            .map(cleanLine);
 
-        if (lines.length === 0) return '';
+        const quoteLines = normalizedLines
+            .filter((line) => line.startsWith('>'))
+            .filter((line) => !isSummaryNoise(line))
+            .map(cleanLine);
 
-        const summary = lines.join(' ');
+        const chosenLines = proseLines.length > 0 ? proseLines : quoteLines;
+        if (chosenLines.length === 0) return '';
+
+        const summary = chosenLines.join(' ');
         return summary.length > 240 ? `${summary.slice(0, 237).trim()}...` : summary;
     }
 

@@ -5,7 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gallery — Kol Tregaskes Photography</title>
     <meta name="description" content="Full photography gallery by Kol Tregaskes. Browse landscapes, architecture, urban scenes, and more.">
+    <meta name="theme-color" content="#0c0b0a">
+    <meta name="twitter:site" content="@koltregaskespho">
+    <meta property="og:site_name" content="Kol Tregaskes Photography">
+    <meta property="og:title" content="Gallery — Kol Tregaskes Photography">
+    <meta property="og:description" content="Full photography gallery by Kol Tregaskes. Browse landscapes, architecture, urban scenes, and more.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://koltregaskesphotography.com/gallery.html">
+    <meta property="og:image" content="https://koltregaskesphotography.com/social-preview.png">
+    <meta property="og:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Gallery — Kol Tregaskes Photography">
+    <meta name="twitter:description" content="Full photography gallery by Kol Tregaskes. Browse landscapes, architecture, urban scenes, and more.">
+    <meta name="twitter:image" content="https://koltregaskesphotography.com/social-preview.png">
+    <meta name="twitter:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
     <link rel="canonical" href="https://koltregaskesphotography.com/gallery.html">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -49,8 +67,7 @@
     <section class="gallery-section" style="padding-top: 0;">
         <div class="gallery-section-inner">
             <div class="gallery-masonry" id="gallery">
-                <!-- Gallery items will be populated from data/gallery.json -->
-                <!-- Placeholder structure: -->
+                <!-- Replace these placeholders with the final curated image set. -->
                 <div class="gallery-item" data-category="landscape">
                     <img src="images/placeholder-1.jpg" alt="Landscape photograph" loading="lazy">
                     <div class="gallery-item-overlay"><div><div class="gallery-item-title">Placeholder</div><div class="gallery-item-meta">Landscape</div></div></div>
@@ -86,6 +103,7 @@
                 <a href="https://x.com/koltregaskespho" target="_blank" rel="noopener noreferrer">X / Twitter</a>
                 <a href="https://500px.com/p/koltregaskes" target="_blank" rel="noopener noreferrer">500px</a>
                 <a href="https://www.flickr.com/photos/koltregaskes" target="_blank" rel="noopener noreferrer">Flickr</a>
+                <a href="https://www.instagram.com/koltregaskes" target="_blank" rel="noopener noreferrer">Instagram</a>
             </div>
         </div>
     </footer>
@@ -109,42 +127,7 @@
         .filter-btn.active { border-color: var(--accent); color: var(--accent); }
     </style>
 
-    <script>
-        const header = document.getElementById('header');
-        window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
-
-        const navToggle = document.getElementById('nav-toggle');
-        const nav = document.getElementById('nav');
-        navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
-
-        // Category filter
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const filter = btn.dataset.filter;
-                document.querySelectorAll('.gallery-item').forEach(item => {
-                    if (filter === 'all' || item.dataset.category === filter) {
-                        item.style.display = '';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-            });
-        });
-
-        // Lightbox
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightbox-img');
-        document.querySelectorAll('.gallery-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const img = item.querySelector('img');
-                if (img) { lightboxImg.src = img.src; lightboxImg.alt = img.alt; lightbox.classList.add('active'); }
-            });
-        });
-        lightbox?.addEventListener('click', e => { if (e.target !== lightboxImg) lightbox.classList.remove('active'); });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') lightbox?.classList.remove('active'); });
-    </script>
-<script src="cross-site-nav.js" defer></script>
+    <script src="site.js" defer></script>
+    <script src="cross-site-nav.js" defer></script>
 </body>
 </html>

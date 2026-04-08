@@ -5,7 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Photography News - Kol Tregaskes Photography</title>
     <meta name="description" content="Photography news, camera releases, editing tools, and industry updates curated by Kol Tregaskes.">
+    <meta name="theme-color" content="#0c0b0a">
+    <meta name="twitter:site" content="@koltregaskespho">
+    <meta property="og:site_name" content="Kol Tregaskes Photography">
+    <meta property="og:title" content="Photography News - Kol Tregaskes Photography">
+    <meta property="og:description" content="Photography news, camera releases, editing tools, and industry updates curated by Kol Tregaskes.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://koltregaskesphotography.com/news.html">
+    <meta property="og:image" content="https://koltregaskesphotography.com/social-preview.png">
+    <meta property="og:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Photography News - Kol Tregaskes Photography">
+    <meta name="twitter:description" content="Photography news, camera releases, editing tools, and industry updates curated by Kol Tregaskes.">
+    <meta name="twitter:image" content="https://koltregaskesphotography.com/social-preview.png">
+    <meta name="twitter:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
     <link rel="canonical" href="https://koltregaskesphotography.com/news.html">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
     <link rel="stylesheet" href="styles.css">
     <style>
         .news-page-shell { max-width: var(--content-max); margin: 0 auto; padding: 0 var(--pad-x); }
@@ -187,17 +205,13 @@
             <div class="footer-links">
                 <a href="https://x.com/koltregaskespho" target="_blank" rel="noopener noreferrer">X / Twitter</a>
                 <a href="https://500px.com/p/koltregaskes" target="_blank" rel="noopener noreferrer">500px</a>
+                <a href="https://www.flickr.com/photos/koltregaskes" target="_blank" rel="noopener noreferrer">Flickr</a>
+                <a href="https://www.instagram.com/koltregaskes" target="_blank" rel="noopener noreferrer">Instagram</a>
             </div>
         </div>
     </footer>
 
-    <script>
-        const header = document.getElementById('header');
-        window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
-        const navToggle = document.getElementById('nav-toggle');
-        const nav = document.getElementById('nav');
-        navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
-    </script>
+    <script src="site.js" defer></script>
     <script src="news-app.js" defer></script>
     <script src="cross-site-nav.js" defer></script>
 </body>

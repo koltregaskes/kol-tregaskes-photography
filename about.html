@@ -5,7 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About — Kol Tregaskes Photography</title>
     <meta name="description" content="About Kol Tregaskes — photographer based in the UK, specialising in landscape, architecture, and documentary photography.">
+    <meta name="theme-color" content="#0c0b0a">
+    <meta name="twitter:site" content="@koltregaskespho">
+    <meta property="og:site_name" content="Kol Tregaskes Photography">
+    <meta property="og:title" content="About — Kol Tregaskes Photography">
+    <meta property="og:description" content="About Kol Tregaskes — photographer based in the UK, specialising in landscape, architecture, and documentary photography.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://koltregaskesphotography.com/about.html">
+    <meta property="og:image" content="https://koltregaskesphotography.com/social-preview.png">
+    <meta property="og:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="About — Kol Tregaskes Photography">
+    <meta name="twitter:description" content="About Kol Tregaskes — photographer based in the UK, specialising in landscape, architecture, and documentary photography.">
+    <meta name="twitter:image" content="https://koltregaskesphotography.com/social-preview.png">
+    <meta name="twitter:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
     <link rel="canonical" href="https://koltregaskesphotography.com/about.html">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -16,6 +34,8 @@
             <nav class="main-nav" id="nav">
                 <a href="index.html">Home</a>
                 <a href="gallery.html">Gallery</a>
+                <a href="news.html">News</a>
+                <a href="blog.html">Blog</a>
                 <a href="about.html" class="active">About</a>
                 <a href="contact.html">Contact</a>
             </nav>
@@ -29,8 +49,10 @@
 
     <section class="about-section">
         <div class="about-inner" style="text-align: center;">
-            <!-- Portrait placeholder -->
-            <img class="about-portrait" src="images/portrait.jpg" alt="Kol Tregaskes" style="background: var(--bg-card);">
+            <div class="about-portrait-wrap">
+                <img class="about-portrait" src="images/portrait.jpg" alt="Kol Tregaskes" style="background: var(--bg-card);">
+                <div class="about-portrait-fallback" data-portrait-fallback hidden aria-hidden="true">KT</div>
+            </div>
 
             <div class="about-text" style="margin: 0 auto;">
                 <h1 style="text-align: center;">Kol Tregaskes</h1>
@@ -69,17 +91,12 @@
                 <a href="https://x.com/koltregaskespho" target="_blank" rel="noopener noreferrer">X / Twitter</a>
                 <a href="https://500px.com/p/koltregaskes" target="_blank" rel="noopener noreferrer">500px</a>
                 <a href="https://www.flickr.com/photos/koltregaskes" target="_blank" rel="noopener noreferrer">Flickr</a>
+                <a href="https://www.instagram.com/koltregaskes" target="_blank" rel="noopener noreferrer">Instagram</a>
             </div>
         </div>
     </footer>
 
-    <script>
-        const header = document.getElementById('header');
-        window.addEventListener('scroll', () => header.classList.toggle('scrolled', window.scrollY > 50));
-        const navToggle = document.getElementById('nav-toggle');
-        const nav = document.getElementById('nav');
-        navToggle?.addEventListener('click', () => nav.classList.toggle('open'));
-    </script>
-<script src="cross-site-nav.js" defer></script>
+    <script src="site.js" defer></script>
+    <script src="cross-site-nav.js" defer></script>
 </body>
 </html>
