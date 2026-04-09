@@ -613,7 +613,7 @@ class PhotographyNewsApp {
 
         const topline = document.createElement('div');
         topline.className = 'news-card-topline';
-        topline.innerHTML = `<span><strong>${this.escapeHtml(article.source)}</strong></span><span>${this.escapeHtml(article.compactDateLabel)}</span>`;
+        topline.innerHTML = `<span>${this.escapeHtml(article.compactDateLabel)}</span>`;
 
         const heading = document.createElement('h3');
         const link = document.createElement('a');

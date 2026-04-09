@@ -996,11 +996,6 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   accent-color: var(--accent);
 }
 
-.news-source-count {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
 .news-clear {
   width: 100%;
   margin-top: 1.5rem;
