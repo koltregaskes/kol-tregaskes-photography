@@ -944,6 +944,15 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   color: var(--text-muted);
 }
 
+.news-select {
+  width: 100%;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--text);
+  padding: 0.9rem 1rem;
+  font: inherit;
+}
+
 .news-chip-grid {
   display: flex;
   flex-wrap: wrap;

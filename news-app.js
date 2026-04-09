@@ -51,6 +51,7 @@ class PhotographyNewsApp {
         this.quickRange = 'all';
         this.dateFrom = '';
         this.dateTo = '';
+        this.groupBy = 'date';
         this.viewMode = document.body.dataset.newsView || 'news';
         this.init();
     }
@@ -77,6 +78,7 @@ class PhotographyNewsApp {
         this.rangeFilters = document.getElementById('news-range-filters');
         this.dateFromInput = document.getElementById('news-date-from');
         this.dateToInput = document.getElementById('news-date-to');
+        this.groupBySelect = document.getElementById('news-group-by');
         this.storyCount = document.getElementById('news-story-count');
         this.digestCount = document.getElementById('news-digest-count');
         this.latestDate = document.getElementById('news-latest-date');
@@ -130,16 +132,23 @@ class PhotographyNewsApp {
             this.applyFilters();
         });
 
+        this.groupBySelect?.addEventListener('change', (event) => {
+            this.groupBy = event.target.value === 'topic' ? 'topic' : 'date';
+            this.renderArticles();
+        });
+
         this.clearButton?.addEventListener('click', () => {
             this.searchTerm = '';
             this.quickRange = 'all';
             this.dateFrom = '';
             this.dateTo = '';
+            this.groupBy = 'date';
             this.activeTopics.clear();
 
             if (this.searchInput) this.searchInput.value = '';
             if (this.dateFromInput) this.dateFromInput.value = '';
             if (this.dateToInput) this.dateToInput.value = '';
+            if (this.groupBySelect) this.groupBySelect.value = 'date';
 
             this.renderFilters();
             this.updateViewMetadata();
@@ -182,6 +191,9 @@ class PhotographyNewsApp {
         }
         if (this.dateToInput) {
             this.dateToInput.value = this.dateTo;
+        }
+        if (this.groupBySelect) {
+            this.groupBySelect.value = this.groupBy;
         }
 
         if (this.loading) {
@@ -573,13 +585,24 @@ class PhotographyNewsApp {
 
         const grouped = new Map();
         this.filteredArticles.forEach((article) => {
-            const existing = grouped.get(article.dateKey) || { label: article.dateLabel, articles: [] };
+            const key = this.groupBy === 'topic'
+                ? this.getPrimaryTopic(article)
+                : article.dateKey;
+            const label = this.groupBy === 'topic'
+                ? (TOPIC_LABELS[key] || 'Photography')
+                : article.dateLabel;
+            const existing = grouped.get(key) || { label, articles: [] };
             existing.articles.push(article);
-            grouped.set(article.dateKey, existing);
+            grouped.set(key, existing);
         });
 
         Array.from(grouped.entries())
-            .sort((left, right) => right[0].localeCompare(left[0]))
+            .sort((left, right) => {
+                if (this.groupBy === 'topic') {
+                    return Object.keys(TOPIC_LABELS).indexOf(left[0]) - Object.keys(TOPIC_LABELS).indexOf(right[0]);
+                }
+                return right[0].localeCompare(left[0]);
+            })
             .forEach(([, group]) => {
                 const section = document.createElement('section');
                 section.className = 'news-group';
@@ -605,6 +628,19 @@ class PhotographyNewsApp {
                 section.appendChild(grid);
                 this.groups.appendChild(section);
             });
+    }
+
+    getPrimaryTopic(article) {
+        const articleTags = Array.isArray(article.tags) ? article.tags : [];
+
+        if (this.activeTopics.size === 1) {
+            const selected = Array.from(this.activeTopics)[0];
+            if (articleTags.includes(selected)) {
+                return selected;
+            }
+        }
+
+        return Object.keys(TOPIC_LABELS).find((tag) => articleTags.includes(tag)) || 'photography';
     }
 
     createArticleCard(article) {
