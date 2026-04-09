@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, '..');
 const sitemapPath = path.join(repoRoot, 'sitemap.xml');
+const digestDir = path.join(repoRoot, 'news-digests');
 const baseUrl = 'https://koltregaskesphotography.com';
 const checkOnly = process.argv.includes('--check');
 
@@ -39,9 +40,23 @@ async function getLastModified(filePath) {
   return formatDate(stats.mtime);
 }
 
+async function getLatestDigestDate() {
+  const entries = await fs.readdir(digestDir, { withFileTypes: true });
+  const digestNames = entries
+    .filter((entry) => entry.isFile() && /^digest-\d{4}-\d{2}-\d{2}\.md$/.test(entry.name))
+    .map((entry) => entry.name)
+    .sort((left, right) => right.localeCompare(left));
+
+  return digestNames[0]?.slice('digest-'.length, 'digest-YYYY-MM-DD'.length) || null;
+}
+
 async function buildSitemap() {
+  const latestDigestDate = await getLatestDigestDate();
   const urlBlocks = await Promise.all(pages.map(async (page) => {
-    const lastmod = await getLastModified(path.join(repoRoot, page.file));
+    const defaultLastmod = await getLastModified(path.join(repoRoot, page.file));
+    const lastmod = page.file === 'news.html' && latestDigestDate
+      ? latestDigestDate
+      : defaultLastmod;
     return [
       '  <url>',
       `    <loc>${baseUrl}${page.loc}</loc>`,

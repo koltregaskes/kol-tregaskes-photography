@@ -10,6 +10,9 @@
     "manifest:check": "node scripts/update-news-manifest.mjs --check",
     "sitemap:update": "node scripts/generate-sitemap.mjs",
     "sitemap:check": "node scripts/generate-sitemap.mjs --check",
+    "refresh:news": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/refresh-site-news.ps1",
+    "refresh:news:scrape": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/refresh-site-news.ps1 -WithScrape",
+    "publish:digests": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/publish-digests.ps1",
     "validate": "node scripts/validate-site.mjs",
     "check": "npm run validate"
   }

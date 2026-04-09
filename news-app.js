@@ -515,7 +515,16 @@ class PhotographyNewsApp {
         let output = String(value || '');
         output = output
             .replace(/\u00a0/g, ' ')
-            .replace(/\u200b/g, '');
+            .replace(/\u200b/g, '')
+            .replace(/â€”/g, '—')
+            .replace(/â€“/g, '–')
+            .replace(/â€˜/g, '‘')
+            .replace(/â€™/g, '’')
+            .replace(/â€œ/g, '“')
+            .replace(/â€\x9d/g, '”')
+            .replace(/â€¦/g, '…')
+            .replace(/â†’/g, '→')
+            .replace(/ðŸ”¥/g, '🔥');
 
         return output.replace(/\s+/g, ' ').trim();
     }
