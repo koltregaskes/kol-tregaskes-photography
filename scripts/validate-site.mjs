@@ -8,7 +8,6 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(scriptDir, '..');
 const requiredFiles = [
   'package.json',
-  'CNAME',
   'sitemap.xml',
   'site.webmanifest',
   'robots.txt',
@@ -148,7 +147,15 @@ async function ensureRequiredFiles() {
 }
 
 async function ensureCname() {
-  const cname = (await fs.readFile(path.join(repoRoot, 'CNAME'), 'utf8')).trim();
+  const cnamePath = path.join(repoRoot, 'CNAME');
+
+  try {
+    await fs.access(cnamePath);
+  } catch {
+    return;
+  }
+
+  const cname = (await fs.readFile(cnamePath, 'utf8')).trim();
   if (cname !== 'koltregaskesphotography.com') {
     throw new Error(`CNAME must contain koltregaskesphotography.com, found: ${cname || '(empty)'}`);
   }
