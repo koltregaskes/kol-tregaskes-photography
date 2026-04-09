@@ -1,3 +1,7 @@
+﻿function getFocusableElements(container) {
+    return Array.from(container.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+}
+
 function initHeader() {
     const header = document.getElementById('header');
     if (!header) return;
@@ -15,26 +19,77 @@ function initNavigation() {
     const nav = document.getElementById('nav');
     if (!navToggle || !nav) return;
 
+    if (!nav.id) {
+        nav.id = 'nav';
+    }
+
+    let restoreTarget = null;
+
+    const handleNavKeydown = (event) => {
+        if (!nav.classList.contains('open')) return;
+
+        if (event.key === 'Escape') {
+            event.preventDefault();
+            closeNav();
+            return;
+        }
+
+        if (event.key !== 'Tab') return;
+
+        const focusable = getFocusableElements(nav);
+        if (focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    };
+
     const closeNav = () => {
         nav.classList.remove('open');
         navToggle.setAttribute('aria-expanded', 'false');
         document.body.classList.remove('nav-open');
+        document.removeEventListener('keydown', handleNavKeydown);
+        if (restoreTarget) {
+            restoreTarget.focus();
+        }
     };
 
+    const openNav = () => {
+        restoreTarget = document.activeElement instanceof HTMLElement ? document.activeElement : navToggle;
+        nav.classList.add('open');
+        navToggle.setAttribute('aria-expanded', 'true');
+        document.body.classList.add('nav-open');
+        document.addEventListener('keydown', handleNavKeydown);
+        const [firstLink] = getFocusableElements(nav);
+        if (firstLink) {
+            firstLink.focus();
+        }
+    };
+
+    navToggle.setAttribute('aria-controls', nav.id);
     navToggle.setAttribute('aria-expanded', 'false');
 
     navToggle.addEventListener('click', () => {
-        const isOpen = nav.classList.toggle('open');
-        navToggle.setAttribute('aria-expanded', String(isOpen));
-        document.body.classList.toggle('nav-open', isOpen);
+        if (nav.classList.contains('open')) {
+            closeNav();
+            return;
+        }
+        openNav();
     });
 
     nav.querySelectorAll('a').forEach((link) => {
         link.addEventListener('click', closeNav);
     });
 
-    document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && nav.classList.contains('open')) {
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768 && nav.classList.contains('open')) {
             closeNav();
         }
     });
@@ -71,32 +126,81 @@ function initImageFallbacks() {
 function initLightbox() {
     const lightbox = document.getElementById('lightbox');
     const lightboxImage = document.getElementById('lightbox-img');
-    if (!lightbox || !lightboxImage) return;
+    const closeButton = lightbox?.querySelector('.lightbox-close');
+    if (!lightbox || !lightboxImage || !closeButton) return;
 
-    const closeLightbox = () => lightbox.classList.remove('active');
+    let activeTrigger = null;
+
+    const closeLightbox = () => {
+        if (!lightbox.classList.contains('active')) return;
+        lightbox.classList.remove('active');
+        lightbox.setAttribute('aria-hidden', 'true');
+        lightboxImage.removeAttribute('src');
+        lightboxImage.alt = '';
+        if (activeTrigger) {
+            activeTrigger.focus();
+            activeTrigger = null;
+        }
+    };
+
+    const openLightbox = (item) => {
+        if (item.classList.contains('is-placeholder')) return;
+
+        const image = item.querySelector('img');
+        if (!image || image.naturalWidth === 0) return;
+
+        activeTrigger = item;
+        lightboxImage.src = image.currentSrc || image.src;
+        lightboxImage.alt = image.alt;
+        lightbox.classList.add('active');
+        lightbox.setAttribute('aria-hidden', 'false');
+        closeButton.focus();
+    };
 
     document.querySelectorAll('.gallery-item').forEach((item) => {
-        item.addEventListener('click', () => {
-            if (item.classList.contains('is-placeholder')) return;
+        const image = item.querySelector('img');
+        const label = image?.alt ? `Open ${image.alt} in lightbox` : 'Open image in lightbox';
+        item.setAttribute('aria-label', label);
 
-            const image = item.querySelector('img');
-            if (!image || image.naturalWidth === 0) return;
-
-            lightboxImage.src = image.currentSrc || image.src;
-            lightboxImage.alt = image.alt;
-            lightbox.classList.add('active');
+        item.addEventListener('click', () => openLightbox(item));
+        item.addEventListener('keydown', (event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            openLightbox(item);
         });
     });
 
+    closeButton.addEventListener('click', closeLightbox);
+
     lightbox.addEventListener('click', (event) => {
-        if (event.target !== lightboxImage) {
+        if (event.target === lightbox || event.target === lightboxImage.parentElement) {
             closeLightbox();
         }
     });
 
     document.addEventListener('keydown', (event) => {
+        if (!lightbox.classList.contains('active')) return;
+
         if (event.key === 'Escape') {
+            event.preventDefault();
             closeLightbox();
+            return;
+        }
+
+        if (event.key !== 'Tab') return;
+
+        const focusable = getFocusableElements(lightbox);
+        if (focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
         }
     });
 }
@@ -114,7 +218,8 @@ function initGalleryFilter() {
             const filter = button.dataset.filter;
             items.forEach((item) => {
                 const showItem = filter === 'all' || item.dataset.category === filter;
-                item.style.display = showItem ? '' : 'none';
+                item.hidden = !showItem;
+                item.setAttribute('aria-hidden', String(!showItem));
             });
         });
     });

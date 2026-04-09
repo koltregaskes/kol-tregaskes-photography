@@ -1,21 +1,23 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kol Tregaskes — Photography</title>
+    <title>Kol Tregaskes â€” Photography</title>
     <meta name="description" content="Photography portfolio by Kol Tregaskes. Landscape, urban, architecture, and documentary photography from the UK and beyond.">
     <meta name="theme-color" content="#0c0b0a">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self'; connect-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; upgrade-insecure-requests">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="twitter:site" content="@koltregaskespho">
     <meta property="og:site_name" content="Kol Tregaskes Photography">
-    <meta property="og:title" content="Kol Tregaskes — Photography">
+    <meta property="og:title" content="Kol Tregaskes â€” Photography">
     <meta property="og:description" content="Landscape, urban, and documentary photography">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://koltregaskesphotography.com/">
     <meta property="og:image" content="https://koltregaskesphotography.com/social-preview.png">
     <meta property="og:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Kol Tregaskes — Photography">
+    <meta name="twitter:title" content="Kol Tregaskes â€” Photography">
     <meta name="twitter:description" content="Landscape, urban, and documentary photography">
     <meta name="twitter:image" content="https://koltregaskesphotography.com/social-preview.png">
     <meta name="twitter:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
@@ -40,7 +42,7 @@
                 <a href="about.html">About</a>
                 <a href="contact.html">Contact</a>
             </nav>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+            <button class="nav-toggle" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <line x1="4" y1="7" x2="20" y2="7"/>
                     <line x1="4" y1="12" x2="20" y2="12"/>
@@ -50,9 +52,9 @@
         </div>
     </header>
 
-    <!-- Hero — full-bleed featured image -->
+    <!-- Hero â€” full-bleed featured image -->
     <section class="hero">
-        <div class="hero-image" id="hero-image" style="background-image: url('images/hero.jpg');">
+        <div class="hero-image hero-image--home" id="hero-image">
         </div>
         <div class="hero-content">
             <div class="hero-content-inner">
@@ -73,7 +75,7 @@
             <h2 class="section-title fade-up fade-up-d1">Recent favourites</h2>
 
             <div class="featured-row">
-                <div class="gallery-item">
+                <div class="gallery-item" role="button" tabindex="0" aria-haspopup="dialog">
                     <img src="images/placeholder-1.jpg" alt="Featured photograph" loading="lazy">
                     <div class="gallery-item-overlay">
                         <div>
@@ -82,7 +84,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="gallery-item">
+                <div class="gallery-item" role="button" tabindex="0" aria-haspopup="dialog">
                     <img src="images/placeholder-2.jpg" alt="Featured photograph" loading="lazy">
                     <div class="gallery-item-overlay">
                         <div>
@@ -91,7 +93,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="gallery-item">
+                <div class="gallery-item" role="button" tabindex="0" aria-haspopup="dialog">
                     <img src="images/placeholder-3.jpg" alt="Featured photograph" loading="lazy">
                     <div class="gallery-item-overlay">
                         <div>
@@ -100,7 +102,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="gallery-item">
+                <div class="gallery-item" role="button" tabindex="0" aria-haspopup="dialog">
                     <img src="images/placeholder-4.jpg" alt="Featured photograph" loading="lazy">
                     <div class="gallery-item-overlay">
                         <div>
@@ -112,7 +114,7 @@
             </div>
 
             <div class="gallery-grid">
-                <div class="gallery-item">
+                <div class="gallery-item" role="button" tabindex="0" aria-haspopup="dialog">
                     <img src="images/placeholder-5.jpg" alt="Photograph" loading="lazy">
                     <div class="gallery-item-overlay">
                         <div>
@@ -121,7 +123,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="gallery-item">
+                <div class="gallery-item" role="button" tabindex="0" aria-haspopup="dialog">
                     <img src="images/placeholder-6.jpg" alt="Photograph" loading="lazy">
                     <div class="gallery-item-overlay">
                         <div>
@@ -130,7 +132,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="gallery-item">
+                <div class="gallery-item" role="button" tabindex="0" aria-haspopup="dialog">
                     <img src="images/placeholder-7.jpg" alt="Photograph" loading="lazy">
                     <div class="gallery-item-overlay">
                         <div>
@@ -141,8 +143,8 @@
                 </div>
             </div>
 
-            <div style="text-align: center; margin-top: 3rem;">
-                <a href="gallery.html" class="hero-cta" style="color: var(--text); border-color: var(--border);">
+            <div class="gallery-cta-row">
+                <a href="gallery.html" class="hero-cta hero-cta-muted">
                     View all photographs
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 </a>
@@ -164,7 +166,7 @@
     </footer>
 
     <!-- Lightbox -->
-    <div class="lightbox" id="lightbox">
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" aria-hidden="true">
         <button class="lightbox-close" aria-label="Close">&times;</button>
         <img src="" alt="" id="lightbox-img">
     </div>
@@ -173,3 +175,6 @@
     <script src="cross-site-nav.js" defer></script>
 </body>
 </html>
+
+
+

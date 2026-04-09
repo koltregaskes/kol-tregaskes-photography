@@ -157,12 +157,11 @@ class PhotographyNewsApp {
         if (!linkMatch) return null;
 
         const rawTitle = this.decodeEntities(linkMatch[1]);
-        const title = this.normalizeText(
-            rawTitle
-                .split('\n')
-                .map((line) => line.trim())
-                .find(Boolean) || rawTitle
-        );
+        const titleLines = rawTitle
+            .split('\n')
+            .map((line) => this.normalizeText(line))
+            .filter(Boolean);
+        const title = titleLines[0] || this.normalizeText(rawTitle);
         const url = linkMatch[2];
         const sourceMatch = section.match(/\*([^*]+)\*\s+\|\s+(?:(\d{2}\/\d{2}\/\d{4})\s+\|\s+)?Score:\s+([0-9.]+)/m);
         const source = sourceMatch ? this.normalizeText(this.decodeEntities(sourceMatch[1])) : this.extractSource(url);
@@ -172,12 +171,13 @@ class PhotographyNewsApp {
             ? tagsMatch[1].split(',').map((tag) => tag.trim()).filter(Boolean)
             : [];
 
+        const embeddedSummary = this.buildSummary(titleLines.slice(1).join('\n'));
         const summary = this.buildSummary(
             section
                 .replace(linkMatch[0], '')
                 .replace(sourceMatch ? sourceMatch[0] : '', '')
                 .replace(tagsMatch ? tagsMatch[0] : '')
-        );
+        ) || embeddedSummary;
 
         return {
             title,
@@ -216,6 +216,8 @@ class PhotographyNewsApp {
                 || /^undefined$/i.test(value)
                 || /^by$/i.test(value)
                 || /^published\b/i.test(value)
+                || /^score:\s+/i.test(value)
+                || /^tags:\s+/i.test(value)
                 || /^(opinion|review|news|announcement|lens|nasa|artemis|gear|guide)$/i.test(value)
                 || /^[A-Z0-9\s/&-]{3,}$/.test(value);
         };

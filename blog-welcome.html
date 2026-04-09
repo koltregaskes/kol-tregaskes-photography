@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +6,8 @@
     <title>Welcome to Kol Tregaskes Photography</title>
     <meta name="description" content="A short introduction to Kol Tregaskes Photography and what will be published across the gallery, blog, and news sections.">
     <meta name="theme-color" content="#0c0b0a">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self'; connect-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; upgrade-insecure-requests">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="twitter:site" content="@koltregaskespho">
     <meta property="og:site_name" content="Kol Tregaskes Photography">
     <meta property="og:title" content="Welcome to Kol Tregaskes Photography">
@@ -39,7 +41,7 @@
                 <a href="about.html">About</a>
                 <a href="contact.html">Contact</a>
             </nav>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+            <button class="nav-toggle" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
                 </svg>
@@ -52,31 +54,31 @@
         <p>An introduction to the site and the work that will live here.</p>
     </section>
 
-    <section class="gallery-section" style="padding-top: 0;">
-        <div class="gallery-section-inner" style="max-width: 760px;">
+    <section class="gallery-section section-tight">
+        <div class="gallery-section-inner content-shell-narrow">
             <article class="journal-entry">
-                <p class="section-label" style="margin-bottom: 1rem;">April 3, 2026</p>
-                <h2 class="section-title" style="margin-bottom: 1.5rem;">Welcome to Kol Tregaskes Photography</h2>
+                <p class="section-label section-label-spaced journal-date">April 3, 2026</p>
+                <h2 class="section-title journal-title">Welcome to Kol Tregaskes Photography</h2>
 
-                <p style="margin-bottom: 1rem;">
+                <p>
                     This site is being built as the long-term home for my photography work. The goal is simple:
                     one place for the images themselves, one place for short written pieces about the process behind them,
                     and one place for the wider photography world that I want to keep an eye on.
                 </p>
 
-                <p style="margin-bottom: 1rem;">
+                <p>
                     The gallery will hold the core portfolio work across landscape, architecture, urban scenes,
                     documentary images, and quieter observational photographs. Over time that section will become more
                     curated and more complete as the final image selection is added.
                 </p>
 
-                <p style="margin-bottom: 1rem;">
+                <p>
                     The blog is for notes from behind the lens: places, workflow, editing decisions, publishing thoughts,
                     and the occasional piece about gear when it is genuinely useful. The idea is not to flood the site
                     with filler, but to add context where it helps the photographs land better.
                 </p>
 
-                <p style="margin-bottom: 1rem;">
+                <p>
                     The news page is there to gather relevant photography updates in one place - camera releases,
                     editing tools, industry shifts, and useful developments worth watching.
                 </p>
@@ -105,3 +107,6 @@
     <script src="cross-site-nav.js" defer></script>
 </body>
 </html>
+
+
+

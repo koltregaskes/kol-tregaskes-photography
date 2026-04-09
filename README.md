@@ -16,22 +16,32 @@ Static portfolio site for Kol Tregaskes Photography.
 
 ## Launch Support Files
 
-- `sitemap.xml` - search engine sitemap
+- `CNAME` - GitHub Pages custom-domain declaration
+- `sitemap.xml` - generated search engine sitemap
 - `site.webmanifest` - installable metadata and icon references
-- `favicon.svg`, `favicon.ico`, `apple-touch-icon.png` - browser and device icons
+- `favicon.svg`, `favicon.ico`, `apple-touch-icon.png`, `favicon-192.png`, `favicon-512.png` - browser and device icons
 - `social-preview.png` - default social sharing image
 
-## News Digest Manifest
+## Validation
 
-The news page reads `news-digests/index.json` first. Keep that file in sync whenever new digest markdown files are added.
+The repo now ships a small validation layer so the derived files stay in sync and launch regressions are caught early.
 
-Update it with:
+Available commands:
 
 ```powershell
-node scripts/update-news-manifest.mjs
+npm run manifest:update
+npm run manifest:check
+npm run sitemap:update
+npm run sitemap:check
+npm run validate
 ```
 
-That script scans `news-digests/` for `digest-YYYY-MM-DD.md` files and rewrites the manifest in newest-first order.
+What they do:
+
+- `manifest:update` scans `news-digests/` for `digest-YYYY-MM-DD.md` files and rewrites `news-digests/index.json` in newest-first order.
+- `sitemap:update` rebuilds `sitemap.xml` from the current page list and tracked page dates.
+- `validate` checks the generated files, runs JavaScript syntax checks, verifies `CNAME`, and confirms internal file references exist.
+- Known photography image placeholders are intentionally ignored for now while the real photo set is being synced in.
 
 ## Local Preview
 
@@ -41,6 +51,6 @@ python -m http.server 4285
 
 Then open `http://127.0.0.1:4285/`.
 
-## Current Known Blocker
+## CI
 
-The only intentional launch blocker left outside code is the real photography set. The site will gracefully fall back while final image assets are being synced in.
+GitHub Actions runs the same validation on push and pull request via `.github/workflows/site-validation.yml`.

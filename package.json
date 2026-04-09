@@ -1,0 +1,16 @@
+{
+  "name": "kol-tregaskes-photography",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "manifest:update": "node scripts/update-news-manifest.mjs",
+    "manifest:check": "node scripts/update-news-manifest.mjs --check",
+    "sitemap:update": "node scripts/generate-sitemap.mjs",
+    "sitemap:check": "node scripts/generate-sitemap.mjs --check",
+    "validate": "node scripts/validate-site.mjs",
+    "check": "npm run validate"
+  }
+}

@@ -1,21 +1,23 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog — Kol Tregaskes Photography</title>
+    <title>Blog â€” Kol Tregaskes Photography</title>
     <meta name="description" content="Behind the lens - thoughts on photography, editing workflow, gear, and creative process by Kol Tregaskes.">
     <meta name="theme-color" content="#0c0b0a">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self'; connect-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; upgrade-insecure-requests">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="twitter:site" content="@koltregaskespho">
     <meta property="og:site_name" content="Kol Tregaskes Photography">
-    <meta property="og:title" content="Blog — Kol Tregaskes Photography">
+    <meta property="og:title" content="Blog â€” Kol Tregaskes Photography">
     <meta property="og:description" content="Behind the lens - thoughts on photography, editing workflow, gear, and creative process by Kol Tregaskes.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://koltregaskesphotography.com/blog.html">
     <meta property="og:image" content="https://koltregaskesphotography.com/social-preview.png">
     <meta property="og:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Blog — Kol Tregaskes Photography">
+    <meta name="twitter:title" content="Blog â€” Kol Tregaskes Photography">
     <meta name="twitter:description" content="Behind the lens - thoughts on photography, editing workflow, gear, and creative process by Kol Tregaskes.">
     <meta name="twitter:image" content="https://koltregaskesphotography.com/social-preview.png">
     <meta name="twitter:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
@@ -39,7 +41,7 @@
                 <a href="about.html">About</a>
                 <a href="contact.html">Contact</a>
             </nav>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+            <button class="nav-toggle" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
                 </svg>
@@ -52,8 +54,8 @@
         <p>Behind the lens - process, places, editing notes, and the occasional gear thought.</p>
     </section>
 
-    <section class="gallery-section" style="padding-top: 0;">
-        <div class="gallery-section-inner" style="max-width: 800px;">
+    <section class="gallery-section section-tight">
+        <div class="gallery-section-inner content-shell-medium">
             <div class="blog-feed">
                 <a class="blog-post" href="blog-welcome.html">
                     <div class="blog-post-date">April 3, 2026</div>
@@ -77,38 +79,10 @@
             </div>
         </div>
     </footer>
-
-    <style>
-        .blog-post {
-            display: block;
-            padding: 2rem 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .blog-post:hover {
-            opacity: 0.85;
-        }
-        .blog-post-date {
-            font-size: 0.7rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-        .blog-post-title {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            font-weight: 400;
-            color: var(--text);
-            margin-top: 0.3rem;
-        }
-        .blog-post-excerpt {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-top: 0.5rem;
-            line-height: 1.7;
-        }
-    </style>
-
-    <script src="site.js" defer></script>
+<script src="site.js" defer></script>
     <script src="cross-site-nav.js" defer></script>
 </body>
 </html>
+
+
+

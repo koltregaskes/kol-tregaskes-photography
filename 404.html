@@ -1,11 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-GB">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Page not found — Kol Tregaskes Photography</title>
+    <title>Page not found - Kol Tregaskes Photography</title>
     <meta name="robots" content="noindex">
     <meta name="theme-color" content="#0c0b0a">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self'; connect-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; upgrade-insecure-requests">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -24,7 +26,7 @@
                 <a href="about.html">About</a>
                 <a href="contact.html">Contact</a>
             </nav>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+            <button class="nav-toggle" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <line x1="4" y1="7" x2="20" y2="7"></line>
                     <line x1="4" y1="12" x2="20" y2="12"></line>
@@ -36,10 +38,10 @@
 
     <section class="contact-section">
         <div class="contact-inner">
-            <p style="font-family: var(--font-display); font-size: 6rem; font-weight: 300; opacity: 0.1; line-height: 1;">404</p>
-            <h1 style="margin-top: -1rem;">Page not found</h1>
+            <p class="error-code">404</p>
+            <h1 class="error-title">Page not found</h1>
             <p>This page doesn't exist. Head back to the gallery or the homepage.</p>
-            <div class="contact-links" style="margin-top: 2rem;">
+            <div class="contact-links contact-links-spaced">
                 <a href="index.html" class="contact-link">Homepage</a>
                 <a href="gallery.html" class="contact-link">Gallery</a>
             </div>
