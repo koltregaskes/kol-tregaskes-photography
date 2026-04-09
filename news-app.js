@@ -13,21 +13,55 @@ const TOPIC_LABELS = {
     hardware: 'Hardware'
 };
 
+const PHOTO_TOPIC_TAGS = new Set([
+    'camera',
+    'camera_release',
+    'lens',
+    'photo_editing',
+    'photoshop',
+    'lightroom',
+    'capture_one',
+    'photography_ai',
+    'photography_technique',
+    'photography_business'
+]);
+
+const SUPPRESSED_SOURCE_PATTERNS = [
+    /^Reddit /i,
+    /^CoinDesk$/i,
+    /^CoinTelegraph$/i,
+    /^The Block$/i,
+    /^BeInCrypto$/i,
+    /^Aligned News/i
+];
+
+const QUICK_RANGES = [
+    { key: 'all', label: 'All available', days: null },
+    { key: 'today', label: 'Today', days: 0 },
+    { key: '7d', label: 'Last 7 days', days: 7 },
+    { key: '30d', label: 'Last 30 days', days: 30 }
+];
+
 class PhotographyNewsApp {
     constructor() {
         this.articles = [];
         this.filteredArticles = [];
-        this.sources = new Map();
         this.activeTopics = new Set();
         this.searchTerm = '';
+        this.quickRange = 'all';
+        this.dateFrom = '';
+        this.dateTo = '';
+        this.viewMode = document.body.dataset.newsView || 'news';
         this.init();
     }
 
     async init() {
         this.cacheElements();
+        this.readUrlState();
         this.bindEvents();
         await this.loadArticles();
         this.renderFilters();
+        this.updateViewMetadata();
         this.applyFilters();
     }
 
@@ -37,13 +71,39 @@ class PhotographyNewsApp {
         this.groups = document.getElementById('news-groups');
         this.summary = document.getElementById('news-summary');
         this.summaryText = document.getElementById('news-summary-text');
+        this.summaryNote = document.getElementById('news-summary-note');
         this.searchInput = document.getElementById('news-search');
         this.topicFilters = document.getElementById('news-topic-filters');
-        this.sourceFilters = document.getElementById('news-source-filters');
+        this.rangeFilters = document.getElementById('news-range-filters');
+        this.dateFromInput = document.getElementById('news-date-from');
+        this.dateToInput = document.getElementById('news-date-to');
         this.storyCount = document.getElementById('news-story-count');
-        this.sourceCount = document.getElementById('news-source-count');
+        this.digestCount = document.getElementById('news-digest-count');
         this.latestDate = document.getElementById('news-latest-date');
         this.clearButton = document.getElementById('news-clear');
+        this.viewKicker = document.getElementById('news-view-kicker');
+        this.viewTitle = document.getElementById('news-view-title');
+        this.viewIntro = document.getElementById('news-view-intro');
+        this.viewPanelTitle = document.getElementById('news-view-panel-title');
+        this.viewPanelCopy = document.getElementById('news-view-panel-copy');
+        this.viewPanelSecondary = document.getElementById('news-view-panel-secondary');
+    }
+
+    readUrlState() {
+        const params = new URLSearchParams(window.location.search);
+        this.searchTerm = params.get('q')?.trim().toLowerCase() || '';
+        this.quickRange = QUICK_RANGES.some((range) => range.key === params.get('window'))
+            ? params.get('window')
+            : 'all';
+        this.dateFrom = params.get('from') || '';
+        this.dateTo = params.get('to') || '';
+
+        const topics = params.getAll('topic').map((topic) => topic.trim()).filter(Boolean);
+        topics.forEach((topic) => {
+            if (Object.prototype.hasOwnProperty.call(TOPIC_LABELS, topic)) {
+                this.activeTopics.add(topic);
+            }
+        });
     }
 
     bindEvents() {
@@ -52,14 +112,37 @@ class PhotographyNewsApp {
             this.applyFilters();
         });
 
+        this.dateFromInput?.addEventListener('change', (event) => {
+            this.dateFrom = event.target.value;
+            if (this.dateFrom) {
+                this.quickRange = 'all';
+            }
+            this.renderRangeFilters();
+            this.applyFilters();
+        });
+
+        this.dateToInput?.addEventListener('change', (event) => {
+            this.dateTo = event.target.value;
+            if (this.dateTo) {
+                this.quickRange = 'all';
+            }
+            this.renderRangeFilters();
+            this.applyFilters();
+        });
+
         this.clearButton?.addEventListener('click', () => {
             this.searchTerm = '';
+            this.quickRange = 'all';
+            this.dateFrom = '';
+            this.dateTo = '';
             this.activeTopics.clear();
+
             if (this.searchInput) this.searchInput.value = '';
-            this.sourceFilters?.querySelectorAll('input[type="checkbox"]').forEach((input) => {
-                input.checked = true;
-            });
+            if (this.dateFromInput) this.dateFromInput.value = '';
+            if (this.dateToInput) this.dateToInput.value = '';
+
             this.renderFilters();
+            this.updateViewMetadata();
             this.applyFilters();
         });
     }
@@ -78,23 +161,32 @@ class PhotographyNewsApp {
         });
 
         const results = await Promise.all(requests);
-        this.articles = results.flat().sort((left, right) => {
-            if (right.date.getTime() !== left.date.getTime()) {
-                return right.date.getTime() - left.date.getTime();
-            }
-            return (right.score || 0) - (left.score || 0);
-        });
+        this.articles = results
+            .flat()
+            .filter((article) => this.shouldDisplayArticle(article))
+            .sort((left, right) => {
+                if (right.date.getTime() !== left.date.getTime()) {
+                    return right.date.getTime() - left.date.getTime();
+                }
+                return (right.score || 0) - (left.score || 0);
+            });
 
         this.filteredArticles = [...this.articles];
-        this.sources.clear();
-
-        this.articles.forEach((article) => {
-            const currentCount = this.sources.get(article.source) || 0;
-            this.sources.set(article.source, currentCount + 1);
-        });
-
         this.updateStats();
-        if (this.loading) this.loading.hidden = true;
+
+        if (this.searchInput) {
+            this.searchInput.value = this.searchTerm;
+        }
+        if (this.dateFromInput) {
+            this.dateFromInput.value = this.dateFrom;
+        }
+        if (this.dateToInput) {
+            this.dateToInput.value = this.dateTo;
+        }
+
+        if (this.loading) {
+            this.loading.hidden = true;
+        }
     }
 
     async loadDigestList() {
@@ -111,11 +203,11 @@ class PhotographyNewsApp {
                 }
             }
         } catch {
-            // Manifest is optional. We fall back only if it is unavailable.
+            // Optional manifest. Fallback covers local development edge cases.
         }
 
         if (!hasManifestEntries) {
-            this.generateFallbackDigestList(21).forEach((file) => files.add(file));
+            this.generateFallbackDigestList(30).forEach((file) => files.add(file));
         }
 
         return Array.from(files).sort().reverse();
@@ -147,7 +239,7 @@ class PhotographyNewsApp {
 
         return sections
             .map((section) => this.parseArticleSection(section, digestDate))
-            .filter((article) => article !== null);
+            .filter(Boolean);
     }
 
     parseArticleSection(section, digestDate) {
@@ -157,11 +249,7 @@ class PhotographyNewsApp {
         if (!linkMatch) return null;
 
         const rawTitle = this.decodeEntities(linkMatch[1]);
-        const titleLines = rawTitle
-            .split('\n')
-            .map((line) => this.normalizeText(line))
-            .filter(Boolean);
-        const title = titleLines[0] || this.normalizeText(rawTitle);
+        const title = this.cleanTitle(rawTitle);
         const url = linkMatch[2];
         const sourceMatch = section.match(/\*([^*]+)\*\s+\|\s+(?:(\d{2}\/\d{2}\/\d{4})\s+\|\s+)?Score:\s+([0-9.]+)/m);
         const source = sourceMatch ? this.normalizeText(this.decodeEntities(sourceMatch[1])) : this.extractSource(url);
@@ -171,12 +259,13 @@ class PhotographyNewsApp {
             ? tagsMatch[1].split(',').map((tag) => tag.trim()).filter(Boolean)
             : [];
 
-        const embeddedSummary = this.buildSummary(titleLines.slice(1).join('\n'));
+        const embeddedSummary = this.buildSummary(rawTitle, title);
         const summary = this.buildSummary(
             section
                 .replace(linkMatch[0], '')
                 .replace(sourceMatch ? sourceMatch[0] : '', '')
-                .replace(tagsMatch ? tagsMatch[0] : '')
+                .replace(tagsMatch ? tagsMatch[0] : '', ''),
+            title
         ) || embeddedSummary;
 
         return {
@@ -187,6 +276,7 @@ class PhotographyNewsApp {
             date: digestDate,
             dateKey: digestDate.toISOString().slice(0, 10),
             dateLabel: this.formatDateLabel(digestDate),
+            compactDateLabel: this.formatCardDate(digestDate),
             summary,
             tags
         };
@@ -200,48 +290,65 @@ class PhotographyNewsApp {
         return Number.isNaN(parsed.getTime()) ? new Date() : parsed;
     }
 
-    buildSummary(rawBody) {
+    cleanTitle(rawTitle) {
+        const lines = rawTitle
+            .split('\n')
+            .map((line) => this.normalizeText(this.decodeEntities(line)))
+            .filter(Boolean)
+            .filter((line) => !this.isMetadataLine(line));
+
+        return lines[0] || this.normalizeText(this.decodeEntities(rawTitle));
+    }
+
+    buildSummary(rawBody, title) {
         const normalizedLines = rawBody
             .split('\n')
             .map((line) => this.normalizeText(this.decodeEntities(line)))
             .filter(Boolean);
 
-        const cleanLine = (line) => line
-            .replace(/^>\s*/, '')
-            .trim();
+        const cleanLine = (line) => line.replace(/^>\s*/, '').trim();
 
-        const isSummaryNoise = (line) => {
-            const value = cleanLine(line);
-            return !value
-                || /^undefined$/i.test(value)
-                || /^by$/i.test(value)
-                || /^published\b/i.test(value)
-                || /^score:\s+/i.test(value)
-                || /^tags:\s+/i.test(value)
-                || /^(opinion|review|news|announcement|lens|nasa|artemis|gear|guide)$/i.test(value)
-                || /^[A-Z0-9\s/&-]{3,}$/.test(value);
-        };
+        const summaryLines = normalizedLines
+            .map(cleanLine)
+            .filter((line) => !this.isMetadataLine(line))
+            .filter((line) => !title || line.toLowerCase() !== title.toLowerCase())
+            .filter((line) => !line.startsWith('http'))
+            .filter((line) => !line.startsWith('['));
 
-        const proseLines = normalizedLines
-            .filter((line) => !line.startsWith('>'))
-            .filter((line) => !isSummaryNoise(line))
-            .map(cleanLine);
+        if (summaryLines.length === 0) return '';
 
-        const quoteLines = normalizedLines
-            .filter((line) => line.startsWith('>'))
-            .filter((line) => !isSummaryNoise(line))
-            .map(cleanLine);
+        const summary = summaryLines.join(' ');
+        return summary.length > 260 ? `${summary.slice(0, 257).trim()}...` : summary;
+    }
 
-        const chosenLines = proseLines.length > 0 ? proseLines : quoteLines;
-        if (chosenLines.length === 0) return '';
+    isMetadataLine(line) {
+        return !line
+            || /^by$/i.test(line)
+            || /^published\b/i.test(line)
+            || /^score:\s+/i.test(line)
+            || /^tags:\s+/i.test(line)
+            || /^(news|opinion|review|firmware|deal|updated|gopro|sony|canon|nikon|fujifilm)$/i.test(line)
+            || /^[A-Z]{1,4}$/.test(line)
+            || /^[A-Z0-9\s/&-]{3,}$/.test(line)
+            || /^[A-Z][a-z]+(?:\s+[A-Z][a-z.'-]+){1,3}$/.test(line);
+    }
 
-        const summary = chosenLines.join(' ');
-        return summary.length > 240 ? `${summary.slice(0, 237).trim()}...` : summary;
+    shouldDisplayArticle(article) {
+        if (SUPPRESSED_SOURCE_PATTERNS.some((pattern) => pattern.test(article.source))) {
+            return false;
+        }
+
+        const text = `${article.title} ${article.summary} ${article.tags.join(' ')}`.toLowerCase();
+        if (/machinelearning|localllama|ethereum|bitcoin|crypto/.test(text)) {
+            return false;
+        }
+
+        return article.tags.some((tag) => PHOTO_TOPIC_TAGS.has(tag));
     }
 
     renderFilters() {
         this.renderTopicFilters();
-        this.renderSourceFilters();
+        this.renderRangeFilters();
     }
 
     renderTopicFilters() {
@@ -255,7 +362,7 @@ class PhotographyNewsApp {
 
         const orderedTopics = Object.keys(TOPIC_LABELS).filter((tag) => availableTopics.includes(tag));
         this.topicFilters.innerHTML = '';
-        this.topicFilters.appendChild(this.createTopicButton('all', 'All Stories', this.activeTopics.size === 0));
+        this.topicFilters.appendChild(this.createTopicButton('all', 'All topics', this.activeTopics.size === 0));
 
         orderedTopics.forEach((tag) => {
             this.topicFilters.appendChild(this.createTopicButton(tag, TOPIC_LABELS[tag], this.activeTopics.has(tag)));
@@ -273,79 +380,122 @@ class PhotographyNewsApp {
             } else if (this.activeTopics.has(tag)) {
                 this.activeTopics.delete(tag);
             } else {
+                this.activeTopics.clear();
                 this.activeTopics.add(tag);
             }
+
             this.renderTopicFilters();
+            this.updateViewMetadata();
             this.applyFilters();
         });
         return button;
     }
 
-    renderSourceFilters() {
-        if (!this.sourceFilters) return;
+    renderRangeFilters() {
+        if (!this.rangeFilters) return;
 
-        const currentInputs = Array.from(this.sourceFilters.querySelectorAll('input[type="checkbox"]'));
-        const selectedSources = currentInputs.length > 0 ? new Set(this.getSelectedSources()) : null;
-        this.sourceFilters.innerHTML = '';
-
-        Array.from(this.sources.entries())
-            .sort((left, right) => left[0].localeCompare(right[0]))
-            .forEach(([source, count]) => {
-                const wrapper = document.createElement('div');
-                wrapper.className = 'news-source-toggle';
-
-                const label = document.createElement('label');
-                const input = document.createElement('input');
-                input.type = 'checkbox';
-                input.value = source;
-                input.checked = selectedSources === null || selectedSources.has(source);
-                input.addEventListener('change', () => this.applyFilters());
-
-                const name = document.createElement('span');
-                name.textContent = source;
-                label.append(input, name);
-
-                const meta = document.createElement('span');
-                meta.className = 'news-source-count';
-                meta.textContent = `${count}`;
-
-                wrapper.append(label, meta);
-                this.sourceFilters.appendChild(wrapper);
+        this.rangeFilters.innerHTML = '';
+        QUICK_RANGES.forEach((range) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = `news-chip${this.quickRange === range.key && !this.hasCustomDateRange() ? ' active' : ''}`;
+            button.textContent = range.label;
+            button.addEventListener('click', () => {
+                this.quickRange = range.key;
+                this.dateFrom = '';
+                this.dateTo = '';
+                if (this.dateFromInput) this.dateFromInput.value = '';
+                if (this.dateToInput) this.dateToInput.value = '';
+                this.renderRangeFilters();
+                this.applyFilters();
             });
+            this.rangeFilters.appendChild(button);
+        });
     }
 
-    getSelectedSources() {
-        return Array.from(this.sourceFilters?.querySelectorAll('input:checked') || []).map((input) => input.value);
+    hasCustomDateRange() {
+        return Boolean(this.dateFrom || this.dateTo);
     }
 
     applyFilters() {
-        const sourceInputs = Array.from(this.sourceFilters?.querySelectorAll('input[type="checkbox"]') || []);
-        const selectedSources = new Set(sourceInputs.filter((input) => input.checked).map((input) => input.value));
-        const hasSourceControls = sourceInputs.length > 0;
-
         this.filteredArticles = this.articles.filter((article) => {
-            const matchesSearch = !this.searchTerm || [
+            const haystack = [
                 article.title,
                 article.source,
                 article.summary,
                 article.tags.join(' ')
-            ].join(' ').toLowerCase().includes(this.searchTerm);
+            ].join(' ').toLowerCase();
 
+            const matchesSearch = !this.searchTerm || haystack.includes(this.searchTerm);
             const matchesTopic = this.activeTopics.size === 0
                 || article.tags.some((tag) => this.activeTopics.has(tag));
+            const matchesDate = this.matchesDateFilter(article.date);
 
-            const matchesSource = !hasSourceControls || selectedSources.has(article.source);
-
-            return matchesSearch && matchesTopic && matchesSource;
+            return matchesSearch && matchesTopic && matchesDate;
         });
 
+        this.writeUrlState();
         this.updateSummary();
         this.renderArticles();
     }
 
+    matchesDateFilter(date) {
+        const target = new Date(`${date.toISOString().slice(0, 10)}T12:00:00`);
+
+        if (this.dateFrom) {
+            const from = new Date(`${this.dateFrom}T00:00:00`);
+            if (target < from) return false;
+        }
+
+        if (this.dateTo) {
+            const to = new Date(`${this.dateTo}T23:59:59`);
+            if (target > to) return false;
+        }
+
+        if (this.hasCustomDateRange()) {
+            return true;
+        }
+
+        const selectedRange = QUICK_RANGES.find((range) => range.key === this.quickRange);
+        if (!selectedRange || selectedRange.days === null) {
+            return true;
+        }
+
+        const latest = this.articles[0]?.date;
+        if (!latest) return true;
+
+        const end = new Date(`${latest.toISOString().slice(0, 10)}T23:59:59`);
+        const start = new Date(end);
+        start.setDate(end.getDate() - selectedRange.days);
+        start.setHours(0, 0, 0, 0);
+
+        return target >= start && target <= end;
+    }
+
+    writeUrlState() {
+        const params = new URLSearchParams();
+
+        if (this.searchTerm) {
+            params.set('q', this.searchTerm);
+        }
+
+        Array.from(this.activeTopics).sort().forEach((topic) => {
+            params.append('topic', topic);
+        });
+
+        if (this.dateFrom) params.set('from', this.dateFrom);
+        if (this.dateTo) params.set('to', this.dateTo);
+        if (!this.hasCustomDateRange() && this.quickRange !== 'all') {
+            params.set('window', this.quickRange);
+        }
+
+        const next = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+        window.history.replaceState({}, '', next);
+    }
+
     updateStats() {
         if (this.storyCount) this.storyCount.textContent = String(this.articles.length);
-        if (this.sourceCount) this.sourceCount.textContent = String(this.sources.size);
+        if (this.digestCount) this.digestCount.textContent = String(this.getDigestCount(this.articles));
         if (this.latestDate) {
             this.latestDate.textContent = this.articles.length > 0
                 ? this.formatCompactDate(this.articles[0].date)
@@ -354,7 +504,7 @@ class PhotographyNewsApp {
     }
 
     updateSummary() {
-        if (!this.summary || !this.summaryText) return;
+        if (!this.summary || !this.summaryText || !this.summaryNote) return;
 
         if (this.articles.length === 0) {
             this.summary.hidden = true;
@@ -365,8 +515,39 @@ class PhotographyNewsApp {
             ? ` in ${Array.from(this.activeTopics).map((tag) => TOPIC_LABELS[tag]).join(', ')}`
             : '';
 
-        this.summaryText.textContent = `Showing ${this.filteredArticles.length} of ${this.articles.length} stories${topicText}.`;
+        this.summaryText.textContent = `Showing ${this.filteredArticles.length} of ${this.articles.length} stories${topicText} across ${this.getDigestCount(this.filteredArticles)} digest dates.`;
+        this.summaryNote.textContent = this.getRangeDescription();
         this.summary.hidden = false;
+    }
+
+    updateViewMetadata() {
+        if (this.viewMode !== 'topics') return;
+
+        const selectedTopic = this.activeTopics.size === 1 ? Array.from(this.activeTopics)[0] : '';
+        const label = selectedTopic ? TOPIC_LABELS[selectedTopic] : 'All topics';
+
+        if (this.viewKicker) this.viewKicker.textContent = 'Topic archive';
+        if (this.viewTitle) this.viewTitle.textContent = selectedTopic ? label : 'Photography topics';
+        if (this.viewIntro) {
+            this.viewIntro.textContent = selectedTopic
+                ? `A focused archive view for ${label.toLowerCase()} stories pulled from the photography digest feed.`
+                : 'Open a single topic archive, then narrow it further by search or date range.';
+        }
+        if (this.viewPanelTitle) {
+            this.viewPanelTitle.textContent = selectedTopic ? `${label} archive` : 'Browse by tag, not by source.';
+        }
+        if (this.viewPanelCopy) {
+            this.viewPanelCopy.textContent = selectedTopic
+                ? `This topic page keeps only the stories tagged ${label.toLowerCase()}, then lets you refine them by date.`
+                : 'Topic pages are shareable archive views built from the same filtered digests as the main news page.';
+        }
+        if (this.viewPanelSecondary) {
+            this.viewPanelSecondary.textContent = 'Each topic archive stays synced with the local digest files, so new relevant stories show up automatically after the pipeline refreshes.';
+        }
+
+        document.title = selectedTopic
+            ? `${label} Topics - Kol Tregaskes Photography`
+            : 'Photography Topics - Kol Tregaskes Photography';
     }
 
     renderArticles() {
@@ -377,14 +558,14 @@ class PhotographyNewsApp {
         if (this.articles.length === 0) {
             this.empty.hidden = false;
             this.empty.querySelector('strong').textContent = 'No digests have landed yet.';
-            this.empty.querySelector('span').textContent = 'Once the photography-filtered newspipe writes a digest into news-digests, the feed will appear here automatically.';
+            this.empty.querySelector('span').textContent = 'Once the photography-filtered pipeline writes fresh digests into news-digests, the archive will appear here automatically.';
             return;
         }
 
         if (this.filteredArticles.length === 0) {
             this.empty.hidden = false;
             this.empty.querySelector('strong').textContent = 'No stories match the current filters.';
-            this.empty.querySelector('span').textContent = 'Try clearing the search or re-enabling a source.';
+            this.empty.querySelector('span').textContent = 'Try widening the topic selection or resetting the date range.';
             return;
         }
 
@@ -432,7 +613,7 @@ class PhotographyNewsApp {
 
         const topline = document.createElement('div');
         topline.className = 'news-card-topline';
-        topline.innerHTML = `<span><strong>${this.escapeHtml(article.source)}</strong></span><span>${article.score ? `Signal ${article.score.toFixed(2)}` : 'Digest story'}</span>`;
+        topline.innerHTML = `<span><strong>${this.escapeHtml(article.source)}</strong></span><span>${this.escapeHtml(article.compactDateLabel)}</span>`;
 
         const heading = document.createElement('h3');
         const link = document.createElement('a');
@@ -442,8 +623,13 @@ class PhotographyNewsApp {
         link.textContent = article.title;
         heading.appendChild(link);
 
-        const summary = document.createElement('p');
-        summary.textContent = article.summary || 'Open the original article for the full write-up.';
+        card.append(topline, heading);
+
+        if (article.summary) {
+            const summary = document.createElement('p');
+            summary.textContent = article.summary;
+            card.appendChild(summary);
+        }
 
         const footer = document.createElement('div');
         footer.className = 'news-card-footer';
@@ -455,16 +641,20 @@ class PhotographyNewsApp {
             .slice(0, 3);
 
         shownTags.forEach((tag) => {
-            const pill = document.createElement('span');
+            const pill = document.createElement('a');
             pill.className = 'news-tag';
+            pill.href = `topics.html?topic=${encodeURIComponent(tag)}`;
             pill.textContent = TOPIC_LABELS[tag];
+            pill.setAttribute('aria-label', `View ${TOPIC_LABELS[tag]} topic archive`);
             tagList.appendChild(pill);
         });
 
         if (shownTags.length === 0) {
-            const pill = document.createElement('span');
+            const pill = document.createElement('a');
             pill.className = 'news-tag';
+            pill.href = 'topics.html';
             pill.textContent = 'Photography';
+            pill.setAttribute('aria-label', 'View all photography topics');
             tagList.appendChild(pill);
         }
 
@@ -476,8 +666,23 @@ class PhotographyNewsApp {
         readLink.textContent = 'Open story';
 
         footer.append(tagList, readLink);
-        card.append(topline, heading, summary, footer);
+        card.appendChild(footer);
         return card;
+    }
+
+    getDigestCount(collection) {
+        return new Set(collection.map((article) => article.dateKey)).size;
+    }
+
+    getRangeDescription() {
+        if (this.dateFrom || this.dateTo) {
+            const from = this.dateFrom || 'the start';
+            const to = this.dateTo || 'today';
+            return `Date range: ${from} to ${to}`;
+        }
+
+        const range = QUICK_RANGES.find((entry) => entry.key === this.quickRange);
+        return range ? range.label : 'All available';
     }
 
     formatDateLabel(date) {
@@ -493,6 +698,14 @@ class PhotographyNewsApp {
         return date.toLocaleDateString('en-GB', {
             day: 'numeric',
             month: 'short'
+        });
+    }
+
+    formatCardDate(date) {
+        return date.toLocaleDateString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric'
         });
     }
 
@@ -512,21 +725,17 @@ class PhotographyNewsApp {
     }
 
     normalizeText(value) {
-        let output = String(value || '');
-        output = output
+        return String(value || '')
             .replace(/\u00a0/g, ' ')
             .replace(/\u200b/g, '')
-            .replace(/â€”/g, '—')
-            .replace(/â€“/g, '–')
-            .replace(/â€˜/g, '‘')
-            .replace(/â€™/g, '’')
-            .replace(/â€œ/g, '“')
-            .replace(/â€\x9d/g, '”')
-            .replace(/â€¦/g, '…')
-            .replace(/â†’/g, '→')
-            .replace(/ðŸ”¥/g, '🔥');
-
-        return output.replace(/\s+/g, ' ').trim();
+            .replace(/Ã¢â‚¬â€|â€”|â€“/g, '-')
+            .replace(/Ã¢â‚¬Ëœ|â€˜|Ã¢â‚¬â„¢|â€™/g, "'")
+            .replace(/Ã¢â‚¬Å“|â€œ|Ã¢â‚¬Â|â€/g, '"')
+            .replace(/Ã¢â‚¬Â¦|â€¦/g, '...')
+            .replace(/Ã¢â€ â€™|â†’/g, '->')
+            .replace(/Ã°Å¸â€Â¥|ðŸ”¥/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
     }
 
     escapeHtml(value) {

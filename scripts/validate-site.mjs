@@ -22,7 +22,6 @@ const requiredFiles = [
 ];
 const jsSyntaxTargets = [
   'site.js',
-  'cross-site-nav.js',
   'news-app.js',
   'scripts/update-news-manifest.mjs',
   'scripts/generate-sitemap.mjs',

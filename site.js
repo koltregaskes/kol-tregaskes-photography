@@ -242,6 +242,55 @@ function initFadeObserver() {
     targets.forEach((target) => observer.observe(target));
 }
 
+function initContactForm() {
+    const form = document.getElementById('contact-form');
+    const status = document.getElementById('contact-form-status');
+    if (!form || !status) return;
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+
+        const name = form.querySelector('#contact-name')?.value.trim() || '';
+        const replyTo = form.querySelector('#contact-reply')?.value.trim() || '';
+        const subject = form.querySelector('#contact-subject')?.value.trim() || '';
+        const message = form.querySelector('#contact-message')?.value.trim() || '';
+        const checker = form.querySelector('#contact-human')?.value.trim().toLowerCase() || '';
+        const honeypot = form.querySelector('#contact-company')?.value.trim() || '';
+
+        if (honeypot) {
+            status.textContent = 'Submission blocked.';
+            status.dataset.state = 'error';
+            return;
+        }
+
+        if (!name || !replyTo || !subject || !message) {
+            status.textContent = 'Please complete every field before opening the email draft.';
+            status.dataset.state = 'error';
+            return;
+        }
+
+        if (checker !== '5' && checker !== 'five') {
+            status.textContent = 'Human check failed. Please answer the question again.';
+            status.dataset.state = 'error';
+            return;
+        }
+
+        const mailSubject = encodeURIComponent(`[Photography archive] ${subject}`);
+        const mailBody = encodeURIComponent([
+            `Name: ${name}`,
+            `Reply-to: ${replyTo}`,
+            '',
+            message,
+            '',
+            'Note: this archive no longer accepts new photography commissions.'
+        ].join('\n'));
+
+        status.textContent = 'Opening your email app with a prepared draft.';
+        status.dataset.state = 'success';
+        window.location.href = `mailto:kol@koltregaskes.com?subject=${mailSubject}&body=${mailBody}`;
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initHeader();
     initNavigation();
@@ -249,4 +298,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initLightbox();
     initGalleryFilter();
     initFadeObserver();
+    initContactForm();
 });

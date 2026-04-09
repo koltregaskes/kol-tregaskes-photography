@@ -3,32 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Photography News - Kol Tregaskes Photography</title>
-    <meta name="description" content="Photography news, camera releases, editing tools, and industry updates curated by Kol Tregaskes.">
+    <title>Photography Topics - Kol Tregaskes Photography</title>
+    <meta name="description" content="Browse photography news by topic, including cameras, lenses, editing, technique, and archive-specific tags.">
     <meta name="theme-color" content="#0c0b0a">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; script-src 'self'; connect-src 'self'; base-uri 'self'; object-src 'none'; form-action 'self'; upgrade-insecure-requests">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="twitter:site" content="@koltregaskespho">
     <meta property="og:site_name" content="Kol Tregaskes Photography">
-    <meta property="og:title" content="Photography News - Kol Tregaskes Photography">
-    <meta property="og:description" content="Photography news, camera releases, editing tools, and industry updates curated by Kol Tregaskes.">
+    <meta property="og:title" content="Photography Topics - Kol Tregaskes Photography">
+    <meta property="og:description" content="Browse photography news by topic, including cameras, lenses, editing, technique, and archive-specific tags.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://koltregaskesphotography.com/news.html">
+    <meta property="og:url" content="https://koltregaskesphotography.com/topics.html">
     <meta property="og:image" content="https://koltregaskesphotography.com/social-preview.png">
     <meta property="og:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Photography News - Kol Tregaskes Photography">
-    <meta name="twitter:description" content="Photography news, camera releases, editing tools, and industry updates curated by Kol Tregaskes.">
+    <meta name="twitter:title" content="Photography Topics - Kol Tregaskes Photography">
+    <meta name="twitter:description" content="Browse photography news by topic, including cameras, lenses, editing, technique, and archive-specific tags.">
     <meta name="twitter:image" content="https://koltregaskesphotography.com/social-preview.png">
     <meta name="twitter:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
-    <link rel="canonical" href="https://koltregaskesphotography.com/news.html">
+    <link rel="canonical" href="https://koltregaskesphotography.com/topics.html">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="site.webmanifest">
     <link rel="stylesheet" href="styles.css">
 </head>
-<body data-news-view="news">
+<body data-news-view="topics">
     <header class="site-header scrolled" id="header">
         <div class="header-inner">
             <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
@@ -52,22 +52,22 @@
 
     <section class="page-hero news-page-hero">
         <div class="news-page-shell">
-            <span class="news-kicker" id="news-view-kicker">Shared News Pipeline</span>
-            <h1 id="news-view-title">Photography News</h1>
-            <p id="news-view-intro">Camera releases, editing tools, technique, AI photo workflow updates, and industry stories worth paying attention to.</p>
+            <span class="news-kicker" id="news-view-kicker">Topic archive</span>
+            <h1 id="news-view-title">Photography topics</h1>
+            <p id="news-view-intro">Open one topic at a time, then narrow it further with search and date ranges.</p>
 
             <div class="news-hero-layout">
                 <div class="news-hero-panel">
-                    <h2 id="news-view-panel-title">A working feed, filtered for photographers.</h2>
-                    <p id="news-view-panel-copy">This archive is built from the shared estate newspipe, but trimmed back to photography-specific stories. The goal is simple: fewer generic tech headlines, more signal for cameras, post-processing, visual craft, and the business of image-making.</p>
-                    <p id="news-view-panel-secondary">You can now filter by topic or by date range without relying on source checkboxes, and each story tag links into its own topic archive.</p>
+                    <h2 id="news-view-panel-title">Browse by tag, not by source.</h2>
+                    <p id="news-view-panel-copy">Every tag link from the news cards lands here, so each topic now has a shareable archive view instead of being trapped as static text.</p>
+                    <p id="news-view-panel-secondary">This keeps the page useful even when the underlying digest sources change, because the archive is driven by topic and date rather than a checkbox list of publishers.</p>
                 </div>
 
                 <aside class="news-status-panel" aria-label="Feed status">
                     <div>
-                        <span class="news-kicker">Feed Status</span>
-                        <h2>Live from the local digests.</h2>
-                        <p>The frontend reads the generated markdown files directly, so the public page follows the same photography-filtered output the local estate creates each day.</p>
+                        <span class="news-kicker">Archive Status</span>
+                        <h2>Built from the same live digests.</h2>
+                        <p>The topic view reads the same local digest files as the main news page, then trims them down to a topic-first archive.</p>
                     </div>
 
                     <div class="news-metrics">
@@ -86,7 +86,7 @@
                     </div>
 
                     <div class="news-status-note">
-                        Source of truth: the shared newspipe output in <code>news-digests/</code>. If the pipeline runs, this page updates with it.
+                        Topic archives stay in sync with <code>news-digests/</code> automatically after each refresh.
                     </div>
                 </aside>
             </div>
@@ -103,7 +103,7 @@
 
                 <div class="news-sidebar-section">
                     <h3>Topics</h3>
-                    <p>These chips come from the digest tags. Pick one topic at a time to turn the page into a tighter archive.</p>
+                    <p>Pick a topic to keep the archive focused.</p>
                     <div id="news-topic-filters" class="news-chip-grid" aria-label="Topic filters"></div>
                 </div>
 
@@ -133,13 +133,13 @@
                 </div>
 
                 <div id="news-loading" class="news-loading">
-                    <strong>Loading the latest photography digest.</strong>
-                    <span>Reading the shared pipeline output and building the feed.</span>
+                    <strong>Loading the topic archive.</strong>
+                    <span>Reading the latest photography digests and building the tag view.</span>
                 </div>
 
                 <div id="news-empty" class="news-empty" hidden>
                     <strong>No stories match the current filters.</strong>
-                    <span>Try widening the topic selection, date range, or search term.</span>
+                    <span>Try widening the topic selection or resetting the date range.</span>
                 </div>
 
                 <div id="news-groups"></div>
@@ -182,6 +182,3 @@
     <script src="news-app.js" defer></script>
 </body>
 </html>
-
-
-
