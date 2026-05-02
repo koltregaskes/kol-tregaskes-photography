@@ -87,12 +87,13 @@ async function walkFiles(dir, out = []) {
 
 function extractReferences(filePath, content) {
   const refs = [];
+  const relativePath = path.relative(repoRoot, filePath).split(path.sep).join('/');
 
-  if (filePath.endsWith('news-digests/index.json')) {
+  if (relativePath === 'news-digests/index.json') {
     try {
       const payload = JSON.parse(content);
       if (Array.isArray(payload.files)) {
-        refs.push(...payload.files.map((file) => `news-digests/${file}`));
+        refs.push(...payload.files);
       }
     } catch {
       refs.push('__INVALID_JSON__');
