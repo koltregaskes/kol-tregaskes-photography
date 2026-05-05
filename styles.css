@@ -63,6 +63,28 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 
 ::selection { background: var(--accent); color: var(--bg); }
 
+.skip-link {
+  position: absolute;
+  left: var(--pad-x);
+  top: 16px;
+  z-index: 120;
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(212, 184, 150, 0.45);
+  border-radius: 999px;
+  background: rgba(12, 11, 10, 0.96);
+  color: var(--text);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: translateY(-180%);
+  transition: transform 0.18s ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
 /* ─── Header ───────────────────────────────────────────────────── */
 
 .site-header {
