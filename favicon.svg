@@ -2,7 +2,7 @@
   <title id="title">Kol Tregaskes Photography</title>
   <desc id="desc">Monogram favicon for Kol Tregaskes Photography.</desc>
   <rect width="96" height="96" rx="20" fill="#0c0b0a"/>
-  <rect x="12" y="12" width="72" height="72" rx="14" fill="none" stroke="#c4a882" stroke-width="2.5" opacity="0.8"/>
-  <path d="M20 58h56" stroke="#c4a882" stroke-width="2" opacity="0.45"/>
+  <rect x="12" y="12" width="72" height="72" rx="14" fill="none" stroke="#6b8db5" stroke-width="2.5" opacity="0.8"/>
+  <path d="M20 58h56" stroke="#6b8db5" stroke-width="2" opacity="0.45"/>
   <text x="48" y="56" text-anchor="middle" fill="#f2ede6" font-family="Georgia, 'Times New Roman', serif" font-size="29" letter-spacing="3">KT</text>
 </svg>

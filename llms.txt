@@ -1,17 +1,21 @@
 # Kol Tregaskes Photography
 
-> Photography portfolio by Kol Tregaskes. Landscape, urban, architecture, and documentary photography from the UK and beyond.
+> Photography archive by Kol Tregaskes. The public gallery is staged until the curated image set is imported with captions, dates, responsive assets, and alt text.
 
 ## Pages
 
-- [Homepage](/): Featured work and introduction
-- [Gallery](/gallery.html): Full photography gallery with category filters
+- [Homepage](/): Portfolio status, archive routes, and launch gate notes
+- [Gallery](/gallery.html): Gallery staging status with category filters
+- [News](/news.html): Photography digest archive from the shared estate news pipeline
+- [Topics](/topics.html): Topic-led view of the available photography digests
+- [Blog](/blog.html): Portfolio notes and publication updates
+- [Why the Gallery Is Staged Before Launch](/blog-portfolio-sync-note.html): Transparent status note for the image import
 - [About](/about.html): About Kol Tregaskes
-- [Contact](/contact.html): Get in touch for prints, licensing, and collaborations
+- [Contact](/contact.html): Archive, print, and licensing contact only
 
 ## About
 
-Kol Tregaskes is a UK-based photographer working across landscape, architecture, urban, and documentary photography. Previously published on 500px and Adobe Portfolio.
+Kol Tregaskes is a UK-based photographer working across landscape, architecture, urban, and documentary photography. The standalone gallery is not yet promoted as a finished public portfolio.
 
 ## Contact
 
