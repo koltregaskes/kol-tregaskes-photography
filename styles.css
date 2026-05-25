@@ -1561,19 +1561,21 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   color: var(--text-secondary);
 }
 
-.footer-estate-bar {
-  display: flex;
+.footer-estate-panel {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.8fr) minmax(240px, 1.5fr) auto;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 14px 20px;
+  gap: 16px 28px;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: 14px var(--pad-x);
+  padding: 22px var(--pad-x);
   border-bottom: 1px solid var(--border);
   background: rgba(230, 232, 236, 0.012);
 }
 
-.footer-estate-bar .estate-label {
+.footer-estate-kicker {
+  display: block;
+  margin-bottom: 6px;
   color: var(--accent);
   font-family: var(--font-display);
   font-size: 0.7rem;
@@ -1581,19 +1583,52 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   text-transform: uppercase;
 }
 
-.footer-estate-bar a,
+.footer-estate-title {
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.footer-estate-panel p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.65;
+}
+
+.footer-estate-cta {
+  justify-self: end;
+  color: var(--accent);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.footer-estate-links {
+  display: flex;
+  flex-wrap: wrap;
+  grid-column: 1 / -1;
+  gap: 10px 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+
+.footer-estate-panel a,
 .footer-links a {
   color: var(--text-secondary);
   transition: color 0.2s ease;
 }
 
-.footer-estate-bar a:hover,
+.footer-estate-panel a:hover,
 .footer-links a:hover {
   color: var(--accent);
 }
 
-.footer-estate-bar .dot {
-  color: var(--text-muted);
+.footer-estate-title:hover,
+.footer-estate-cta:hover {
+  color: var(--accent);
 }
 
 .footer-main {
@@ -1814,6 +1849,14 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 @media (max-width: 768px) {
+  .footer-estate-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-estate-cta {
+    justify-self: start;
+  }
+
   .footer-main {
     grid-template-columns: 1fr;
     gap: 28px;
