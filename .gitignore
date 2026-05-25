@@ -38,3 +38,7 @@ docs/DT*-prompt*.md
 docs/DT*-response*.md
 docs/prompt-*.md
 docs/HANDOFF-*.md
+
+# Work-in-progress drafts and archived design work
+drafts/
+design/archive/
