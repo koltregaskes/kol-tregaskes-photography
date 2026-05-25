@@ -4,8 +4,8 @@
   "description": "Photography portfolio by Kol Tregaskes.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0c0b0a",
-  "theme_color": "#0c0b0a",
+  "background_color": "#08090c",
+  "theme_color": "#08090c",
   "icons": [
     {
       "src": "/apple-touch-icon.png",

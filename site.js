@@ -103,8 +103,8 @@ function markImageMissing(image) {
         galleryItem.classList.add('is-placeholder');
     }
 
-    if (image.classList.contains('about-portrait')) {
-        const fallback = document.querySelector('[data-portrait-fallback]');
+    if (image.closest('[data-portrait]')) {
+        const fallback = image.closest('[data-portrait]')?.querySelector('.fallback, [data-portrait-fallback]');
         if (fallback) {
             fallback.hidden = false;
         }
@@ -112,7 +112,7 @@ function markImageMissing(image) {
 }
 
 function initImageFallbacks() {
-    document.querySelectorAll('.gallery-item img, .about-portrait').forEach((image) => {
+    document.querySelectorAll('.gallery-item img, .about-portrait, [data-portrait] img').forEach((image) => {
         const onMissing = () => markImageMissing(image);
 
         image.addEventListener('error', onMissing, { once: true });
@@ -158,6 +158,14 @@ function initLightbox() {
     };
 
     document.querySelectorAll('.gallery-item').forEach((item) => {
+        if (item.classList.contains('is-placeholder')) {
+            item.removeAttribute('role');
+            item.removeAttribute('tabindex');
+            item.removeAttribute('aria-haspopup');
+            item.removeAttribute('aria-label');
+            return;
+        }
+
         const image = item.querySelector('img');
         const label = image?.alt ? `Open ${image.alt} in lightbox` : 'Open image in lightbox';
         item.setAttribute('aria-label', label);
@@ -254,7 +262,6 @@ function initContactForm() {
         const replyTo = form.querySelector('#contact-reply')?.value.trim() || '';
         const subject = form.querySelector('#contact-subject')?.value.trim() || '';
         const message = form.querySelector('#contact-message')?.value.trim() || '';
-        const checker = form.querySelector('#contact-human')?.value.trim().toLowerCase() || '';
         const honeypot = form.querySelector('#contact-company')?.value.trim() || '';
 
         if (honeypot) {
@@ -265,12 +272,6 @@ function initContactForm() {
 
         if (!name || !replyTo || !subject || !message) {
             status.textContent = 'Please complete every field before opening the email draft.';
-            status.dataset.state = 'error';
-            return;
-        }
-
-        if (checker !== '5' && checker !== 'five') {
-            status.textContent = 'Human check failed. Please answer the question again.';
             status.dataset.state = 'error';
             return;
         }

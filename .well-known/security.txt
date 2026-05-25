@@ -1,0 +1,4 @@
+Contact: mailto:kol@koltregaskes.com
+Preferred-Languages: en
+Canonical: https://koltregaskesphotography.com/.well-known/security.txt
+Policy: https://koltregaskesphotography.com/contact.html

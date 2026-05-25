@@ -17,6 +17,7 @@ const pages = [
   { file: 'news.html', loc: '/news.html' },
   { file: 'topics.html', loc: '/topics.html' },
   { file: 'blog.html', loc: '/blog.html' },
+  { file: 'blog-portfolio-sync-note.html', loc: '/blog-portfolio-sync-note.html' },
   { file: 'blog-welcome.html', loc: '/blog-welcome.html' },
   { file: 'about.html', loc: '/about.html' },
   { file: 'contact.html', loc: '/contact.html' }

@@ -47,7 +47,7 @@ What they do:
 - `refresh:news:scrape` runs the estate-wide scrape first, then filters and publishes photography digests.
 - `publish:digests` validates the site, stages `news-digests/` plus `sitemap.xml`, commits the refresh, and pushes to `main`.
 - `validate` checks the generated files, runs JavaScript syntax checks, verifies `CNAME`, and confirms internal file references exist.
-- Known photography image placeholders are intentionally ignored for now while the real photo set is being synced in.
+- Gallery status tiles are intentionally non-lightbox cards until the real photo set is synced in.
 
 ## Automation
 

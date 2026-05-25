@@ -37,7 +37,7 @@ const SUPPRESSED_SOURCE_PATTERNS = [
 
 const QUICK_RANGES = [
     { key: 'all', label: 'All available', days: null },
-    { key: 'today', label: 'Today', days: 0 },
+    { key: 'latest', label: 'Latest digest day', days: 0 },
     { key: '7d', label: 'Last 7 days', days: 7 },
     { key: '30d', label: 'Last 30 days', days: 30 }
 ];
@@ -713,7 +713,7 @@ class PhotographyNewsApp {
     getRangeDescription() {
         if (this.dateFrom || this.dateTo) {
             const from = this.dateFrom || 'the start';
-            const to = this.dateTo || 'today';
+            const to = this.dateTo || 'latest available date';
             return `Date range: ${from} to ${to}`;
         }
 

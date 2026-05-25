@@ -67,7 +67,7 @@ async function walkFiles(dir, out = []) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
-    if (entry.name === '.git' || entry.name === '.local' || entry.name === '.playwright-cli') {
+    if (entry.name === '.git' || entry.name === '.local' || entry.name === '.playwright-cli' || entry.name === 'design') {
       continue;
     }
 
