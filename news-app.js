@@ -653,7 +653,7 @@ class PhotographyNewsApp {
 
         const heading = document.createElement('h3');
         const link = document.createElement('a');
-        link.href = article.url;
+        link.href = this.safeUrl(article.url);
         link.target = '_blank';
         link.rel = 'noopener noreferrer';
         link.textContent = article.title;
@@ -696,7 +696,7 @@ class PhotographyNewsApp {
 
         const readLink = document.createElement('a');
         readLink.className = 'news-read-link';
-        readLink.href = article.url;
+        readLink.href = this.safeUrl(article.url);
         readLink.target = '_blank';
         readLink.rel = 'noopener noreferrer';
         readLink.textContent = 'Open story';
@@ -781,6 +781,14 @@ class PhotographyNewsApp {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+    }
+
+    // Digest article URLs come from external feeds, so only allow http(s) into
+    // an href. Anything else (e.g. a javascript: scheme) falls back to '#' so a
+    // crafted link cannot run on click.
+    safeUrl(value) {
+        const url = String(value || '').trim();
+        return /^https?:\/\//i.test(url) ? url : '#';
     }
 }
 
