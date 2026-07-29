@@ -158,18 +158,19 @@ class PhotographyNewsApp {
 
     async loadArticles() {
         const filenames = await this.loadDigestList();
-        const requests = filenames.map(async (filename) => {
-            try {
-                const response = await fetch(`news-digests/${filename}`, { cache: 'no-store' });
-                if (!response.ok) return [];
-                const markdown = await response.text();
-                return this.parseDigest(markdown, filename);
-            } catch {
-                return [];
-            }
-        });
+        const results = new Array(filenames.length);
+        const workerCount = Math.min(8, filenames.length);
+        let nextIndex = 0;
 
-        const results = await Promise.all(requests);
+        const worker = async () => {
+            while (nextIndex < filenames.length) {
+                const index = nextIndex;
+                nextIndex += 1;
+                results[index] = await this.loadDigest(filenames[index]);
+            }
+        };
+
+        await Promise.all(Array.from({ length: workerCount }, () => worker()));
         this.articles = results
             .flat()
             .filter((article) => this.shouldDisplayArticle(article))
@@ -198,6 +199,29 @@ class PhotographyNewsApp {
 
         if (this.loading) {
             this.loading.hidden = true;
+        }
+    }
+
+    async loadDigest(filename, attempt = 0) {
+        try {
+            const response = await fetch(`news-digests/${filename}`, { cache: 'no-store' });
+            if (!response.ok) {
+                const retryable = response.status === 429 || response.status >= 500;
+                if (retryable && attempt < 2) {
+                    await new Promise((resolve) => window.setTimeout(resolve, 250 * (attempt + 1)));
+                    return this.loadDigest(filename, attempt + 1);
+                }
+                return [];
+            }
+
+            const markdown = await response.text();
+            return this.parseDigest(markdown, filename);
+        } catch {
+            if (attempt < 2) {
+                await new Promise((resolve) => window.setTimeout(resolve, 250 * (attempt + 1)));
+                return this.loadDigest(filename, attempt + 1);
+            }
+            return [];
         }
     }
 
