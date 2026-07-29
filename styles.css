@@ -1105,6 +1105,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .news-card {
+  min-width: 0;
   padding: 18px 0;
   border-bottom: 1px solid var(--border);
   background: transparent;
@@ -1154,6 +1155,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   color: var(--text-secondary);
   font-size: 0.92rem;
   line-height: 1.75;
+  overflow-wrap: anywhere;
 }
 
 .news-card-footer {
