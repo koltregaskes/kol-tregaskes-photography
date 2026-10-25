@@ -114,7 +114,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   opacity: 0.5;
 }
 
-.main-nav { display: flex; gap: 2rem; align-items: center; }
+.main-nav { display: flex; gap: 1.35rem; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 
 .main-nav a {
   font-size: 0.8rem;
