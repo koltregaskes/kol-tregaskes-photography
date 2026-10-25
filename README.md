@@ -5,7 +5,7 @@ Static portfolio site for Kol Tregaskes Photography.
 ## Structure
 
 - `index.html` - homepage and featured work
-- `gallery.html` - gallery grid with category filters
+- `gallery.html` - unpublished gallery page, omitted from navigation and the sitemap until real photographs are imported
 - `news.html` - photography news feed sourced from `news-digests/`
 - `blog.html` - blog landing page
 - `blog-welcome.html` - first published post
@@ -47,7 +47,7 @@ What they do:
 - `refresh:news:scrape` runs the estate-wide scrape first, then filters and publishes photography digests.
 - `publish:digests` validates the site, stages `news-digests/` plus `sitemap.xml`, commits the refresh, and pushes to `main`.
 - `validate` checks the generated files, runs JavaScript syntax checks, verifies `CNAME`, and confirms internal file references exist.
-- Gallery status tiles are intentionally non-lightbox cards until the real photo set is synced in.
+- `gallery.html` stays out of the navigation and sitemap until real photographs replace the unused placeholder files in `images/`.
 
 ## Automation
 
