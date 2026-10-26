@@ -260,6 +260,28 @@ function dateNearSlug(html, href) {
   return ''
 }
 
+function summaryFromScope(scope) {
+  const match = String(scope || '').match(/<p\b[^>]*>([\s\S]*?)<\/p>/i)
+  return match ? cleanText(match[1]) : ''
+}
+
+function summaryInCard(html, index) {
+  const regions = ['article', 'li'].map((tag) => enclosingSlice(html, index, tag)).filter(Boolean)
+  const card = enclosingClassCard(html, index)
+  if (card) regions.push(card)
+  if (regions.length > 0) {
+    regions.sort((left, right) => left.length - right.length)
+    return summaryFromScope(regions[0])
+  }
+  const lower = html.toLowerCase()
+  const bounds = [index + 2500]
+  const nextArticle = nextTag(lower, 'article', index + 1)
+  const nextItem = nextTag(lower, 'li', index + 1)
+  if (nextArticle !== -1) bounds.push(nextArticle)
+  if (nextItem !== -1) bounds.push(nextItem)
+  return summaryFromScope(html.slice(index, Math.min(...bounds)))
+}
+
 function parseHtml(html, source) {
   if (!/<html\b|<a\b/i.test(html)) {
     throw new Error('response was not an HTML listing')
@@ -284,12 +306,12 @@ function parseHtml(html, source) {
     const current = found.get(href)
     if (current && title.length <= current.title.length) continue
     const date = dateInCard(html, anchor.index) || dateNearSlug(html, href)
-    const summaryMatch = html.slice(anchor.index, anchor.index + 2500).match(/<p\b[^>]*>([\s\S]*?)<\/p>/i)
+    const summary = summaryInCard(html, anchor.index)
     found.set(href, {
       title: title.length >= (current?.title.length || 0) ? title : current.title,
       url: href,
       date: date || current?.date || '',
-      summary: cleanText(summaryMatch?.[1] || ''),
+      summary,
     })
   }
   const entries = [...found.values()].filter((entry) => entry.title && entry.title.length >= 8)
@@ -378,7 +400,7 @@ function tagEntries(entries, source, importance) {
     tags: [...(source.tags || [])],
     importance,
     date: entry.date,
-    summary: (entry.summary || entry.title).slice(0, 700),
+    summary: (entry.summary || '').slice(0, 700),
     category: source.categories?.[0] || source.section || '',
   }))
 }

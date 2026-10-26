@@ -168,6 +168,25 @@ test('an empty match writes a fresh empty feed and a matched item is written', a
 })
 
 
+test('html summaries stay inside the current card', () => {
+  const html = `<!DOCTYPE html><html><body>
+    <article><time datetime="2026-10-25T12:00:00Z"></time><a href="https://example.com/first-story-headline">First story headline</a></article>
+    <article><time datetime="2026-10-24T12:00:00Z"></time><a href="https://example.com/second-story-headline">Second story headline</a><p>Second description only.</p></article>
+    <div class="card"><time datetime="2026-10-23T08:00:00Z"></time><p>Own card summary.</p><a href="https://example.com/card-story-headline">Card story headline</a></div>
+    <div class="card"><time datetime="2026-10-22T08:00:00Z"></time><p>Other card summary.</p><a href="https://example.com/other-card-headline">Other card headline</a></div>
+    </body></html>`
+  const dated = parseHtml(html, {
+    url: 'https://example.com/news',
+    articleLinkPattern: 'https://example\\.com/(?:first-story-headline|second-story-headline|card-story-headline|other-card-headline)/?$',
+    maxItems: 10,
+  })
+  const byUrl = Object.fromEntries(dated.map((entry) => [entry.url, entry.summary]))
+  assert.equal(byUrl['https://example.com/first-story-headline'], '')
+  assert.equal(byUrl['https://example.com/second-story-headline'], 'Second description only.')
+  assert.equal(byUrl['https://example.com/card-story-headline'], 'Own card summary.')
+  assert.equal(byUrl['https://example.com/other-card-headline'], 'Other card summary.')
+})
+
 test('html dates come from the enclosing card when the time is before the link', () => {
   const html = `<!DOCTYPE html><html><body>
     <article><time datetime="2026-10-25T12:00:00Z">Oct 25, 2026</time><a href="https://example.com/first-story-headline">First story headline</a></article>
