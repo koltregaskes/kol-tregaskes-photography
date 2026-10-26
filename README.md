@@ -51,7 +51,7 @@ What they do:
 
 ## Automation
 
-`.github/workflows/refresh-routed-feed.yml` fetches every entry in the shared `sources.json` at 05:15 UTC, applies the photography filter in `site-filters.json`, and commits `news-digests/news-feed-latest.json` only when items come back. A source that cannot be fetched fails that run by name and leaves the file unchanged. `news.html` reads that file when it has articles, and otherwise keeps the digest archive. This job does not run a second scraper. The 06:30 UTC freshness check does not fetch articles.
+`.github/workflows/refresh-routed-feed.yml` fetches every entry in the shared `sources.json` at 05:15 UTC, applies the photography filter in `site-filters.json`, and commits `news-digests/news-feed-latest.json`. A successful fetch that matches nothing writes a fresh empty article list and exits 0. A source that cannot be fetched fails that run by name and leaves the file unchanged. After a commit, the same run publishes GitHub Pages. `news.html` reads that file when it has articles, and otherwise keeps the digest archive. This job does not run a second scraper. The 06:30 UTC freshness check does not fetch articles.
 
 The photography news loop now has both upstream generation and repo-local publication:
 
