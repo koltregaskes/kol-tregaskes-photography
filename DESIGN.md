@@ -9,7 +9,7 @@
 
 The v3 refresh is a patch on the existing photography site, not a rebuild. The core portfolio voice stays quiet and restrained, but the old warm brass system is replaced by a cool slate-blue palette that feels darker, more neutral, and more photographic.
 
-The homepage no longer presents launch-status placeholder tiles. It now opens with the hero and then routes visitors into three clear archive doorways: Landscape, Architecture, and Documentary.
+The homepage no longer presents launch-status placeholder tiles. It opens with the hero and then routes visitors into the live pages: News, Journal, and About. The picture gallery stays off that path until real photographs are imported.
 
 ## Palette
 
@@ -36,7 +36,7 @@ No warm browns, tobacco tones, cream backgrounds, or brass accents should be rei
 ## Components
 
 - Header: fixed, solid cool-black when scrolled. Sticky elements use solid backgrounds, not blur effects.
-- Hero: bottom-anchored copy, slate-accent gallery CTA.
+- Hero: bottom-anchored copy, slate-accent news CTA.
 - Doorways: three large 4:5 tiles with photographic gradients and typographic overlays.
 - Gallery: tight 6px rhythm, slate active filters, staged ImageGallery schema until real photos land.
 - Blog: date/title/tag grid rows with hairline separators, no card chrome.
