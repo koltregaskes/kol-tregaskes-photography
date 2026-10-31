@@ -1,0 +1,50 @@
+{
+  "404.html": {
+    "no-implicit-button-type": 1,
+    "unique-landmark": 1
+  },
+  "about.html": {
+    "no-implicit-button-type": 1,
+    "unique-landmark": 1
+  },
+  "blog-portfolio-sync-note.html": {
+    "no-implicit-button-type": 1,
+    "unique-landmark": 1
+  },
+  "blog-welcome.html": {
+    "no-implicit-button-type": 1,
+    "unique-landmark": 1
+  },
+  "blog.html": {
+    "no-implicit-button-type": 1,
+    "unique-landmark": 1
+  },
+  "contact.html": {
+    "no-implicit-button-type": 1,
+    "unique-landmark": 1
+  },
+  "gallery.html": {
+    "attribute-allowed-values": 1,
+    "element-required-attributes": 1,
+    "hidden-focusable": 3,
+    "no-implicit-button-type": 8,
+    "unique-landmark": 1
+  },
+  "index.html": {
+    "attribute-allowed-values": 1,
+    "element-required-attributes": 1,
+    "hidden-focusable": 3,
+    "no-implicit-button-type": 2,
+    "unique-landmark": 1
+  },
+  "news.html": {
+    "aria-label-misuse": 2,
+    "no-implicit-button-type": 1,
+    "unique-landmark": 2
+  },
+  "topics.html": {
+    "aria-label-misuse": 2,
+    "no-implicit-button-type": 1,
+    "unique-landmark": 2
+  }
+}

@@ -81,7 +81,8 @@ async function main() {
 
   if (checkOnly) {
     const current = await fs.readFile(sitemapPath, 'utf8');
-    if (current.trim() !== sitemap.trim()) {
+    // Normalise CRLF so a Windows checkout (core.autocrlf=true) compares equal.
+    if (current.replace(/\r\n/g, '\n').trim() !== sitemap.trim()) {
       throw new Error('sitemap.xml is out of date. Run `npm run sitemap:update`.');
     }
     return;

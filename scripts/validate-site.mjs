@@ -24,9 +24,18 @@ const jsSyntaxTargets = [
   'news-app.js',
   'scripts/update-news-manifest.mjs',
   'scripts/generate-sitemap.mjs',
-  'scripts/validate-site.mjs'
+  'scripts/validate-site.mjs',
+  'scripts/check-html.mjs'
 ];
 const inspectExtensions = new Set(['.html', '.css', '.xml', '.txt', '.md', '.json', '.webmanifest']);
+// Anchors known to be broken today. Each entry is "source page -> link".
+// The pages are being edited in another PR, so these are allowed for now;
+// fix the page (add the id, or drop the #fragment) and remove the entry.
+const knownBrokenAnchors = new Set([
+  'index.html -> gallery.html#landscape',
+  'index.html -> gallery.html#architecture',
+  'index.html -> gallery.html#documentary'
+]);
 
 function isExternalReference(ref) {
   return /^(?:[a-zA-Z][a-zA-Z0-9+.-]*:|\/\/)/.test(ref);
@@ -67,7 +76,7 @@ async function walkFiles(dir, out = []) {
   const entries = await fs.readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
-    if (entry.name === '.git' || entry.name === '.local' || entry.name === '.playwright-cli' || entry.name === 'design') {
+    if (entry.name === '.git' || entry.name === '.local' || entry.name === '.playwright-cli' || entry.name === 'design' || entry.name === 'node_modules') {
       continue;
     }
 
@@ -195,7 +204,11 @@ async function ensureInternalReferences() {
       if (!resolved) continue;
 
       try {
-        await fs.access(resolved.resolved);
+        const stat = await fs.stat(resolved.resolved);
+        // A link to a folder only works on GitHub Pages if the folder has an index.html.
+        if (stat.isDirectory()) {
+          await fs.access(path.join(resolved.resolved, 'index.html'));
+        }
       } catch {
         missing.push(`${path.relative(repoRoot, filePath)} -> ${resolved.ref}`);
       }
@@ -207,12 +220,85 @@ async function ensureInternalReferences() {
   }
 }
 
+function extractIds(content) {
+  const ids = new Set();
+  const pattern = /\s(?:id|name)\s*=\s*["']([^"']+)["']/gi;
+  let match;
+  while ((match = pattern.exec(content)) !== null) {
+    ids.add(match[1]);
+  }
+  return ids;
+}
+
+// Every in-page anchor (href="#x" or href="page.html#x") on every HTML page
+// must point at an element with that id (or name) in the target page.
+async function ensureFragmentTargets() {
+  const files = (await walkFiles(repoRoot)).filter((filePath) => filePath.toLowerCase().endsWith('.html'));
+  const idCache = new Map();
+  const broken = [];
+  const stillBroken = new Set();
+  const fixedAnchors = new Set();
+
+  async function idsFor(filePath) {
+    if (!idCache.has(filePath)) {
+      idCache.set(filePath, extractIds(await fs.readFile(filePath, 'utf8')));
+    }
+    return idCache.get(filePath);
+  }
+
+  for (const filePath of files) {
+    const content = await fs.readFile(filePath, 'utf8');
+    const pattern = /\shref\s*=\s*["']([^"']*#[^"']*)["']/gi;
+    let match;
+    while ((match = pattern.exec(content)) !== null) {
+      const ref = normalizeReference(match[1]);
+      if (isExternalReference(ref)) continue;
+
+      const [pagePart, fragment] = ref.split('#');
+      if (!fragment) continue;
+
+      const page = pagePart.split('?')[0];
+      let target = filePath;
+      if (page) {
+        if (!/\.html?$/i.test(page)) continue;
+        target = page.startsWith('/') ? path.join(repoRoot, page.slice(1)) : path.resolve(path.dirname(filePath), page);
+      }
+
+      const label = `${path.relative(repoRoot, filePath).split(path.sep).join('/')} -> ${ref}`;
+      try {
+        const ids = await idsFor(target);
+        if (ids.has(decodeURIComponent(fragment))) {
+          if (knownBrokenAnchors.has(label)) fixedAnchors.add(label);
+        } else if (knownBrokenAnchors.has(label)) {
+          stillBroken.add(label);
+        } else {
+          broken.push(`${label} (no id="${fragment}")`);
+        }
+      } catch {
+        // A missing target page is already reported by ensureInternalReferences.
+      }
+    }
+  }
+
+  if (stillBroken.size > 0) {
+    console.log(`Known broken anchors (allowed for now):\n${[...stillBroken].map((entry) => `- ${entry}`).join('\n')}`);
+  }
+  if (fixedAnchors.size > 0) {
+    console.log(`These anchors now work; remove them from knownBrokenAnchors:\n${[...fixedAnchors].map((entry) => `- ${entry}`).join('\n')}`);
+  }
+
+  if (broken.length > 0) {
+    throw new Error(`Broken in-page anchors:\n${broken.map((entry) => `- ${entry}`).join('\n')}`);
+  }
+}
+
 async function main() {
   await ensureRequiredFiles();
   await ensureCname();
   await ensureGeneratedArtifacts();
   await ensureJsSyntax();
   await ensureInternalReferences();
+  await ensureFragmentTargets();
   console.log('Site validation passed.');
 }
 
