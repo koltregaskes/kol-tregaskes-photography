@@ -90,7 +90,7 @@
         </div>
     </header>
 
-    <main id="main-content">
+    <main id="main-content" tabindex="-1">
     <!-- Hero - full-bleed featured image -->
     <section class="hero">
         <div class="hero-image hero-image--home" id="hero-image">
@@ -177,8 +177,13 @@
 
     <!-- Lightbox -->
     <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" aria-hidden="true">
-        <button class="lightbox-close" aria-label="Close">&times;</button>
-        <img src="" alt="" id="lightbox-img">
+        <button class="lightbox-close" type="button" aria-label="Close image preview">&times;</button>
+        <button class="lightbox-nav lightbox-prev" type="button" aria-label="Previous image">&lsaquo;</button>
+        <figure class="lightbox-figure">
+            <img alt="" id="lightbox-img">
+            <figcaption class="lightbox-caption" id="lightbox-caption" aria-live="polite"></figcaption>
+        </figure>
+        <button class="lightbox-nav lightbox-next" type="button" aria-label="Next image">&rsaquo;</button>
     </div>
 
     <script src="site.js" defer></script>
