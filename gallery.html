@@ -50,6 +50,8 @@
     </script>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
 
     <header class="site-header" id="header">
         <div class="header-inner">
@@ -70,6 +72,8 @@
             </button>
         </div>
     </header>
+
+    <main id="main-content" tabindex="-1">
 
     <section class="page-hero">
         <p class="section-label">The archive</p>
@@ -120,6 +124,8 @@
         </div>
     </section>
 
+    </main>
+
     <footer class="site-footer">
         <section class="footer-estate-panel" aria-label="Elusion Works umbrella">
             <div>
@@ -157,8 +163,13 @@
     </footer>
 
     <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" aria-hidden="true">
-        <button class="lightbox-close" aria-label="Close">&times;</button>
-        <img src="" alt="" id="lightbox-img">
+        <button class="lightbox-close" type="button" aria-label="Close image preview">&times;</button>
+        <button class="lightbox-nav lightbox-prev" type="button" aria-label="Previous image">&lsaquo;</button>
+        <figure class="lightbox-figure">
+            <img alt="" id="lightbox-img">
+            <figcaption class="lightbox-caption" id="lightbox-caption" aria-live="polite"></figcaption>
+        </figure>
+        <button class="lightbox-nav lightbox-next" type="button" aria-label="Next image">&rsaquo;</button>
     </div>
 <script src="site.js" defer></script>
 </body>

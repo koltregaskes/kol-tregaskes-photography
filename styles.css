@@ -10,7 +10,7 @@
   --bg-card-soft: #1c2029;
   --text: #e6e8ec;
   --text-secondary: #8a8f9a;
-  --text-muted: #555a66;
+  --text-muted: #858a95; /* WCAG AA: >= 4.5:1 on every surface token */
   --accent: #6b8db5;
   --accent-hover: #8aa7c8;
   --accent-soft: rgba(107, 141, 181, 0.14);
@@ -66,6 +66,9 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   transform: translateY(-180%);
   transition: transform 0.18s ease;
 }
+
+/* Skip-link target: focus moves to <main tabindex="-1">, no ring needed on the region itself. */
+main:focus { outline: none; }
 
 .skip-link:focus-visible {
   transform: translateY(0);
@@ -284,7 +287,8 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   padding: 20px;
 }
 
-.gallery-item:hover .gallery-item-overlay { opacity: 1; }
+.gallery-item:hover .gallery-item-overlay,
+.gallery-item:focus-visible .gallery-item-overlay { opacity: 1; }
 
 .gallery-item.is-placeholder .gallery-item-overlay {
   opacity: 1;
@@ -396,7 +400,8 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   text-transform: uppercase;
 }
 
-.about-text h1 {
+.about-text h1,
+.about-text h2 {
   font-family: var(--font-display);
   font-size: 2.5rem;
   font-weight: 300;
@@ -524,7 +529,8 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   cursor: zoom-out;
 }
 
-.lightbox.active { opacity: 1; visibility: visible; }
+/* Visibility flips instantly on open so focus can move into the dialog straight away. */
+.lightbox.active { opacity: 1; visibility: visible; transition: opacity 0.3s, visibility 0s; }
 
 .lightbox img {
   max-width: 92vw;
@@ -547,6 +553,45 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .lightbox-close:hover { color: var(--text); }
+
+.lightbox-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.lightbox-caption {
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.lightbox-caption:empty { display: none; }
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(8, 9, 12, 0.6);
+  color: var(--text-secondary);
+  font-size: 2rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.lightbox-nav[hidden] { display: none; }
+.lightbox-nav:hover { color: var(--text); }
+.lightbox-prev { left: 16px; }
+.lightbox-next { right: 16px; }
 
 /* ─── Page header (gallery, about, contact) ────────────────────── */
 
@@ -645,7 +690,8 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .nav-toggle:focus-visible,
-.lightbox-close:focus-visible {
+.lightbox-close:focus-visible,
+.lightbox-nav:focus-visible {
   outline-offset: 5px;
 }
 
@@ -1193,7 +1239,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   font-family: var(--font-display);
   font-size: 6rem;
   font-weight: 300;
-  opacity: 0.1;
+  opacity: 0.42; /* large text: keeps >= 3:1 (WCAG 1.4.3) */
   line-height: 1;
 }
 
