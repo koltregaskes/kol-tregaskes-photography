@@ -14,6 +14,11 @@
     "refresh:news:scrape": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/refresh-site-news.ps1 -WithScrape",
     "publish:digests": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/publish-digests.ps1",
     "validate": "node scripts/validate-site.mjs",
-    "check": "npm run validate"
+    "html:check": "node scripts/check-html.mjs",
+    "html:baseline": "node scripts/check-html.mjs --update-baseline",
+    "check": "npm run validate && npm run html:check"
+  },
+  "devDependencies": {
+    "html-validate": "11.16.2"
   }
 }

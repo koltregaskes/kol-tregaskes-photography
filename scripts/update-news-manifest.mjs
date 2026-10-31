@@ -26,7 +26,8 @@ async function main() {
 
   if (checkOnly) {
     const current = await fs.readFile(manifestPath, 'utf8');
-    if (current.trim() !== manifest.trim()) {
+    // Normalise CRLF so a Windows checkout (core.autocrlf=true) compares equal.
+    if (current.replace(/\r\n/g, '\n').trim() !== manifest.trim()) {
       throw new Error('news-digests/index.json is out of date. Run `npm run manifest:update`.');
     }
     return;
