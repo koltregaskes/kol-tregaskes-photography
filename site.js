@@ -134,9 +134,19 @@ function initImageFallbacks() {
 
 function initLightbox() {
     const lightbox = document.getElementById('lightbox');
-    const lightboxImage = document.getElementById('lightbox-img');
     const closeButton = lightbox?.querySelector('.lightbox-close');
-    if (!lightbox || !lightboxImage || !closeButton) return;
+    const figure = lightbox?.querySelector('.lightbox-figure');
+    if (!lightbox || !closeButton || !figure) return;
+
+    // The preview <img> is created here rather than in the markup, because an <img>
+    // with no src is invalid HTML and the lightbox has nothing to show until opened.
+    let lightboxImage = document.getElementById('lightbox-img');
+    if (!lightboxImage) {
+        lightboxImage = document.createElement('img');
+        lightboxImage.id = 'lightbox-img';
+        lightboxImage.alt = '';
+        figure.prepend(lightboxImage);
+    }
 
     const prevButton = lightbox.querySelector('.lightbox-prev');
     const nextButton = lightbox.querySelector('.lightbox-next');
@@ -194,7 +204,9 @@ function initLightbox() {
     const closeLightbox = () => {
         if (!lightbox.classList.contains('active')) return;
         lightbox.classList.remove('active');
-        lightbox.setAttribute('aria-hidden', 'true');
+        // inert (not aria-hidden) so the closed dialog's buttons are neither focusable
+        // nor exposed, without hiding focusable content behind aria-hidden.
+        lightbox.setAttribute('inert', '');
         setBackgroundInert(false);
         lightboxImage.removeAttribute('src');
         lightboxImage.alt = '';
@@ -218,7 +230,7 @@ function initLightbox() {
         activeTrigger = item;
         showItem(item);
         lightbox.classList.add('active');
-        lightbox.setAttribute('aria-hidden', 'false');
+        lightbox.removeAttribute('inert');
         setBackgroundInert(true);
         closeButton.focus();
     };
@@ -295,23 +307,34 @@ function initGalleryFilter() {
     if (buttons.length === 0) return;
 
     const items = document.querySelectorAll('.gallery-item');
+    const selectFilter = (button) => {
+        buttons.forEach((current) => {
+            current.classList.remove('active');
+            current.setAttribute('aria-pressed', 'false');
+        });
+        button.classList.add('active');
+        button.setAttribute('aria-pressed', 'true');
+
+        const filter = button.dataset.filter;
+        items.forEach((item) => {
+            item.hidden = !(filter === 'all' || item.dataset.category === filter);
+        });
+    };
+
     buttons.forEach((button) => {
         button.setAttribute('aria-pressed', String(button.classList.contains('active')));
-
-        button.addEventListener('click', () => {
-            buttons.forEach((current) => {
-                current.classList.remove('active');
-                current.setAttribute('aria-pressed', 'false');
-            });
-            button.classList.add('active');
-            button.setAttribute('aria-pressed', 'true');
-
-            const filter = button.dataset.filter;
-            items.forEach((item) => {
-                item.hidden = !(filter === 'all' || item.dataset.category === filter);
-            });
-        });
+        button.addEventListener('click', () => selectFilter(button));
     });
+
+    // gallery.html#landscape (linked from the home page) lands on that filter and applies it.
+    const applyHashFilter = () => {
+        const wanted = decodeURIComponent(window.location.hash.slice(1));
+        if (!wanted) return;
+        const match = Array.from(buttons).find((button) => button.dataset.filter === wanted);
+        if (match) selectFilter(match);
+    };
+    applyHashFilter();
+    window.addEventListener('hashchange', applyHashFilter);
 }
 
 function initFadeObserver() {
