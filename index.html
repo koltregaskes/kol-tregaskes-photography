@@ -71,7 +71,7 @@
     <header class="site-header" id="header">
         <div class="header-inner">
             <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
-            <nav class="main-nav" id="nav">
+            <nav class="main-nav" id="nav" aria-label="Main">
                 <a href="index.html" class="active">Home</a>
                 <a href="gallery.html">Gallery</a>
                 <a href="blog.html">Blog</a>
@@ -80,7 +80,7 @@
                 <a href="about.html">About</a>
                 <a href="contact.html">Contact</a>
             </nav>
-            <button class="nav-toggle" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
+            <button class="nav-toggle" type="button" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <line x1="4" y1="7" x2="20" y2="7"/>
                     <line x1="4" y1="12" x2="20" y2="12"/>
@@ -176,11 +176,10 @@
     </footer>
 
     <!-- Lightbox -->
-    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" aria-hidden="true">
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" inert>
         <button class="lightbox-close" type="button" aria-label="Close image preview">&times;</button>
         <button class="lightbox-nav lightbox-prev" type="button" aria-label="Previous image">&lsaquo;</button>
         <figure class="lightbox-figure">
-            <img alt="" id="lightbox-img">
             <figcaption class="lightbox-caption" id="lightbox-caption" aria-live="polite"></figcaption>
         </figure>
         <button class="lightbox-nav lightbox-next" type="button" aria-label="Next image">&rsaquo;</button>
