@@ -13,7 +13,6 @@ const checkOnly = process.argv.includes('--check');
 
 const pages = [
   { file: 'index.html', loc: '/' },
-  { file: 'gallery.html', loc: '/gallery.html' },
   { file: 'news.html', loc: '/news.html' },
   { file: 'topics.html', loc: '/topics.html' },
   { file: 'blog.html', loc: '/blog.html' },
