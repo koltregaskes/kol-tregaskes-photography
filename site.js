@@ -1,5 +1,13 @@
 ﻿function getFocusableElements(container) {
-    return Array.from(container.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'));
+    return Array.from(container.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+        .filter((element) => !element.hidden && element.getClientRects().length > 0);
+}
+
+function makeGalleryItemStatic(item) {
+    item.removeAttribute('role');
+    item.removeAttribute('tabindex');
+    item.removeAttribute('aria-haspopup');
+    item.removeAttribute('aria-label');
 }
 
 function initHeader() {
@@ -101,6 +109,7 @@ function markImageMissing(image) {
     const galleryItem = image.closest('.gallery-item');
     if (galleryItem) {
         galleryItem.classList.add('is-placeholder');
+        makeGalleryItemStatic(galleryItem);
     }
 
     if (image.closest('[data-portrait]')) {
@@ -125,49 +134,118 @@ function initImageFallbacks() {
 
 function initLightbox() {
     const lightbox = document.getElementById('lightbox');
-    const lightboxImage = document.getElementById('lightbox-img');
     const closeButton = lightbox?.querySelector('.lightbox-close');
-    if (!lightbox || !lightboxImage || !closeButton) return;
+    const figure = lightbox?.querySelector('.lightbox-figure');
+    if (!lightbox || !closeButton || !figure) return;
+
+    // The preview <img> is created here rather than in the markup, because an <img>
+    // with no src is invalid HTML and the lightbox has nothing to show until opened.
+    let lightboxImage = document.getElementById('lightbox-img');
+    if (!lightboxImage) {
+        lightboxImage = document.createElement('img');
+        lightboxImage.id = 'lightbox-img';
+        lightboxImage.alt = '';
+        figure.prepend(lightboxImage);
+    }
+
+    const prevButton = lightbox.querySelector('.lightbox-prev');
+    const nextButton = lightbox.querySelector('.lightbox-next');
+    const caption = document.getElementById('lightbox-caption');
+    const backgroundRegions = Array.from(document.body.children)
+        .filter((element) => element !== lightbox && element.tagName !== 'SCRIPT');
 
     let activeTrigger = null;
+    let currentItem = null;
+
+    const isOpenable = (item) => !item.hidden && !item.classList.contains('is-placeholder');
+    const openableItems = () => Array.from(document.querySelectorAll('.gallery-item')).filter(isOpenable);
+
+    const showItem = (item) => {
+        const image = item.querySelector('img');
+        if (!image) return;
+
+        currentItem = item;
+        lightboxImage.src = image.currentSrc || image.src;
+        lightboxImage.alt = image.alt;
+
+        const items = openableItems();
+        const position = items.indexOf(item) + 1;
+        const title = item.querySelector('.gallery-item-title')?.textContent.trim() || image.alt;
+        if (caption) {
+            caption.textContent = [title, position > 0 ? `Image ${position} of ${items.length}` : '']
+                .filter(Boolean)
+                .join(' - ');
+        }
+
+        const canMove = items.length > 1;
+        [prevButton, nextButton].forEach((button) => {
+            if (button) button.hidden = !canMove;
+        });
+    };
+
+    const move = (step) => {
+        const items = openableItems();
+        if (items.length < 2 || !currentItem) return;
+        const index = items.indexOf(currentItem);
+        const nextIndex = (index + step + items.length) % items.length;
+        showItem(items[nextIndex]);
+    };
+
+    const setBackgroundInert = (inert) => {
+        backgroundRegions.forEach((element) => {
+            if (inert) {
+                element.setAttribute('inert', '');
+            } else {
+                element.removeAttribute('inert');
+            }
+        });
+    };
 
     const closeLightbox = () => {
         if (!lightbox.classList.contains('active')) return;
         lightbox.classList.remove('active');
-        lightbox.setAttribute('aria-hidden', 'true');
+        // inert (not aria-hidden) so the closed dialog's buttons are neither focusable
+        // nor exposed, without hiding focusable content behind aria-hidden.
+        lightbox.setAttribute('inert', '');
+        setBackgroundInert(false);
         lightboxImage.removeAttribute('src');
         lightboxImage.alt = '';
-        if (activeTrigger) {
-            activeTrigger.focus();
-            activeTrigger = null;
+        if (caption) caption.textContent = '';
+
+        // Return focus to the photo last shown, so keyboard users land where they left off.
+        const returnTarget = currentItem && isOpenable(currentItem) ? currentItem : activeTrigger;
+        currentItem = null;
+        activeTrigger = null;
+        if (returnTarget) {
+            returnTarget.focus();
         }
     };
 
     const openLightbox = (item) => {
-        if (item.classList.contains('is-placeholder')) return;
+        if (!isOpenable(item)) return;
 
         const image = item.querySelector('img');
         if (!image || image.naturalWidth === 0) return;
 
         activeTrigger = item;
-        lightboxImage.src = image.currentSrc || image.src;
-        lightboxImage.alt = image.alt;
+        showItem(item);
         lightbox.classList.add('active');
-        lightbox.setAttribute('aria-hidden', 'false');
+        lightbox.removeAttribute('inert');
+        setBackgroundInert(true);
         closeButton.focus();
     };
 
     document.querySelectorAll('.gallery-item').forEach((item) => {
         if (item.classList.contains('is-placeholder')) {
-            item.removeAttribute('role');
-            item.removeAttribute('tabindex');
-            item.removeAttribute('aria-haspopup');
-            item.removeAttribute('aria-label');
+            makeGalleryItemStatic(item);
             return;
         }
 
         const image = item.querySelector('img');
         const label = image?.alt ? `Open ${image.alt} in lightbox` : 'Open image in lightbox';
+        item.setAttribute('role', 'button');
+        item.setAttribute('tabindex', '0');
+        item.setAttribute('aria-haspopup', 'dialog');
         item.setAttribute('aria-label', label);
 
         item.addEventListener('click', () => openLightbox(item));
@@ -179,6 +257,8 @@ function initLightbox() {
     });
 
     closeButton.addEventListener('click', closeLightbox);
+    prevButton?.addEventListener('click', () => move(-1));
+    nextButton?.addEventListener('click', () => move(1));
 
     lightbox.addEventListener('click', (event) => {
         if (event.target === lightbox || event.target === lightboxImage.parentElement) {
@@ -195,6 +275,12 @@ function initLightbox() {
             return;
         }
 
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            event.preventDefault();
+            move(event.key === 'ArrowLeft' ? -1 : 1);
+            return;
+        }
+
         if (event.key !== 'Tab') return;
 
         const focusable = getFocusableElements(lightbox);
@@ -203,7 +289,10 @@ function initLightbox() {
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
 
-        if (event.shiftKey && document.activeElement === first) {
+        if (!lightbox.contains(document.activeElement)) {
+            event.preventDefault();
+            first.focus();
+        } else if (event.shiftKey && document.activeElement === first) {
             event.preventDefault();
             last.focus();
         } else if (!event.shiftKey && document.activeElement === last) {
@@ -218,19 +307,34 @@ function initGalleryFilter() {
     if (buttons.length === 0) return;
 
     const items = document.querySelectorAll('.gallery-item');
-    buttons.forEach((button) => {
-        button.addEventListener('click', () => {
-            buttons.forEach((current) => current.classList.remove('active'));
-            button.classList.add('active');
-
-            const filter = button.dataset.filter;
-            items.forEach((item) => {
-                const showItem = filter === 'all' || item.dataset.category === filter;
-                item.hidden = !showItem;
-                item.setAttribute('aria-hidden', String(!showItem));
-            });
+    const selectFilter = (button) => {
+        buttons.forEach((current) => {
+            current.classList.remove('active');
+            current.setAttribute('aria-pressed', 'false');
         });
+        button.classList.add('active');
+        button.setAttribute('aria-pressed', 'true');
+
+        const filter = button.dataset.filter;
+        items.forEach((item) => {
+            item.hidden = !(filter === 'all' || item.dataset.category === filter);
+        });
+    };
+
+    buttons.forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.classList.contains('active')));
+        button.addEventListener('click', () => selectFilter(button));
     });
+
+    // gallery.html#landscape (linked from the home page) lands on that filter and applies it.
+    const applyHashFilter = () => {
+        const wanted = decodeURIComponent(window.location.hash.slice(1));
+        if (!wanted) return;
+        const match = Array.from(buttons).find((button) => button.dataset.filter === wanted);
+        if (match) selectFilter(match);
+    };
+    applyHashFilter();
+    window.addEventListener('hashchange', applyHashFilter);
 }
 
 function initFadeObserver() {

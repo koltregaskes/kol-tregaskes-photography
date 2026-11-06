@@ -50,11 +50,13 @@
     </script>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
 
     <header class="site-header scrolled" id="header">
         <div class="header-inner">
             <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
-            <nav class="main-nav" id="nav">
+            <nav class="main-nav" id="nav" aria-label="Main">
                 <a href="index.html">Home</a>
                 <a href="gallery.html">Gallery</a>
                 <a href="blog.html">Blog</a>
@@ -63,13 +65,15 @@
                 <a href="about.html" class="active">About</a>
                 <a href="contact.html">Contact</a>
             </nav>
-            <button class="nav-toggle" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
+            <button class="nav-toggle" type="button" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
                 </svg>
             </button>
         </div>
     </header>
+
+    <main id="main-content" tabindex="-1">
 
     <section class="page-hero">
         <p class="section-label">The archive keeper</p>
@@ -83,7 +87,7 @@
             </div>
 
             <div class="about-text">
-                <h1>Kol Tregaskes</h1>
+                <h2>Kol Tregaskes</h2>
 
                 <p class="about-copy">
                     <span class="highlight">This site is now a curated archive of earlier photographic work.</span>
@@ -111,6 +115,8 @@
             </div>
         </div>
     </section>
+
+    </main>
 
     <footer class="site-footer">
         <section class="footer-estate-panel" aria-label="Elusion Works umbrella">

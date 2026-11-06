@@ -50,11 +50,13 @@
     </script>
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
 
     <header class="site-header" id="header">
         <div class="header-inner">
             <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
-            <nav class="main-nav" id="nav">
+            <nav class="main-nav" id="nav" aria-label="Main">
                 <a href="index.html">Home</a>
                 <a href="gallery.html" class="active">Gallery</a>
                 <a href="blog.html">Blog</a>
@@ -63,13 +65,15 @@
                 <a href="about.html">About</a>
                 <a href="contact.html">Contact</a>
             </nav>
-            <button class="nav-toggle" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
+            <button class="nav-toggle" type="button" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
                 </svg>
             </button>
         </div>
     </header>
+
+    <main id="main-content" tabindex="-1">
 
     <section class="page-hero">
         <p class="section-label">The archive</p>
@@ -80,12 +84,12 @@
     <!-- Category filter -->
     <div class="gallery-filter-bar">
         <div class="gallery-filter-row">
-            <button class="filter-btn active" data-filter="all">All <span class="filter-count">&middot; 6</span></button>
-            <button class="filter-btn" data-filter="landscape">Landscape <span class="filter-count">&middot; 2</span></button>
-            <button class="filter-btn" data-filter="architecture">Architecture <span class="filter-count">&middot; 1</span></button>
-            <button class="filter-btn" data-filter="urban">Urban <span class="filter-count">&middot; 1</span></button>
-            <button class="filter-btn" data-filter="portrait">Portrait <span class="filter-count">&middot; 1</span></button>
-            <button class="filter-btn" data-filter="documentary">Documentary <span class="filter-count">&middot; 1</span></button>
+            <button class="filter-btn active" type="button" data-filter="all">All <span class="filter-count">&middot; 6</span></button>
+            <button class="filter-btn" type="button" id="landscape" data-filter="landscape">Landscape <span class="filter-count">&middot; 2</span></button>
+            <button class="filter-btn" type="button" id="architecture" data-filter="architecture">Architecture <span class="filter-count">&middot; 1</span></button>
+            <button class="filter-btn" type="button" id="urban" data-filter="urban">Urban <span class="filter-count">&middot; 1</span></button>
+            <button class="filter-btn" type="button" id="portrait" data-filter="portrait">Portrait <span class="filter-count">&middot; 1</span></button>
+            <button class="filter-btn" type="button" id="documentary" data-filter="documentary">Documentary <span class="filter-count">&middot; 1</span></button>
         </div>
     </div>
 
@@ -119,6 +123,8 @@
             </div>
         </div>
     </section>
+
+    </main>
 
     <footer class="site-footer">
         <section class="footer-estate-panel" aria-label="Elusion Works umbrella">
@@ -156,9 +162,13 @@
         </div>
     </footer>
 
-    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" aria-hidden="true">
-        <button class="lightbox-close" aria-label="Close">&times;</button>
-        <img src="" alt="" id="lightbox-img">
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" inert>
+        <button class="lightbox-close" type="button" aria-label="Close image preview">&times;</button>
+        <button class="lightbox-nav lightbox-prev" type="button" aria-label="Previous image">&lsaquo;</button>
+        <figure class="lightbox-figure">
+            <figcaption class="lightbox-caption" id="lightbox-caption" aria-live="polite"></figcaption>
+        </figure>
+        <button class="lightbox-nav lightbox-next" type="button" aria-label="Next image">&rsaquo;</button>
     </div>
 <script src="site.js" defer></script>
 </body>
