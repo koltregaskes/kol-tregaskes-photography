@@ -42,3 +42,6 @@ docs/HANDOFF-*.md
 # Work-in-progress drafts and archived design work
 drafts/
 design/archive/
+
+# News config checked out by the refresh workflow
+.news-pipeline/

@@ -26,5 +26,8 @@ jobs:
         with:
           node-version: 24
 
+      - name: Test the routed feed refresh
+        run: node --test tests/refresh-routed-feed.test.mjs tests/routed-feed-freshness.test.mjs
+
       - name: Validate generated files and internal references
         run: npm run check

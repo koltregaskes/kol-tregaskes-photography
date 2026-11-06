@@ -24,7 +24,9 @@ const jsSyntaxTargets = [
   'news-app.js',
   'scripts/update-news-manifest.mjs',
   'scripts/generate-sitemap.mjs',
-  'scripts/validate-site.mjs'
+  'scripts/validate-site.mjs',
+  'scripts/refresh-routed-feed.mjs',
+  'scripts/check-routed-feed-freshness.mjs'
 ];
 const inspectExtensions = new Set(['.html', '.css', '.xml', '.txt', '.md', '.json', '.webmanifest']);
 
