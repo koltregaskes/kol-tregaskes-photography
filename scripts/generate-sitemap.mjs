@@ -88,6 +88,8 @@ async function main() {
   }
 
   await fs.writeFile(sitemapPath, sitemap, 'utf8');
+  const seo = spawnSync(process.execPath, [path.join(scriptDir, 'seo.mjs')], { stdio: 'inherit' });
+  if (seo.status !== 0) throw new Error('SEO generation failed');
   console.log(`Updated ${sitemapPath}`);
 }
 
