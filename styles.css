@@ -1949,3 +1949,9 @@ main:focus { outline: none; }
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Keep news controls within narrow grid tracks. */
+.news-sidebar, .news-hero-layout > *, .news-dashboard > * { min-width: 0; }
+.news-sidebar input, .news-sidebar select { min-width: 0; max-width: 100%; }
+.news-source-toggle label, .news-card a { overflow-wrap: anywhere; }
+@media (max-width: 768px) { .news-hero-layout, .news-dashboard { grid-template-columns: minmax(0, 1fr); } }

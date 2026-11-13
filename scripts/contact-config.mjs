@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 const cfg=JSON.parse(fs.readFileSync('site-config.json','utf8').replace(/^\uFEFF/,''));
 if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cfg.contactEmail))throw Error('Invalid contact email');
 const check=process.argv.includes('--check');
