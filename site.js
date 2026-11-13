@@ -147,6 +147,8 @@ function initLightbox() {
         lightboxImage.alt = '';
         lightboxImage.width = 1200;
         lightboxImage.height = 800;
+        lightboxImage.width = 1200;
+        lightboxImage.height = 800;
         figure.prepend(lightboxImage);
     }
 
@@ -169,6 +171,8 @@ function initLightbox() {
         currentItem = item;
         lightboxImage.src = image.currentSrc || image.src;
         lightboxImage.alt = image.alt;
+        lightboxImage.width = image.naturalWidth || image.width;
+        lightboxImage.height = image.naturalHeight || image.height;
         lightboxImage.width = image.naturalWidth || image.width;
         lightboxImage.height = image.naturalHeight || image.height;
 
