@@ -5,7 +5,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 const root=process.cwd();
 const routes=(await fs.readdir(root)).filter(p=>p.endsWith('.html'));
-const browser=await chromium.launch();
+const browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL || 'msedge'});
 const errors=[];
 try {
  for(const width of [320,1280]) {
