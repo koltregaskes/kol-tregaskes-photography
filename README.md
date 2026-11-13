@@ -106,3 +106,11 @@ node scripts/check-live.mjs <extracted-directory> <https-site-base-url/>
 ```
 
 Record the run URL and its head SHA alongside the result. This compares every public artifact file with the live HTTPS response, including downloads and discovery files. Mismatches, missing files, blocked responses, network errors and the four-minute crawl deadline prevent a passing result. It prints paths and counts, never response bodies. A passing crawl proves those deployed bytes at the time checked, not freshness, source truth or launch acceptance.
+
+## Daily public freshness evidence
+
+The existing 06:30 UTC canary retains its schedule and GitHub failed-run notification route. It rejects future generation/source timestamps (over five minutes ahead) and refresh generation at least 24 hours old. Source-story age remains informational: a successful empty photography refresh is valid and must not invent articles.
+
+Run node scripts/check-public-feed-proof.mjs for a bounded read-only check of the existing HTTPS feed. A passing readback requires exact SHA-256 equality with the committed payload and successful freshness validation. Redirects, mismatches and network/HTTP failures remain unverified. Empty feeds have no invented newest-source timestamp. Each workflow run keeps a 30-day public-feed-proof artifact containing run/head, destination, generation/source-declared times and hashes.
+
+For #1507, link each actual daily run/artifact during the planned December 4-10 window. Neither the script nor a single dispatch proves seven days, original-source authenticity, failure-notification recipient delivery, recovery or post-launch-owner acceptance. The publishing workflow is unchanged: main remains live under legacy Pages, and branch pushes here do not request a live build.
