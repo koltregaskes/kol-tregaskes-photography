@@ -27,5 +27,4 @@ jobs:
           node-version: 24
       - run: npm ci
       - name: Crawl external links (bot denials require manual review)
-        continue-on-error: true
         run: node scripts/security-check.mjs --external
