@@ -35,3 +35,6 @@ jobs:
       # (scripts/validate-site.mjs) + HTML validity (scripts/check-html.mjs).
       - name: Validate generated files, internal links and HTML
         run: npm run check
+
+      - name: Routed feed tests
+        run: node --test tests/*.test.mjs

@@ -51,6 +51,8 @@ What they do:
 
 ## Automation
 
+`.github/workflows/refresh-routed-feed.yml` fetches every entry in the shared `sources.json` at 05:15 UTC, applies the photography filter in `site-filters.json`, and commits `news-digests/news-feed-latest.json`. A successful fetch that matches nothing writes a fresh empty article list and exits 0. Partial source failures warn by name and the successful sources still write. All-source failure preserves the previous feed and fails. The push to main uses the normal branch publishing route; the first scheduled run must verify its Pages build. `news.html` reads that file when it has articles, and otherwise keeps the digest archive. This job does not run a second scraper. The 06:30 UTC freshness check alarms only on feed generation time; article dates are informational. It does not fetch articles.
+
 The photography news loop now has both upstream generation and repo-local publication:
 
 - `NewsPipeline-SourceScrape` and `NewsPipeline-SourceScrape-Evening` run at `07:00` and `19:00`.
