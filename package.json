@@ -16,7 +16,9 @@
     "validate": "node scripts/validate-site.mjs",
     "html:check": "node scripts/check-html.mjs",
     "html:baseline": "node scripts/check-html.mjs --update-baseline",
-    "check": "npm run validate && npm run html:check"
+    "check": "npm run validate && npm run html:check && npm run contact:check",
+    "contact:update": "node scripts/contact-config.mjs",
+    "contact:check": "node scripts/contact-config.mjs --check"
   },
   "devDependencies": {
     "html-validate": "11.16.2"
