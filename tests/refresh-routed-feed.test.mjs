@@ -281,3 +281,17 @@ test('the refresh workflow fetches the shared config and commits only the feed',
   assert.doesNotMatch(workflow, /id-token: write/)
   assert.doesNotMatch(workflow, /secrets\.[A-Z0-9_]*(?:PAT|TOKEN)/)
 })
+
+test('one failed source still publishes the successful source and reports failure', async () => {
+  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'ktp-partial-feed-'))
+  pipeline(dir,[
+    {id:'working',name:'Working',url:'https://example.com/good',adapter:'rss',tags:['product_launch']},
+    {id:'failed',name:'Failed',url:'https://example.com/bad',adapter:'rss'},
+  ])
+  const outputPath=path.join(dir,'feed.json')
+  const result=await refreshRoutedFeed({pipelineDir:dir,outputPath,retries:1,now:new Date('2026-10-26T00:10:00Z'),fetchImpl:async url=>url.endsWith('/bad')?{ok:false,status:404,text:async()=>''}:{ok:true,status:200,text:async()=>'<rss><channel><item><title>Camera launch</title><link>https://example.com/camera</link><pubDate>Sun, 25 Oct 2026 21:31:16 GMT</pubDate></item></channel></rss>'}})
+  assert.equal(result.wrote,true)
+  assert.equal(result.failures.length,1)
+  assert.match(result.failures[0],/^failed/)
+  assert.equal(JSON.parse(fs.readFileSync(outputPath,'utf8')).generated,'2026-10-26T00:10:00.000Z')
+})
