@@ -66,7 +66,7 @@ test('html listings use dates that are on the page', () => {
     <a href="/news/donating-agent-skills-to-the-agentic-ai-foundation"><h3>Donating Agent Skills</h3></a>
     <time>Oct 22, 2026</time>
     <a href="https://www.digg.com/ai/bpr7gowe"><h3>T3 Code work list</h3></a>
-    "clusterUrlId":"bpr7gowe","createdAt":"2026-10-25T20:01:22.038587+00:00"
+    <script type="application/json">{"clusterUrlId":"bpr7gowe","createdAt":"2026-10-25T20:01:22.038587+00:00"}</script>
     </body></html>`
   const dated = parseHtml(html, {
     url: 'https://www.anthropic.com/news',
@@ -277,8 +277,12 @@ test('the refresh workflow fetches the shared config and commits only the feed',
   assert.match(workflow, /git add -- news-digests\/news-feed-latest.json/)
   assert.doesNotMatch(workflow, /git add -A|git add \./)
   assert.doesNotMatch(workflow, /actions\/deploy-pages@/)
-  assert.doesNotMatch(workflow, /pages: write/)
+  assert.match(workflow, /pages: write/)
   assert.doesNotMatch(workflow, /id-token: write/)
+  assert.match(workflow, /gh api --method POST/)
+  assert.match(workflow, /pages\/builds/)
+  assert.match(workflow, /github.ref == 'refs\/heads\/main'/)
+  assert.ok(workflow.indexOf('Validate before publishing') < workflow.indexOf('Push the refreshed feed'))
   assert.doesNotMatch(workflow, /secrets\.[A-Z0-9_]*(?:PAT|TOKEN)/)
 })
 
@@ -294,4 +298,18 @@ test('one failed source still publishes the successful source and reports failur
   assert.equal(result.failures.length,1)
   assert.match(result.failures[0],/^failed/)
   assert.equal(JSON.parse(fs.readFileSync(outputPath,'utf8')).generated,'2026-10-26T00:10:00.000Z')
+})
+
+test('embedded JSON timestamps belong to their matching story, not visible links', () => {
+ const html=`<html><body><article><a href="https://example.com/first-story">First story headline</a></article><article><a href="https://example.com/second-story">Second story headline</a></article><script type="application/json">{"stories":[{"slug":"first-story","createdAt":"2026-11-12T12:00:00Z"},{"slug":"second-story","createdAt":"2026-11-10T12:00:00Z"}]}</script></body></html>`
+ const items=parseHtml(html,{url:'https://example.com',articleLinkPattern:'https://example.com/(first-story|second-story)$',maxItems:10})
+ const dates=Object.fromEntries(items.map(item=>[item.url,item.date]))
+ assert.equal(dates['https://example.com/first-story'],'2026-11-12T12:00:00.000Z')
+ assert.equal(dates['https://example.com/second-story'],'2026-11-10T12:00:00.000Z')
+})
+
+test('a matching record without a date cannot borrow the next record date', () => {
+ const html=`<html><article><a href="https://example.com/undated-story">Undated story headline</a></article><script type="application/json">[{"slug":"undated-story"},{"slug":"other-story","createdAt":"2026-11-12T12:00:00Z"}]</script></html>`
+ const items=parseHtml(html,{url:'https://example.com',articleLinkPattern:'https://example.com/undated-story$',maxItems:10})
+ assert.equal(items.length,0)
 })

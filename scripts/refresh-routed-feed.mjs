@@ -241,24 +241,38 @@ function dateInCard(html, index) {
 
 
 function dateNearSlug(html, href) {
-  let slug = ''
-  try {
-    slug = new URL(href).pathname.split('/').filter(Boolean).pop() || ''
-  } catch {
-    return ''
-  }
+  const slug = new URL(href).pathname.split('/').filter(Boolean).pop() || ''
   if (slug.length < 4) return ''
-  let index = 0
-  while ((index = html.indexOf(slug, index)) !== -1) {
-    const created = html.slice(index, index + 1200).match(/createdAt\\?":\\?"([^"\\]+)/)
-    if (created) {
-      const iso = isoFromValue(created[1])
-      if (iso) return iso
+  const dates = new Set()
+  function visit(record) {
+    if (!record || typeof record !== 'object') return
+    if (!Array.isArray(record)) {
+      const matches = ['slug', 'url', 'href', 'permalink', 'clusterUrlId'].some(key => {
+        if (typeof record[key] !== 'string') return false
+        try { return new URL(record[key], href).pathname.split('/').filter(Boolean).pop() === slug }
+        catch { return false }
+      })
+      if (matches && Object.hasOwn(record, 'createdAt')) {
+        const date = isoFromValue(record.createdAt)
+        if (date) dates.add(date)
+      }
     }
-    index += slug.length
+    for (const value of Object.values(record)) if (value && typeof value === 'object') visit(value)
   }
-  return ''
+  for (const script of html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)) {
+    // Parse data only. Never execute embedded JavaScript or associate visible links
+    // with the next arbitrary timestamp. Escaped Next data can contain flat records.
+    const variants = [script[1], script[1].replace(/\\"/g, '"')]
+    for (const body of variants) {
+      try { visit(JSON.parse(body)) } catch {}
+      for (const object of body.matchAll(/\{[^{}]*\}/g)) {
+        try { visit(JSON.parse(object[0])) } catch {}
+      }
+    }
+  }
+  return dates.size === 1 ? [...dates][0] : ''
 }
+
 
 function summaryFromScope(scope) {
   const match = String(scope || '').match(/<p\b[^>]*>([\s\S]*?)<\/p>/i)

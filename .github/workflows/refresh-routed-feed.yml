@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: refresh-routed-feed
@@ -32,8 +33,22 @@ jobs:
           sparse-checkout: shared/website-tools/pipelines/news
           sparse-checkout-cone-mode: true
 
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+
+      - name: Install validation dependencies
+        run: npm ci
+
       - name: Fetch sources and apply the Kol Tregaskes Photography filter
         run: node scripts/refresh-routed-feed.mjs --pipeline .news-pipeline/shared/website-tools/pipelines/news
+
+      - name: Validate before publishing
+        run: |
+          npm run build
+          node --test tests/*.test.mjs
+          node scripts/security-check.mjs
 
       - name: Commit the fetched feed
         id: commit
@@ -54,3 +69,8 @@ jobs:
         if: steps.commit.outputs.committed == 'true'
         run: git push origin "HEAD:${GITHUB_REF_NAME}"
 
+      - name: Request the existing branch-based Pages build
+        if: steps.commit.outputs.committed == 'true' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
