@@ -68,3 +68,12 @@ test('the scheduled workflow runs this check every day and does not fetch', () =
   assert.doesNotMatch(workflow, /contents: write/)
   assert.doesNotMatch(workflow, /refresh-routed-feed/)
 })
+
+test('fresh generation with an old matched article does not alarm', () => {
+ const feed=feedAt('2026-10-26T05:15:00.000Z')
+ feed.articles[0].date='2026-01-01T00:00:00.000Z'
+ const assessment=assessRoutedFeedFreshness(feed,now)
+ assert.equal(assessment.warn,false)
+ assert.equal(assessment.hardFail,false)
+ assert.equal(assessment.newestItemAt,'2026-01-01T00:00:00.000Z')
+})

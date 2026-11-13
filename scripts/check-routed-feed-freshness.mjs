@@ -13,7 +13,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 const FEED_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'news-digests', 'news-feed-latest.json')
 const WARN_AFTER_DAYS = 1
 const HARD_MAX_DAYS = 3
-const MISSING_SOURCE = 'The 05:15 UTC refresh fetches every source in the shared news sources.json and commits this file after a successful fetch, including an empty article list when nothing matches. A source that cannot be fetched fails that run by name and leaves the file unchanged. This check means the committed feed was not replaced. Shared routing lists Kol Tregaskes Photography as a destination (sites/kol-tregaskes-photography/news-digests).'
+const MISSING_SOURCE = 'The 05:15 UTC refresh fetches every source in the shared news sources.json and commits this file after a successful fetch, including an empty article list when nothing matches. Partial source failures warn by name and successful sources still write. Only all-source failure or invalid configuration prevents refresh. This check means the committed feed was not replaced. Shared routing lists Kol Tregaskes Photography as a destination (sites/kol-tregaskes-photography/news-digests).'
 
 export function assessRoutedFeedFreshness(feed, now = new Date()) {
   if (!feed || typeof feed !== 'object' || !Array.isArray(feed.articles)) {
@@ -38,7 +38,7 @@ export function assessRoutedFeedFreshness(feed, now = new Date()) {
     return time
   })
   const newestMs = itemTimes.length ? Math.max(...itemTimes) : generatedMs
-  const ageDays = Math.max(nowMs - generatedMs, nowMs - newestMs) / 86_400_000
+  const ageDays = (nowMs - generatedMs) / 86_400_000
 
   return {
     ageDays,
@@ -51,7 +51,7 @@ export function assessRoutedFeedFreshness(feed, now = new Date()) {
 
 export function formatReport(assessment) {
   return [
-    `Routed feed is ${assessment.ageDays.toFixed(1)} days old (generated ${assessment.generatedAt}, newest item ${assessment.newestItemAt}).`,
+    `Routed feed generation is ${assessment.ageDays.toFixed(1)} days old (generated ${assessment.generatedAt}, newest item ${assessment.newestItemAt}, informational only}).`,
     `This check fails at ${WARN_AFTER_DAYS} day so a missed refresh is visible before a ${HARD_MAX_DAYS}-day age.`,
     `Missing source: ${MISSING_SOURCE}`,
   ].join(' ')
