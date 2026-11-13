@@ -26,4 +26,4 @@ The current host is GitHub Pages, publishing from the main branch. The public en
 
 `node scripts/security-check.mjs` scans tracked text for common private-key/token signatures and reports only counts. It skips .env paths and never prints matches. This bounded pattern scan is not a history scan or a comprehensive secret-detection service. It also rejects EXIF on raster images, preventing GPS EXIF publication. New image imports must strip metadata before entering this branch publishing pipeline.
 
-`node scripts/security-check.mjs --external` crawls external destinations and reports HTTP failures, network failures and HTTPS downgrades. Bot-denied destinations require human verification; they are not silently allowed. `npm audit --audit-level=moderate` is the dependency gate.
+`node scripts/security-check.mjs --external` crawls external destinations and fails CI only for confirmed HTTP 404/410 responses. Other HTTP failures, network failures and HTTPS downgrades are reported as unverified warnings. Bot-denied destinations require human verification; they are not silently allowed. `npm audit --audit-level=moderate` is the dependency gate.

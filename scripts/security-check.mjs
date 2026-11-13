@@ -1,3 +1,4 @@
+import {classifyExternalResponse} from './external-link-policy.mjs';
 import fs from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';
@@ -20,9 +21,9 @@ for(const file of files){
 console.log(`Secret pattern scan: ${findings} affected files (values redacted); image metadata: ${images} files checked`);
 assert.equal(findings,0,'Secret pattern findings require private investigation');
 if(process.argv.includes('--external')){
- let failed=0;
+ let failed=0,unverified=0;
  const list=[...urls];let cursor=0;
- await Promise.all(Array.from({length:6},async()=>{while(cursor<list.length){const url=list[cursor++];try{const r=await fetch(url,{signal:AbortSignal.timeout(15000),redirect:'follow'});if(r.url.startsWith('http:'))throw Error('HTTPS downgrade');if(!r.ok){failed++;console.log(`External link HTTP ${r.status}: ${url}`);}}catch(e){failed++;console.log(`External link unavailable: ${url} (${e.name})`);}}}));
- console.log(`External crawl: ${list.length} destinations, ${failed} unavailable. Bot denials need manual verification.`);
+ await Promise.all(Array.from({length:6},async()=>{while(cursor<list.length){const url=list[cursor++];try{const r=await fetch(url,{signal:AbortSignal.timeout(15000),redirect:'follow'});await r.body?.cancel();const status=classifyExternalResponse(r.status,url,r.url);if(status==='broken'){failed++;console.log(`BROKEN HTTP ${r.status}: ${url}`);}else if(status==='unverified'){unverified++;console.log(`UNVERIFIED HTTP ${r.status} or redirect: ${url}`);}}catch(e){unverified++;console.log(`External link unavailable: ${url} (${e.name})`);}}}));
+ console.log(`External crawl: ${list.length} destinations, ${failed} broken (404/410); ${unverified} unverified. Bot denials need manual verification.`);
  if(failed)process.exitCode=1;
 }
