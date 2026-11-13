@@ -171,9 +171,15 @@ class PhotographyNewsApp {
         };
 
         await Promise.all(Array.from({ length: workerCount }, () => worker()));
-        this.articles = results
-            .flat()
-            .filter((article) => this.shouldDisplayArticle(article))
+        const routed = await this.loadRoutedArticles();
+        const seen = new Set();
+        this.articles = [];
+        for (const article of [...routed, ...results.flat().filter((article) => this.shouldDisplayArticle(article))]) {
+            if (!article?.url || seen.has(article.url)) continue;
+            seen.add(article.url);
+            this.articles.push(article);
+        }
+        this.articles = this.articles
             .sort((left, right) => {
                 if (right.date.getTime() !== left.date.getTime()) {
                     return right.date.getTime() - left.date.getTime();
@@ -199,6 +205,35 @@ class PhotographyNewsApp {
 
         if (this.loading) {
             this.loading.hidden = true;
+        }
+    }
+
+    async loadRoutedArticles() {
+        try {
+            const response = await fetch('news-digests/news-feed-latest.json', { cache: 'no-store' });
+            if (!response.ok) return [];
+            const payload = await response.json();
+            if (payload?.site !== 'Kol Tregaskes Photography' || !Array.isArray(payload.articles)) return [];
+            return payload.articles.map((article) => {
+                const date = new Date(article.date);
+                const tags = Array.isArray(article.matching_tags) && article.matching_tags.length
+                    ? article.matching_tags
+                    : (article.tags || []);
+                return {
+                    title: article.title,
+                    url: article.url,
+                    source: article.source,
+                    score: Number(article.importance) || null,
+                    date,
+                    dateKey: Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10),
+                    dateLabel: this.formatDateLabel(date),
+                    compactDateLabel: this.formatCardDate(date),
+                    summary: article.summary || article.title,
+                    tags
+                };
+            }).filter((article) => article.title && /^https?:\/\//i.test(article.url || '') && !Number.isNaN(article.date.getTime()) && this.shouldDisplayArticle(article));
+        } catch {
+            return [];
         }
     }
 
