@@ -31,7 +31,7 @@ if ($stagedBefore) {
     throw 'publish-digests.ps1 will not run while unrelated staged changes exist. Clear the index first.'
 }
 
-Invoke-Step 'Staging digest outputs' { git add -A -- news-digests sitemap.xml }
+Invoke-Step 'Staging digest outputs' { git add -A -- news-digests sitemap.xml rss.xml }
 $hasChanges = $LASTEXITCODE -eq 0
 if (-not $hasChanges) {
     throw 'git add failed while staging digest outputs.'
