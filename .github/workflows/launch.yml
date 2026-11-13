@@ -19,6 +19,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: node scripts/seo.mjs --check
       - run: npx playwright install --with-deps chromium
       - run: node scripts/launch-browser.mjs

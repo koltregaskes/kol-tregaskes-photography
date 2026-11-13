@@ -3,9 +3,8 @@ name: Routed feed freshness
 on:
   workflow_dispatch:
   schedule:
-    # 06:30 UTC every day. Fails once news-digests/news-feed-latest.json or its newest
-    # item is 1 day old. No public feed URL exists, so this job does not
-    # download or invent articles.
+    # 06:30 UTC daily. Fails when feed generation is at least one day old.
+    # Article dates are informational; this check never fetches articles.
     - cron: '30 6 * * *'
 
 permissions:
