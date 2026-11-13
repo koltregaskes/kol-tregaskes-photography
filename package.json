@@ -19,6 +19,9 @@
     "check": "npm run validate && npm run html:check"
   },
   "devDependencies": {
-    "html-validate": "11.16.2"
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.65.0",
+    "html-validate": "11.16.2",
+    "sharp": "0.35.5"
   }
 }
