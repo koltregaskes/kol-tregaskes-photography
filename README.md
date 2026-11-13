@@ -80,3 +80,7 @@ Then open `http://127.0.0.1:4285/`.
 ## CI
 
 GitHub Actions runs the same validation on push and pull request via `.github/workflows/site-validation.yml`.
+
+## SEO contract
+
+Run `node scripts/seo.mjs` after public content changes and `node scripts/seo.mjs --check` before committing. CI checks page canonical URLs, PNG sharing cards, JSON-LD, RSS, sitemap routes, robots and llms.txt. RSS uses source publication dates, never the build clock. Search Console and Bing verification and sitemap submission require the site owner.

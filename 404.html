@@ -12,13 +12,18 @@
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="site.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Hanken+Grotesk:wght@300..600&family=DM+Mono:wght@400&display=swap">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
     <header class="site-header scrolled" id="header">
         <div class="header-inner">
             <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
-            <nav class="main-nav" id="nav">
+            <nav class="main-nav" id="nav" aria-label="Main">
                 <a href="index.html">Home</a>
                 <a href="blog.html">Blog</a>
                 <a href="news.html">News</a>
@@ -26,7 +31,7 @@
                 <a href="about.html">About</a>
                 <a href="contact.html">Contact</a>
             </nav>
-            <button class="nav-toggle" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
+            <button class="nav-toggle" type="button" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <line x1="4" y1="7" x2="20" y2="7"></line>
                     <line x1="4" y1="12" x2="20" y2="12"></line>
@@ -35,6 +40,8 @@
             </button>
         </div>
     </header>
+
+    <main id="main-content" tabindex="-1">
 
     <section class="contact-section">
         <div class="contact-inner">
@@ -47,6 +54,8 @@
             </div>
         </div>
     </section>
+
+    </main>
 
     <footer class="site-footer">
         <section class="footer-estate-panel" aria-label="Elusion Works umbrella">
