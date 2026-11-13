@@ -26,3 +26,5 @@ jobs:
       - run: node scripts/launch-browser.mjs
       - name: Check inactive archive-source labels at phone widths
         run: node scripts/check-unavailable-sources-browser.mjs
+      - name: Enforce public image weights, decoding and alt text
+        run: node scripts/check-images.mjs

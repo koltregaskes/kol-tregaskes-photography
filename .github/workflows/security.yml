@@ -17,6 +17,9 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=moderate
       - run: node scripts/security-check.mjs
+
+      - name: Check public static policy and data collection boundary
+        run: node scripts/check-public-boundary.mjs
   external-links:
     runs-on: ubuntu-latest
     timeout-minutes: 5
