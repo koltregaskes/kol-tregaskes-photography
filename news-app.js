@@ -213,12 +213,19 @@ class PhotographyNewsApp {
         }
     }
 
+    unknownRefreshState(payload) {
+        const articles = payload?.site === 'Kol Tregaskes Photography' && Array.isArray(payload.articles)
+            ? payload.articles.filter(article => article && typeof article.title === 'string' && /^https?:\/\//i.test(article.url || '') && Number.isFinite(Date.parse(article.date)))
+            : [];
+        return { state: 'unknown', articles, message: 'Latest refresh state is unknown because its status helper is unavailable. Archive content keeps its original digest dates.' };
+    }
+
     async loadRoutedArticles() {
         try {
             const response = await fetch('news-digests/news-feed-latest.json', { cache: 'no-store' });
             if (!response.ok) throw new Error('Routed feed unavailable');
             const payload = await response.json();
-            this.feedAssessment = globalThis.KTPNewsState.assessRoutedFeed(payload);
+            this.feedAssessment = globalThis.KTPNewsState?.assessRoutedFeed?.(payload) ?? this.unknownRefreshState(payload);
             return this.feedAssessment.articles.map((article) => {
                 const date = new Date(article.date);
                 const tags = Array.isArray(article.matching_tags) && article.matching_tags.length
@@ -238,7 +245,7 @@ class PhotographyNewsApp {
                 };
             }).filter((article) => article.title && /^https?:\/\//i.test(article.url || '') && !Number.isNaN(article.date.getTime()) && this.shouldDisplayArticle(article));
         } catch {
-            this.feedAssessment = globalThis.KTPNewsState.assessRoutedFeed(null);
+            this.feedAssessment = globalThis.KTPNewsState?.assessRoutedFeed?.(null) ?? this.unknownRefreshState(null);
             return [];
         }
     }

@@ -10,7 +10,7 @@
   const rejected=feed.articles.length-articles.length;
   const message=(state==='stale'?'Latest routed refresh is over 24 hours old. ':state==='empty'?'Latest refresh returned no matching photography stories. ':'Latest routed refresh available. ')+
    'Generated: '+generatedAt+'. '+(newestSourceAt?'Newest source-declared story: '+newestSourceAt+'. ':'No source-story timestamp is claimed. ')+
-   (rejected?rejected+' malformed entries were skipped. ':'')+'The archive retains its original digest dates.';
+   (rejected?rejected+(rejected===1?' malformed entry was skipped. ':' malformed entries were skipped. '):'')+'The archive retains its original digest dates.';
   return {state,articles,generatedAt,newestSourceAt,rejected,message};
  }
  globalThis.KTPNewsState=Object.freeze({assessRoutedFeed});
