@@ -11,7 +11,7 @@ const pages=fs.readdirSync(root,{recursive:true}).filter(p=>p.endsWith('.html')&
 const urls=[];
 for(const p of pages){
  let html=read(p); const route=p.replaceAll('\\','/').replace(/index\.html$/,''); const url=new URL(route,cfg.base).href;
- if(p==='404.html')continue;
+ if(p==='404.html'||/<meta[^>]*name="robots"[^>]*content="[^"]*noindex/i.test(html))continue;
  urls.push(url);
  // Preserve existing site-specific graph and descriptions, normalise sharing URLs.
  html=html.replace(/\s*<link\b[^>]*rel="(?:canonical|alternate)"[^>]*>/g,'').replace(/\s*<meta\b[^>]*(?:property="og:(?:url|image(?:\:[^"]+)?)"|name="twitter:(?:card|image(?:\:[^"]+)?)")[^>]*>/g,'');
