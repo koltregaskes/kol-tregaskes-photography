@@ -276,7 +276,7 @@ test('the refresh workflow fetches the shared config and commits only the feed',
   assert.match(workflow, /node scripts\/refresh-routed-feed\.mjs --pipeline/)
   assert.match(workflow, /git add -- news-digests\/news-feed-latest.json/)
   assert.doesNotMatch(workflow, /git add -A|git add \./)
-  assert.match(workflow, /actions\/deploy-pages@/)
+  assert.doesNotMatch(workflow, /actions\/deploy-pages@/)
   assert.match(workflow, /pages: write/)
   assert.match(workflow, /id-token: write/)
   assert.doesNotMatch(workflow, /secrets\.[A-Z0-9_]*(?:PAT|TOKEN)/)
