@@ -634,8 +634,8 @@ class PhotographyNewsApp {
 
         if (this.articles.length === 0) {
             this.empty.hidden = false;
-            this.empty.querySelector('strong').textContent = 'No digests have landed yet.';
-            this.empty.querySelector('span').textContent = 'Once the photography-filtered pipeline writes fresh digests into news-digests, the archive will appear here automatically.';
+            this.empty.querySelector('strong').textContent = 'No stories are available right now.';
+            this.empty.querySelector('span').textContent = 'The current feed or archive may be empty or unavailable. Retry later or use the dated RSS feed; no publication history is inferred from this result.';
             return;
         }
 
