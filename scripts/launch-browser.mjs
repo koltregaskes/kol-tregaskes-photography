@@ -1,3 +1,4 @@
+import {findOverflow} from './overflow-check.mjs';
 import { WIDTHS, discoverRoutes } from './launch-routes.mjs';
 import { chromium } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
@@ -39,8 +40,9 @@ try {
    if(unknownContrast)console.log(name+' '+width+': '+unknownContrast+' contrast nodes require human review');
    const serious=axe.violations.filter(v=>['serious','critical'].includes(v.impact));
    if(serious.length)errors.push(`${name} ${width}: axe ${serious.map(v=>v.id).join(',')}`);
-   const layout=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,images:[...document.images].filter(i=>!i.hasAttribute('alt')||!Number(i.getAttribute('width'))||!Number(i.getAttribute('height'))).map(i=>i.getAttribute('src'))}));
-   if(layout.overflow)errors.push(`${name} ${width}: horizontal overflow`);
+   const layout=await page.evaluate(()=>({images:[...document.images].filter(i=>!i.hasAttribute('alt')||!Number(i.getAttribute('width'))||!Number(i.getAttribute('height'))).map(i=>i.getAttribute('src'))}));
+   const overflow=await page.evaluate(findOverflow);
+   if(overflow.length)errors.push(`${name} ${width}: overflow or clipping ${JSON.stringify(overflow.slice(0,8))}`);
    if(layout.images.length)errors.push(`${name} ${width}: missing image alt/dimensions (${layout.images.length})`);
    await page.close();
   }
