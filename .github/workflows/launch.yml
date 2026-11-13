@@ -1,4 +1,4 @@
-﻿name: Launch acceptance
+name: Launch acceptance
 on:
   pull_request:
   push:

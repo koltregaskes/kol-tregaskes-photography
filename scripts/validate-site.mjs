@@ -31,11 +31,7 @@ const inspectExtensions = new Set(['.html', '.css', '.xml', '.txt', '.md', '.jso
 // Anchors known to be broken today. Each entry is "source page -> link".
 // The pages are being edited in another PR, so these are allowed for now;
 // fix the page (add the id, or drop the #fragment) and remove the entry.
-const knownBrokenAnchors = new Set([
-  'index.html -> gallery.html#landscape',
-  'index.html -> gallery.html#architecture',
-  'index.html -> gallery.html#documentary'
-]);
+const knownBrokenAnchors = new Set();
 
 function isExternalReference(ref) {
   return /^(?:[a-zA-Z][a-zA-Z0-9+.-]*:|\/\/)/.test(ref);
