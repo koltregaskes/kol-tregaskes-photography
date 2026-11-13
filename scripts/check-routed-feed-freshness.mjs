@@ -51,7 +51,7 @@ export function assessRoutedFeedFreshness(feed, now = new Date()) {
 
 export function formatReport(assessment) {
   return [
-    `Routed feed generation is ${assessment.ageDays.toFixed(1)} days old (generated ${assessment.generatedAt}, newest item ${assessment.newestItemAt}, informational only}).`,
+    `Routed feed generation is ${assessment.ageDays.toFixed(1)} days old (generated ${assessment.generatedAt}, newest item ${assessment.newestItemAt}, informational only).`,
     `This check fails at ${WARN_AFTER_DAYS} day so a missed refresh is visible before a ${HARD_MAX_DAYS}-day age.`,
     `Missing source: ${MISSING_SOURCE}`,
   ].join(' ')

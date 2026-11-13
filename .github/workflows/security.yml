@@ -1,4 +1,4 @@
-﻿name: Security checks
+name: Security checks
 on:
   pull_request:
   push:
