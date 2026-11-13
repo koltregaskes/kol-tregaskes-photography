@@ -2,6 +2,16 @@
 
 Static portfolio site for Kol Tregaskes Photography.
 
+## Deployment and rollback rehearsal
+
+Record the current known-good commit, successful branch Pages build and rehearsal evidence on the [launch issue](https://github.com/koltregaskes/rooms-os-hub/issues/1507), rather than keeping a dated baseline in this README.
+
+This site publishes directly from main through the legacy branch Pages builder. The primary rollback path is a narrowly scoped revert PR on main: obtain Claude approval and green checks, merge it, wait for the branch Pages build, then verify the public HTTPS bytes against the intended revision. Restore the desired reviewed release through a further reviewed PR and repeat the build and destination checks.
+
+Do not assume rerunning an old pages-build-deployment run republishes its old commit; that behaviour has not been proved. Do not change the Pages source, force-push main, alter DNS or restart a legacy writer as part of a rollback. A Pages source change requires Kol's approval.
+
+Keep fresh news data and source timestamps under the existing writer; revert only the faulty change rather than blindly restoring old data. Record build URLs, exact commits, public hashes, failures and recovery on the launch issue. Confirm the named operational owner and distinguish offline artifact restoration from a production rollback or data-recovery test.
+
 ## Structure
 
 - `index.html` - homepage and featured work
