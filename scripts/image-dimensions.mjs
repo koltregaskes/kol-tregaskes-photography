@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs/promises';
+import fs from 'node:fs/promises';
 import sharp from 'sharp';
 for(const file of (await fs.readdir('.')).filter(p=>p.endsWith('.html'))){
  let html=await fs.readFile(file,'utf8');
@@ -10,7 +10,3 @@ for(const file of (await fs.readdir('.')).filter(p=>p.endsWith('.html'))){
  }
  await fs.writeFile(file,html);
 }
-let js=await fs.readFile('site.js','utf8');
-js=js.replace("lightboxImage.alt = '';", "lightboxImage.alt = '';\n        lightboxImage.width = 1200;\n        lightboxImage.height = 800;");
-js=js.replace('lightboxImage.alt = image.alt;', 'lightboxImage.alt = image.alt;\n        lightboxImage.width = image.naturalWidth || image.width;\n        lightboxImage.height = image.naturalHeight || image.height;');
-await fs.writeFile('site.js',js);

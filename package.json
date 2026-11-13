@@ -16,9 +16,11 @@
     "validate": "node scripts/validate-site.mjs",
     "html:check": "node scripts/check-html.mjs",
     "html:baseline": "node scripts/check-html.mjs --update-baseline",
-    "check": "npm run validate && npm run html:check",
+    "check": "npm run validate && npm run html:check && npm run contact:check",
     "build": "npm run check && node scripts/seo.mjs --check",
-    "test:launch": "node scripts/launch-browser.mjs"
+    "test:launch": "node scripts/launch-browser.mjs",
+    "contact:update": "node scripts/contact-config.mjs",
+    "contact:check": "node scripts/contact-config.mjs --check"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
