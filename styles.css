@@ -1,8 +1,10 @@
 /* Kol Tregaskes Photography - Portfolio Design System */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap');
+/* Fonts load by <link> in each page head (see DESIGN.md section 4). */
 
 :root {
+  color-scheme: dark; /* dark-first: the darkroom */
+
   /* Palette - cool, restrained, lets images breathe */
   --bg: #08090c;
   --bg-elevated: #11131a;
@@ -10,7 +12,7 @@
   --bg-card-soft: #1c2029;
   --text: #e6e8ec;
   --text-secondary: #8a8f9a;
-  --text-muted: #555a66;
+  --text-muted: #8a9098; /* WCAG AA: >= 4.5:1 on every surface token (was #555a66, 2.88:1) */
   --accent: #6b8db5;
   --accent-hover: #8aa7c8;
   --accent-soft: rgba(107, 141, 181, 0.14);
@@ -19,7 +21,12 @@
 
   /* Typography */
   --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --font-body: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --radius-0: 0;          /* every photograph and tile: prints have square corners */
+  --radius-1: 2px;        /* inputs and buttons */
+  --radius-pill: 999px;   /* filter chips only */
+  --text-floor: 0.75rem;  /* 12px: nothing on the site is smaller */
 
   /* Spacing */
   --pad-x: clamp(20px, 5vw, 80px);
@@ -66,6 +73,9 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   transform: translateY(-180%);
   transition: transform 0.18s ease;
 }
+
+/* Skip-link target: focus moves to <main tabindex="-1">, no ring needed on the region itself. */
+main:focus { outline: none; }
 
 .skip-link:focus-visible {
   transform: translateY(0);
@@ -284,7 +294,8 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   padding: 20px;
 }
 
-.gallery-item:hover .gallery-item-overlay { opacity: 1; }
+.gallery-item:hover .gallery-item-overlay,
+.gallery-item:focus-visible .gallery-item-overlay { opacity: 1; }
 
 .gallery-item.is-placeholder .gallery-item-overlay {
   opacity: 1;
@@ -299,7 +310,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .gallery-item-meta {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
   margin-top: 0.25rem;
   letter-spacing: 0.05em;
@@ -396,7 +407,8 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   text-transform: uppercase;
 }
 
-.about-text h1 {
+.about-text h1,
+.about-text h2 {
   font-family: var(--font-display);
   font-size: 2.5rem;
   font-weight: 300;
@@ -499,7 +511,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .footer-links a {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -524,7 +536,8 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   cursor: zoom-out;
 }
 
-.lightbox.active { opacity: 1; visibility: visible; }
+/* Visibility flips instantly on open so focus can move into the dialog straight away. */
+.lightbox.active { opacity: 1; visibility: visible; transition: opacity 0.3s, visibility 0s; }
 
 .lightbox img {
   max-width: 92vw;
@@ -547,6 +560,45 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .lightbox-close:hover { color: var(--text); }
+
+.lightbox-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.lightbox-caption {
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.lightbox-caption:empty { display: none; }
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  width: 48px;
+  height: 48px;
+  margin-top: -24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(8, 9, 12, 0.6);
+  color: var(--text-secondary);
+  font-size: 2rem;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.lightbox-nav[hidden] { display: none; }
+.lightbox-nav:hover { color: var(--text); }
+.lightbox-prev { left: 16px; }
+.lightbox-next { right: 16px; }
 
 /* ─── Page header (gallery, about, contact) ────────────────────── */
 
@@ -645,7 +697,8 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .nav-toggle:focus-visible,
-.lightbox-close:focus-visible {
+.lightbox-close:focus-visible,
+.lightbox-nav:focus-visible {
   outline-offset: 5px;
 }
 
@@ -781,7 +834,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .blog-post-date {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -812,7 +865,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--accent);
@@ -898,7 +951,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 
 .news-metric span {
   display: block;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -936,7 +989,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .news-sidebar h3 {
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -981,7 +1034,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   border: 1px solid var(--border);
   color: var(--text-secondary);
   padding: 0.55rem 0.75rem;
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
@@ -1031,7 +1084,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   color: var(--text);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
 }
 
 .news-main {
@@ -1094,7 +1147,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 
 .news-group-header span {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -1124,7 +1177,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   gap: 0.8rem;
   flex-wrap: wrap;
   margin-bottom: 0.7rem;
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -1177,23 +1230,25 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   padding: 0.35rem 0.6rem;
   border: 1px solid var(--border);
   color: var(--text-secondary);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .news-read-link {
   color: var(--accent);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
-.error-code {
+.error-code,
+.contact-inner .error-code {
   font-family: var(--font-display);
   font-size: 6rem;
   font-weight: 300;
-  opacity: 0.1;
+  color: var(--text);
+  opacity: 0.42; /* large text: keeps >= 3:1 (WCAG 1.4.3) */
   line-height: 1;
 }
 
@@ -1268,7 +1323,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .footer-heading {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -1337,7 +1392,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .contact-field span {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -1395,7 +1450,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 }
 
 .news-date-field span {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -1416,7 +1471,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   padding: 0.35rem 0.6rem;
   border: 1px solid var(--border);
   color: var(--text-secondary);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
@@ -1551,7 +1606,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 
 .doorway-label .meta {
   color: var(--text-secondary);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -1580,7 +1635,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   margin-bottom: 6px;
   color: var(--accent);
   font-family: var(--font-display);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
@@ -1602,7 +1657,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 .footer-estate-cta {
   justify-self: end;
   color: var(--accent);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -1660,7 +1715,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   display: block;
   margin-top: 18px;
   color: var(--text-muted);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -1669,7 +1724,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
   margin-bottom: 14px;
   color: var(--text);
   font-family: var(--font-display);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
@@ -1711,7 +1766,7 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 
 .blog-post-tag {
   color: var(--text-muted);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -1881,5 +1936,16 @@ button { font: inherit; cursor: pointer; background: none; border: none; color: 
 
   .doorway-grid > :last-child {
     aspect-ratio: 4 / 5;
+  }
+}
+
+/* ─── Reduced motion ───────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

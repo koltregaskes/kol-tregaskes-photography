@@ -12,19 +12,15 @@
     <meta property="og:title" content="Gallery - Kol Tregaskes Photography">
     <meta property="og:description" content="Gallery status for Kol Tregaskes Photography. The final curated image set is being prepared before public publication.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://koltregaskesphotography.com/gallery.html">
-    <meta property="og:image" content="https://koltregaskesphotography.com/social-preview.png">
-    <meta property="og:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
-    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Gallery - Kol Tregaskes Photography">
     <meta name="twitter:description" content="Gallery status for Kol Tregaskes Photography. The final curated image set is being prepared before public publication.">
-    <meta name="twitter:image" content="https://koltregaskesphotography.com/social-preview.png">
-    <meta name="twitter:image:alt" content="Kol Tregaskes Photography wordmark on a dark editorial background">
-    <link rel="canonical" href="https://koltregaskesphotography.com/gallery.html">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <link rel="icon" href="favicon.ico" sizes="any">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <link rel="manifest" href="site.webmanifest">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Hanken+Grotesk:wght@300..600&family=DM+Mono:wght@400&display=swap">
     <link rel="stylesheet" href="styles.css">
     <script type="application/ld+json">
     {
@@ -48,13 +44,25 @@
       ]
     }
     </script>
+<link rel="canonical" href="https://koltregaskesphotography.com/gallery.html">
+<meta property="og:url" content="https://koltregaskesphotography.com/gallery.html">
+<meta property="og:image" content="https://koltregaskesphotography.com/social-preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Kol Tregaskes Photography">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://koltregaskesphotography.com/social-preview.png">
+<link rel="alternate" type="application/rss+xml" title="Kol Tregaskes Photography" href="https://koltregaskesphotography.com/rss.xml">
+
 </head>
 <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
 
     <header class="site-header" id="header">
         <div class="header-inner">
             <a href="index.html" class="site-name">Kol Tregaskes <span>Photography</span></a>
-            <nav class="main-nav" id="nav">
+            <nav class="main-nav" id="nav" aria-label="Main">
                 <a href="index.html">Home</a>
                 <a href="gallery.html" class="active">Gallery</a>
                 <a href="blog.html">Blog</a>
@@ -63,13 +71,15 @@
                 <a href="about.html">About</a>
                 <a href="contact.html">Contact</a>
             </nav>
-            <button class="nav-toggle" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
+            <button class="nav-toggle" type="button" id="nav-toggle" aria-controls="nav" aria-expanded="false" aria-label="Open navigation">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                     <line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/>
                 </svg>
             </button>
         </div>
     </header>
+
+    <main id="main-content" tabindex="-1">
 
     <section class="page-hero">
         <p class="section-label">The archive</p>
@@ -80,12 +90,12 @@
     <!-- Category filter -->
     <div class="gallery-filter-bar">
         <div class="gallery-filter-row">
-            <button class="filter-btn active" data-filter="all">All <span class="filter-count">&middot; 6</span></button>
-            <button class="filter-btn" data-filter="landscape">Landscape <span class="filter-count">&middot; 2</span></button>
-            <button class="filter-btn" data-filter="architecture">Architecture <span class="filter-count">&middot; 1</span></button>
-            <button class="filter-btn" data-filter="urban">Urban <span class="filter-count">&middot; 1</span></button>
-            <button class="filter-btn" data-filter="portrait">Portrait <span class="filter-count">&middot; 1</span></button>
-            <button class="filter-btn" data-filter="documentary">Documentary <span class="filter-count">&middot; 1</span></button>
+            <button class="filter-btn active" type="button" data-filter="all">All <span class="filter-count">&middot; 6</span></button>
+            <button class="filter-btn" type="button" id="landscape" data-filter="landscape">Landscape <span class="filter-count">&middot; 2</span></button>
+            <button class="filter-btn" type="button" id="architecture" data-filter="architecture">Architecture <span class="filter-count">&middot; 1</span></button>
+            <button class="filter-btn" type="button" id="urban" data-filter="urban">Urban <span class="filter-count">&middot; 1</span></button>
+            <button class="filter-btn" type="button" id="portrait" data-filter="portrait">Portrait <span class="filter-count">&middot; 1</span></button>
+            <button class="filter-btn" type="button" id="documentary" data-filter="documentary">Documentary <span class="filter-count">&middot; 1</span></button>
         </div>
     </div>
 
@@ -119,6 +129,8 @@
             </div>
         </div>
     </section>
+
+    </main>
 
     <footer class="site-footer">
         <section class="footer-estate-panel" aria-label="Elusion Works umbrella">
@@ -156,9 +168,13 @@
         </div>
     </footer>
 
-    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" aria-hidden="true">
-        <button class="lightbox-close" aria-label="Close">&times;</button>
-        <img src="" alt="" id="lightbox-img">
+    <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Image preview" inert>
+        <button class="lightbox-close" type="button" aria-label="Close image preview">&times;</button>
+        <button class="lightbox-nav lightbox-prev" type="button" aria-label="Previous image">&lsaquo;</button>
+        <figure class="lightbox-figure">
+            <figcaption class="lightbox-caption" id="lightbox-caption" aria-live="polite"></figcaption>
+        </figure>
+        <button class="lightbox-nav lightbox-next" type="button" aria-label="Next image">&rsaquo;</button>
     </div>
 <script src="site.js" defer></script>
 </body>

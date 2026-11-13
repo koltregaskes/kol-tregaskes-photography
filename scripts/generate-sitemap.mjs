@@ -81,13 +81,16 @@ async function main() {
 
   if (checkOnly) {
     const current = await fs.readFile(sitemapPath, 'utf8');
-    if (current.trim() !== sitemap.trim()) {
+    // Normalise CRLF so a Windows checkout (core.autocrlf=true) compares equal.
+    if (current.replace(/\r\n/g, '\n').trim() !== sitemap.trim()) {
       throw new Error('sitemap.xml is out of date. Run `npm run sitemap:update`.');
     }
     return;
   }
 
   await fs.writeFile(sitemapPath, sitemap, 'utf8');
+  const seo = spawnSync(process.execPath, [path.join(scriptDir, 'seo.mjs')], { stdio: 'inherit' });
+  if (seo.status !== 0) throw new Error('SEO generation failed');
   console.log(`Updated ${sitemapPath}`);
 }
 
