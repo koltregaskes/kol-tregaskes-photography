@@ -3,6 +3,8 @@ on:
   pull_request:
   push:
     branches: [main]
+env:
+  PLAYWRIGHT_CHANNEL: msedge
 permissions:
   contents: read
 jobs:
@@ -19,5 +21,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: npx playwright install --with-deps chromium
+      - name: Verify installed Edge (no browser download)
+        run: microsoft-edge --version
       - run: node scripts/launch-browser.mjs

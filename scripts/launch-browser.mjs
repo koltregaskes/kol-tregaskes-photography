@@ -5,11 +5,12 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 const root=process.cwd();
 const routes=(await fs.readdir(root)).filter(p=>p.endsWith('.html'));
-const browser=await chromium.launch();
+const browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL || 'msedge'});
 const errors=[];
 try {
  for(const width of [320,1280]) {
   const context=await browser.newContext({viewport:{width,height:900}});
+  await context.addInitScript(()=>{window.__cspViolations=[];document.addEventListener('securitypolicyviolation',event=>window.__cspViolations.push(event.effectiveDirective));});
   await context.route('**/*',async route=>{
    const u=new URL(route.request().url());
    if(u.hostname!=='ktp.test')return route.abort();
@@ -21,6 +22,10 @@ try {
   for(const name of routes){
    const page=await context.newPage();
    await page.goto('https://ktp.test/'+name,{waitUntil:'networkidle'});
+   await page.evaluate(()=>document.fonts.ready);
+   // Check application events before axe's injected stylesheet-fetch helpers.
+   const csp=await page.evaluate(()=>window.__cspViolations);
+   if(csp.length)errors.push(name+' '+width+': CSP violations '+[...new Set(csp)].join(','));
    const axe=await new AxeBuilder({page}).analyze();
    const serious=axe.violations.filter(v=>['serious','critical'].includes(v.impact));
    if(serious.length)errors.push(`${name} ${width}: axe ${serious.map(v=>v.id).join(',')}`);
