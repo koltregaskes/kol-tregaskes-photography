@@ -4,12 +4,13 @@ Static portfolio site for Kol Tregaskes Photography.
 
 ## Deployment and rollback rehearsal
 
-The existing successful main deployment [run 43395758542](https://github.com/koltregaskes/kol-tregaskes-photography/actions/runs/43395758542) at 9573e3b is the baseline. Its github-pages artifact was restored into a new isolated candidate directory. A deliberate homepage-byte change was detected, then re-extracting the retained artifact restored all 386 file hashes. This is an offline artifact-restoration rehearsal, not a production rollback or a data-recovery claim.
+Record the current known-good commit, successful branch Pages build and rehearsal evidence on the [launch issue](https://github.com/koltregaskes/rooms-os-hub/issues/1507), rather than keeping a dated baseline in this README.
 
-For a live rehearsal, record a known-good successful main deployment run and immutable commit before deploying the reviewed release. If rollback is needed, rerun that known-good Pages deployment through the existing pipeline, then verify every public artifact file over HTTPS. Restore the latest reviewed release through its deployment run and repeat the byte readback. Do not force-push main, alter hosting/DNS, restart a legacy writer, or treat a green job as destination proof. If the historical run cannot be rerun, prepare a narrowly scoped revert PR, obtain review and green checks, then use the normal pipeline.
+This site publishes directly from main through the legacy branch Pages builder. The primary rollback path is a narrowly scoped revert PR on main: obtain Claude approval and green checks, merge it, wait for the branch Pages build, then verify the public HTTPS bytes against the intended revision. Restore the desired reviewed release through a further reviewed PR and repeat the build and destination checks.
 
-Keep dynamic news/calendar data and source timestamps under the existing writer: reverting the site is not permission to roll back fresh data blindly. Record the run URLs, exact commits, observed public hashes, failures and recovery on the owning launch issue. The source maintainer retains post-launch follow-through; a named operational owner and actual live rollback/failure-alert acceptance remain required.
+Do not assume rerunning an old pages-build-deployment run republishes its old commit; that behaviour has not been proved. Do not change the Pages source, force-push main, alter DNS or restart a legacy writer as part of a rollback. A Pages source change requires Kol's approval.
 
+Keep fresh news data and source timestamps under the existing writer; revert only the faulty change rather than blindly restoring old data. Record build URLs, exact commits, public hashes, failures and recovery on the launch issue. Confirm the named operational owner and distinguish offline artifact restoration from a production rollback or data-recovery test.
 
 ## Structure
 
