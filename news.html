@@ -167,6 +167,8 @@
             </aside>
 
             <section class="news-main" aria-live="polite">
+                <p id="news-feed-status" class="news-feed-status" role="status">Checking the latest routed refresh; archive dates remain unchanged.</p>
+                <noscript><p>The interactive archive needs JavaScript. Read the <a href="rss.xml">dated RSS feed</a> instead.</p></noscript>
                 <div id="news-summary" class="news-summary" hidden>
                     <span id="news-summary-text"></span>
                     <span id="news-summary-note">All available</span>
@@ -226,6 +228,7 @@
     </footer>
 
     <script src="site.js" defer></script>
+    <script src="news-state.js" defer></script>
     <script src="news-app.js" defer></script>
 </body>
 </html>

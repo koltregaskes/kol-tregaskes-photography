@@ -68,6 +68,7 @@ class PhotographyNewsApp {
 
     cacheElements() {
         this.loading = document.getElementById('news-loading');
+        this.feedStatus = document.getElementById('news-feed-status');
         this.empty = document.getElementById('news-empty');
         this.groups = document.getElementById('news-groups');
         this.summary = document.getElementById('news-summary');
@@ -189,6 +190,10 @@ class PhotographyNewsApp {
 
         this.filteredArticles = [...this.articles];
         this.updateStats();
+        if (this.feedStatus) {
+            this.feedStatus.textContent = this.feedAssessment?.message || 'Latest routed refresh unavailable. The dated digest archive remains below.';
+            this.feedStatus.dataset.state = this.feedAssessment?.state || 'unavailable';
+        }
 
         if (this.searchInput) {
             this.searchInput.value = this.searchTerm;
@@ -211,10 +216,10 @@ class PhotographyNewsApp {
     async loadRoutedArticles() {
         try {
             const response = await fetch('news-digests/news-feed-latest.json', { cache: 'no-store' });
-            if (!response.ok) return [];
+            if (!response.ok) throw new Error('Routed feed unavailable');
             const payload = await response.json();
-            if (payload?.site !== 'Kol Tregaskes Photography' || !Array.isArray(payload.articles)) return [];
-            return payload.articles.map((article) => {
+            this.feedAssessment = globalThis.KTPNewsState.assessRoutedFeed(payload);
+            return this.feedAssessment.articles.map((article) => {
                 const date = new Date(article.date);
                 const tags = Array.isArray(article.matching_tags) && article.matching_tags.length
                     ? article.matching_tags
@@ -233,6 +238,7 @@ class PhotographyNewsApp {
                 };
             }).filter((article) => article.title && /^https?:\/\//i.test(article.url || '') && !Number.isNaN(article.date.getTime()) && this.shouldDisplayArticle(article));
         } catch {
+            this.feedAssessment = globalThis.KTPNewsState.assessRoutedFeed(null);
             return [];
         }
     }
