@@ -384,6 +384,17 @@ function initContactForm() {
             return;
         }
 
+        const confirmed = form.querySelector('#contact-human-confirm')?.checked === true;
+        if (!confirmed) {
+            status.textContent = 'Please confirm the checkbox before opening your email draft.';
+            status.dataset.state = 'error';
+            return;
+        }
+        if (name.length > 100 || replyTo.length > 254 || subject.length > 120 || message.length > 3000 || /[\r\n]/.test(subject)) {
+            status.textContent = 'Please shorten the fields and keep the subject on one line, or use the direct email link.';
+            status.dataset.state = 'error';
+            return;
+        }
         const mailSubject = encodeURIComponent(`[Photography archive] ${subject}`);
         const mailBody = encodeURIComponent([
             `Name: ${name}`,
@@ -394,10 +405,19 @@ function initContactForm() {
             'Note: this archive no longer accepts new photography commissions.'
         ].join('\n'));
 
+        const draftUrl = `mailto:kol@koltregaskes.com?subject=${mailSubject}&body=${mailBody}`;
+        if (draftUrl.length > 8000) {
+            status.textContent = 'This draft is too long for the mail-app link. Please use the direct email link instead.';
+            status.dataset.state = 'error';
+            return;
+        }
         status.textContent = 'Opening your email app with a prepared draft.';
         status.dataset.state = 'success';
-        window.location.href = `mailto:kol@koltregaskes.com?subject=${mailSubject}&body=${mailBody}`;
+        window.location.href = draftUrl;
     });
+    // Enable fields only after the local prevent-default handler is installed.
+    const fields = document.getElementById('contact-form-fields');
+    if (fields) fields.disabled = false;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

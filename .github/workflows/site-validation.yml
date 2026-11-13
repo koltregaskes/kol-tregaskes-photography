@@ -38,3 +38,6 @@ jobs:
 
       - name: Routed feed tests
         run: node --test tests/*.test.mjs
+
+      - name: Validate all public protocols, redirects, fragments and downloads
+        run: node scripts/check-public-links.mjs

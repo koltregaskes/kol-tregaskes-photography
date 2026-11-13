@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {inspectPublicHtml} from '../scripts/check-public-boundary.mjs';
+const policy="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; object-src 'none'; base-uri 'self'";
+const valid='<meta http-equiv="Content-Security-Policy" content="'+policy+'"><meta name="referrer" content="strict-origin-when-cross-origin"><script src="site.js"></script>';
+test('realistic static public policy is accepted',()=>assert.deepEqual(inspectPublicHtml(valid,'index.html'),[]));
+for(const [name,html] of [['unsafe inline',valid.replace("script-src 'self'","script-src 'self' 'unsafe-inline'")],['ignored framing meta',valid.replace("base-uri 'self'","base-uri 'self'; frame-ancestors 'none'")],['unexpected form',valid+'<form action="https://example.com/collect"></form>'],['remote executable script',valid+'<script src="https://example.com/tracker.js"></script>'],['password field',valid+'<input type="password">']])test('public boundary rejects '+name,()=>assert.ok(inspectPublicHtml(html,'index.html').length));

@@ -716,6 +716,7 @@ class PhotographyNewsApp {
     }
 
     createArticleCard(article) {
+        const sourceUnavailable = globalThis.KTPSourceStatus?.isUnavailable(article.url) === true;
         const card = document.createElement('article');
         card.className = 'news-card';
 
@@ -724,10 +725,12 @@ class PhotographyNewsApp {
         topline.innerHTML = `<span>${this.escapeHtml(article.compactDateLabel)}</span>`;
 
         const heading = document.createElement('h3');
-        const link = document.createElement('a');
-        link.href = this.safeUrl(article.url);
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
+        const link = document.createElement(sourceUnavailable ? 'span' : 'a');
+        if (!sourceUnavailable) {
+            link.href = this.safeUrl(article.url);
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+        }
         link.textContent = article.title;
         heading.appendChild(link);
 
@@ -766,12 +769,16 @@ class PhotographyNewsApp {
             tagList.appendChild(pill);
         }
 
-        const readLink = document.createElement('a');
+        const readLink = document.createElement(sourceUnavailable ? 'span' : 'a');
         readLink.className = 'news-read-link';
-        readLink.href = this.safeUrl(article.url);
-        readLink.target = '_blank';
-        readLink.rel = 'noopener noreferrer';
-        readLink.textContent = 'Open story';
+        if (!sourceUnavailable) {
+            readLink.href = this.safeUrl(article.url);
+            readLink.target = '_blank';
+            readLink.rel = 'noopener noreferrer';
+        } else {
+            readLink.title = 'Original URL retained in the downloadable digest: ' + article.url;
+        }
+        readLink.textContent = sourceUnavailable ? 'Original source unavailable' : 'Open story';
 
         footer.append(tagList, readLink);
         card.appendChild(footer);
