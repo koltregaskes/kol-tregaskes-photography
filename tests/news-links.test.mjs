@@ -1,0 +1,5 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {extractNewsUrls,checkDestination} from '../scripts/check-news-links.mjs';
+test('dynamic archive links are included without printing their query strings',()=>assert.equal(extractNewsUrls('[Story](https://example.com/story?utm_source=test)').length,1));
+test('only 404/410 are broken, other errors remain unverified and downgrades unsafe',async()=>{for(const status of [404,410,403,429,500]){const r=await checkDestination('https://example.com/story',async()=>({status,ok:status===200,url:'https://example.com/story'}));assert.equal(r.status,[404,410].includes(status)?'broken':'unverified');}assert.equal((await checkDestination('https://example.com/story',async()=>({status:200,ok:true,url:'http://example.com/story'}))).status,'unsafe');});
+
+test('an intermediate HTTPS downgrade is unsafe even if a later hop could upgrade',async()=>{let calls=0;const result=await checkDestination('https://example.com/story',async()=>{calls++;return{status:302,headers:{get:()=> 'http://example.com/insecure'}}});assert.equal(result.status,'unsafe');assert.equal(calls,1);});

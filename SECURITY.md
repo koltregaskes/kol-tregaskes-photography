@@ -27,3 +27,11 @@ The current host is GitHub Pages, publishing from the main branch. The public en
 `node scripts/security-check.mjs` scans tracked text for common private-key/token signatures and reports only counts. It skips .env paths and never prints matches. This bounded pattern scan is not a history scan or a comprehensive secret-detection service. It also rejects EXIF on raster images, preventing GPS EXIF publication. New image imports must strip metadata before entering this branch publishing pipeline.
 
 `node scripts/security-check.mjs --external` crawls external destinations and reports HTTP failures, network failures and HTTPS downgrades. Bot-denied destinations require human verification; they are not silently allowed. `npm audit --audit-level=moderate` is the dependency gate.
+
+## Launch public boundary
+
+The host remains legacy GitHub Pages, source main at /. Repo code can provide the existing CSP/referrer meta mitigations, but the response headers named above remain a hosting-owner decision under rooms-os-hub#1413 and #1507. No approval of those gaps is implied here. Do not add ineffective _headers files or pretend frame-ancestors meta prevents framing.
+
+CI rejects missing/weakened meta policy, ignored header-only meta protection, remote executable scripts, new collection forms/password inputs and obvious write/telemetry APIs. Browser checks fail on application CSP violation events before axe is injected; axe's own cross-origin stylesheet fetch is outside the application observation window. This is a guard on the current interface, not comprehensive source-code security analysis.
+
+The one contact form prepares a local mailto draft; there is no receiving API, server-side inbox, newsletter sender, payment processing or analytics collector in this repo. Redbubble is an external storefront. No receipt, conversion, delivery, anti-spam service or analytics event is proved by those links. Contact must stay on site-config.json's working address until Kol confirms routing. The mail helper still needs its own interaction/no-JavaScript regression coverage; collector, newsletter and support decisions remain with #367/#1498, #1495/#1496 and #1502. The existing CI signature scanner reports redacted counts only and is not expanded or run locally by this change.
