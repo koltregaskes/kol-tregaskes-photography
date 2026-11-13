@@ -17,5 +17,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24
+
       - name: Warn when the routed feed was not replaced
         run: node scripts/check-routed-feed-freshness.mjs
+
+      - name: Record exact existing public feed readback
+        if: always()
+        run: node scripts/check-public-feed-proof.mjs .local/proof/public-feed-proof.json
+
+      - name: Retain daily readback evidence
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: public-feed-proof
+          path: .local/proof/public-feed-proof.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 30

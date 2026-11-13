@@ -12,6 +12,7 @@ const errors=[];
 try {
  for(const width of WIDTHS) {
   const context=await browser.newContext({viewport:{width,height:900}});
+  await context.addInitScript(()=>{window.__cspViolations=[];document.addEventListener('securitypolicyviolation',event=>window.__cspViolations.push(event.effectiveDirective));});
   await context.route('**/*',async route=>{
    const u=new URL(route.request().url());
    if(u.hostname!=='ktp.test')return route.abort();
@@ -35,6 +36,9 @@ try {
     await page.keyboard.press('Escape');
     if(await toggle.getAttribute('aria-expanded')!=='false'||!await toggle.evaluate(el=>el===document.activeElement))errors.push(name+' '+width+': menu failed Escape/focus return');
    }
+   // Check application events before axe's injected stylesheet-fetch helpers.
+   const csp=await page.evaluate(()=>window.__cspViolations);
+   if(csp.length)errors.push(name+' '+width+': CSP violations '+[...new Set(csp)].join(','));
    const axe=await new AxeBuilder({page}).analyze();
    const unknownContrast=axe.incomplete.filter(v=>v.id==='color-contrast').reduce((sum,v)=>sum+v.nodes.length,0);
    if(unknownContrast)console.log(name+' '+width+': '+unknownContrast+' contrast nodes require human review');

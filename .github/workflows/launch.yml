@@ -26,3 +26,11 @@ jobs:
       - run: node scripts/launch-browser.mjs
       - name: Prove overflow and clipping guards at both phone widths
         run: node scripts/check-overflow-browser.mjs
+      - name: Check honest routed news states at phone widths
+        run: node scripts/check-news-state-browser.mjs
+      - name: Check safe contact draft and no-JavaScript fallback
+        run: node scripts/check-contact-browser.mjs
+      - name: Check inactive archive-source labels at phone widths
+        run: node scripts/check-unavailable-sources-browser.mjs
+      - name: Enforce public image weights, decoding and alt text
+        run: node scripts/check-images.mjs
