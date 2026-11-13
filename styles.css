@@ -1,8 +1,10 @@
 /* Kol Tregaskes Photography - Portfolio Design System */
 
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Inter:wght@300;400;500&display=swap');
+/* Fonts load by <link> in each page head (see DESIGN.md section 4). */
 
 :root {
+  color-scheme: dark; /* dark-first: the darkroom */
+
   /* Palette - cool, restrained, lets images breathe */
   --bg: #08090c;
   --bg-elevated: #11131a;
@@ -10,7 +12,7 @@
   --bg-card-soft: #1c2029;
   --text: #e6e8ec;
   --text-secondary: #8a8f9a;
-  --text-muted: #858a95; /* WCAG AA: >= 4.5:1 on every surface token */
+  --text-muted: #8a9098; /* WCAG AA on every surface token */
   --accent: #6b8db5;
   --accent-hover: #8aa7c8;
   --accent-soft: rgba(107, 141, 181, 0.14);
@@ -19,7 +21,12 @@
 
   /* Typography */
   --font-display: 'Cormorant Garamond', Georgia, 'Times New Roman', serif;
-  --font-body: 'Inter', -apple-system, system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, -apple-system, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --radius-0: 0;          /* every photograph and tile: prints have square corners */
+  --radius-1: 2px;        /* inputs and buttons */
+  --radius-pill: 999px;   /* filter chips only */
+  --text-floor: 0.75rem;  /* 12px: nothing on the site is smaller */
 
   /* Spacing */
   --pad-x: clamp(20px, 5vw, 80px);
@@ -27,7 +34,7 @@
   --gallery-gap: 6px;
 }
 
-/* ─── Reset ────────────────────────────────────────────────────── */
+/* â”€â”€â”€ Reset â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -76,7 +83,7 @@ main:focus { outline: none; }
   outline-offset: 3px;
 }
 
-/* ─── Header ───────────────────────────────────────────────────── */
+/* â”€â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .site-header {
   position: fixed;
@@ -136,7 +143,7 @@ main:focus { outline: none; }
   cursor: pointer;
 }
 
-/* ─── Hero (Homepage) ──────────────────────────────────────────── */
+/* â”€â”€â”€ Hero (Homepage) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .hero {
   position: relative;
@@ -214,7 +221,7 @@ main:focus { outline: none; }
   background: rgba(230, 232, 236, 0.08);
 }
 
-/* ─── Gallery Grid ─────────────────────────────────────────────── */
+/* â”€â”€â”€ Gallery Grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .gallery-section {
   padding: 80px var(--pad-x);
@@ -303,7 +310,7 @@ main:focus { outline: none; }
 }
 
 .gallery-item-meta {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
   margin-top: 0.25rem;
   letter-spacing: 0.05em;
@@ -329,7 +336,7 @@ main:focus { outline: none; }
   aspect-ratio: auto;
 }
 
-/* ─── Featured row (homepage) ──────────────────────────────────── */
+/* â”€â”€â”€ Featured row (homepage) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .featured-row {
   display: grid;
@@ -344,7 +351,7 @@ main:focus { outline: none; }
   min-height: 500px;
 }
 
-/* ─── About ────────────────────────────────────────────────────── */
+/* â”€â”€â”€ About â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .about-section {
   padding: 80px var(--pad-x);
@@ -420,7 +427,7 @@ main:focus { outline: none; }
   font-weight: 400;
 }
 
-/* ─── Contact ──────────────────────────────────────────────────── */
+/* â”€â”€â”€ Contact â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .contact-section {
   padding: 120px var(--pad-x);
@@ -475,7 +482,7 @@ main:focus { outline: none; }
 
 .contact-link svg { width: 16px; height: 16px; }
 
-/* ─── Footer ───────────────────────────────────────────────────── */
+/* â”€â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .site-footer {
   padding: 40px var(--pad-x);
@@ -504,7 +511,7 @@ main:focus { outline: none; }
 }
 
 .footer-links a {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -513,7 +520,7 @@ main:focus { outline: none; }
 
 .footer-links a:hover { color: var(--text); }
 
-/* ─── Lightbox ─────────────────────────────────────────────────── */
+/* â”€â”€â”€ Lightbox â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .lightbox {
   position: fixed;
@@ -593,7 +600,7 @@ main:focus { outline: none; }
 .lightbox-prev { left: 16px; }
 .lightbox-next { right: 16px; }
 
-/* ─── Page header (gallery, about, contact) ────────────────────── */
+/* â”€â”€â”€ Page header (gallery, about, contact) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 .page-hero {
   padding: 130px var(--pad-x) 60px;
@@ -623,7 +630,7 @@ main:focus { outline: none; }
   max-width: 560px;
 }
 
-/* ─── Responsive ───────────────────────────────────────────────── */
+/* â”€â”€â”€ Responsive â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 @media (max-width: 768px) {
   .main-nav { display: none; }
@@ -661,14 +668,14 @@ main:focus { outline: none; }
   .gallery-masonry { columns: 1; }
 }
 
-/* ─── Scrollbar ────────────────────────────────────────────────── */
+/* â”€â”€â”€ Scrollbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
-/* ─── Animations ───────────────────────────────────────────────── */
+/* â”€â”€â”€ Animations â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(20px); }
@@ -827,7 +834,7 @@ main:focus { outline: none; }
 }
 
 .blog-post-date {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -858,7 +865,7 @@ main:focus { outline: none; }
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--accent);
@@ -944,7 +951,7 @@ main:focus { outline: none; }
 
 .news-metric span {
   display: block;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -982,7 +989,7 @@ main:focus { outline: none; }
 }
 
 .news-sidebar h3 {
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -1027,7 +1034,7 @@ main:focus { outline: none; }
   border: 1px solid var(--border);
   color: var(--text-secondary);
   padding: 0.55rem 0.75rem;
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
@@ -1077,7 +1084,7 @@ main:focus { outline: none; }
   color: var(--text);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
 }
 
 .news-main {
@@ -1140,7 +1147,7 @@ main:focus { outline: none; }
 
 .news-group-header span {
   color: var(--text-muted);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -1170,7 +1177,7 @@ main:focus { outline: none; }
   gap: 0.8rem;
   flex-wrap: wrap;
   margin-bottom: 0.7rem;
-  font-size: 0.74rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -1223,14 +1230,14 @@ main:focus { outline: none; }
   padding: 0.35rem 0.6rem;
   border: 1px solid var(--border);
   color: var(--text-secondary);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .news-read-link {
   color: var(--accent);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -1316,7 +1323,7 @@ main:focus { outline: none; }
 }
 
 .footer-heading {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -1385,7 +1392,7 @@ main:focus { outline: none; }
 }
 
 .contact-field span {
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -1443,7 +1450,7 @@ main:focus { outline: none; }
 }
 
 .news-date-field span {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--text-muted);
@@ -1464,7 +1471,7 @@ main:focus { outline: none; }
   padding: 0.35rem 0.6rem;
   border: 1px solid var(--border);
   color: var(--text-secondary);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   transition: border-color 0.2s, color 0.2s, background 0.2s;
@@ -1599,7 +1606,7 @@ main:focus { outline: none; }
 
 .doorway-label .meta {
   color: var(--text-secondary);
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -1628,7 +1635,7 @@ main:focus { outline: none; }
   margin-bottom: 6px;
   color: var(--accent);
   font-family: var(--font-display);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
@@ -1650,7 +1657,7 @@ main:focus { outline: none; }
 .footer-estate-cta {
   justify-self: end;
   color: var(--accent);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -1708,7 +1715,7 @@ main:focus { outline: none; }
   display: block;
   margin-top: 18px;
   color: var(--text-muted);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -1717,7 +1724,7 @@ main:focus { outline: none; }
   margin-bottom: 14px;
   color: var(--text);
   font-family: var(--font-display);
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
 }
@@ -1759,7 +1766,7 @@ main:focus { outline: none; }
 
 .blog-post-tag {
   color: var(--text-muted);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -1929,5 +1936,16 @@ main:focus { outline: none; }
 
   .doorway-grid > :last-child {
     aspect-ratio: 4 / 5;
+  }
+}
+
+/* â”€â”€â”€ Reduced motion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
