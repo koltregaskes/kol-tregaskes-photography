@@ -110,14 +110,16 @@
                 </div>
 
                 <form id="contact-form" class="contact-form" novalidate>
+                    <fieldset class="contact-form-fields" id="contact-form-fields" disabled>
+                    <legend>Prepare an email draft</legend>
                     <div class="contact-form-grid">
                         <label class="contact-field" for="contact-name">
                             <span>Name</span>
-                            <input id="contact-name" name="name" type="text" autocomplete="name" required>
+                            <input id="contact-name" name="name" type="text" autocomplete="name" maxlength="100" required>
                         </label>
                         <label class="contact-field" for="contact-reply">
                             <span>Email or handle</span>
-                            <input id="contact-reply" name="reply" type="text" autocomplete="email" required>
+                            <input id="contact-reply" name="reply" type="text" autocomplete="email" maxlength="254" required>
                         </label>
                     </div>
 
@@ -128,7 +130,7 @@
 
                     <label class="contact-field" for="contact-message">
                         <span>Message</span>
-                        <textarea id="contact-message" name="message" rows="8" required></textarea>
+                        <textarea id="contact-message" name="message" rows="8" maxlength="3000" required></textarea>
                     </label>
 
                     <label class="contact-honeypot-hidden" for="contact-company" aria-hidden="true">
@@ -147,6 +149,8 @@
 
                     <p class="contact-form-help">Opens a pre-filled draft in your mail app — no third-party form service is involved.</p>
                     <p id="contact-form-status" class="contact-form-status" aria-live="polite"></p>
+                    </fieldset>
+                    <noscript><p>The draft helper needs JavaScript. Use the direct Email Kol link above; no form data is sent from this page.</p></noscript>
                 </form>
             </div>
 
