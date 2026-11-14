@@ -53,5 +53,6 @@ jobs:
           echo "External crawl: $EXTERNAL_OUTCOME (report only)" >> "$GITHUB_STEP_SUMMARY"
           echo "News crawl: $NEWS_OUTCOME (report only)" >> "$GITHUB_STEP_SUMMARY"
           echo "Planted 404: $PLANT_OUTCOME, conclusion $PLANT_CONCLUSION (expected)" >> "$GITHUB_STEP_SUMMARY"
+          node -e "const p=require('./.local/external-404-proof.json'); if(p.status!=='broken'||p.http!==404) process.exit(1)"
           test "$PLANT_OUTCOME" = failure
           test "$PLANT_CONCLUSION" = success
