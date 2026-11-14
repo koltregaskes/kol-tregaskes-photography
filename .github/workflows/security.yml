@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
       - run: npm ci
@@ -24,14 +24,35 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
       - run: npm ci
-      - name: Crawl external links (bot denials require manual review)
+      - name: Crawl external links (report only; bot denials require manual review)
+        id: external
         continue-on-error: true
         run: node scripts/security-check.mjs --external
 
-      - name: Crawl public digest and routed story destinations
+      - name: Crawl public digest and routed story destinations (report only)
+        id: news
+        continue-on-error: true
         run: node scripts/check-news-links.mjs
+      - name: Planted external 404 (expected report-only failure)
+        id: planted404
+        continue-on-error: true
+        run: node scripts/prove-external-report-only.mjs
+      - name: Verify report-only 404 handling and publish crawl outcomes
+        if: always()
+        env:
+          PLANT_OUTCOME: ${{ steps.planted404.outcome }}
+          PLANT_CONCLUSION: ${{ steps.planted404.conclusion }}
+          EXTERNAL_OUTCOME: ${{ steps.external.outcome }}
+          NEWS_OUTCOME: ${{ steps.news.outcome }}
+        run: |
+          echo "External crawl: $EXTERNAL_OUTCOME (report only)" >> "$GITHUB_STEP_SUMMARY"
+          echo "News crawl: $NEWS_OUTCOME (report only)" >> "$GITHUB_STEP_SUMMARY"
+          echo "Planted 404: $PLANT_OUTCOME, conclusion $PLANT_CONCLUSION (expected)" >> "$GITHUB_STEP_SUMMARY"
+          node -e "const p=require('./.local/external-404-proof.json'); if(p.status!=='broken'||p.http!==404) process.exit(1)"
+          test "$PLANT_OUTCOME" = failure
+          test "$PLANT_CONCLUSION" = success
