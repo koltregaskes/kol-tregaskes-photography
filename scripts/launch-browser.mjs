@@ -29,10 +29,22 @@ try {
    await page.keyboard.press('Tab');
    if(!await page.evaluate(()=>document.activeElement?.classList.contains('skip-link')))errors.push(name+' '+width+': first keyboard stop must be skip link');
    else { await page.keyboard.press('Enter'); if(!await page.evaluate(()=>document.activeElement?.id==='main-content'))errors.push(name+' '+width+': skip link did not move focus to main'); }
+   const currentLink=page.locator('.main-nav a');
+   for(const link of await currentLink.all()) {
+    const href=await link.getAttribute('href');
+    if(href===name && await link.getAttribute('aria-current')!=='page')errors.push(name+' '+width+': current page is not announced');
+    if(href!==name && await link.getAttribute('aria-current')==='page')errors.push(name+' '+width+': wrong current-page marker');
+   }
    const toggle=page.locator('#nav-toggle');
-   if(width<768 && await toggle.count() && await toggle.isVisible()) {
+   if(width<=768 && await toggle.count() && await toggle.isVisible()) {
     await toggle.focus();await page.keyboard.press('Enter');
     if(await toggle.getAttribute('aria-expanded')!=='true'||!await page.evaluate(()=>document.querySelector('#nav')?.contains(document.activeElement)))errors.push(name+' '+width+': menu did not open with focus');
+    if(await toggle.getAttribute('aria-label')!=='Close navigation')errors.push(name+' '+width+': close label missing');
+    await page.keyboard.press('Shift+Tab');
+    if(!await toggle.evaluate(el=>el===document.activeElement))errors.push(name+' '+width+': close button missing from focus cycle');
+    await page.keyboard.press('Enter');
+    if(await toggle.getAttribute('aria-expanded')!=='false'||await toggle.getAttribute('aria-label')!=='Open navigation')errors.push(name+' '+width+': keyboard close failed');
+    await page.keyboard.press('Enter');
     await page.keyboard.press('Escape');
     if(await toggle.getAttribute('aria-expanded')!=='false'||!await toggle.evaluate(el=>el===document.activeElement))errors.push(name+' '+width+': menu failed Escape/focus return');
    }
