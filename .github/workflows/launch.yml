@@ -24,6 +24,8 @@ jobs:
       - name: Verify installed Edge (no browser download)
         run: microsoft-edge --version
       - run: node scripts/launch-browser.mjs
+      - name: Prove overflow and clipping guards at both phone widths
+        run: node scripts/check-overflow-browser.mjs
       - name: Check honest routed news states at phone widths
         run: node scripts/check-news-state-browser.mjs
       - name: Check safe contact draft and no-JavaScript fallback

@@ -1956,6 +1956,8 @@ main:focus { outline: none; }
 .news-source-toggle label, .news-card a { overflow-wrap: anywhere; }
 @media (max-width: 768px) { .news-hero-layout, .news-dashboard { grid-template-columns: minmax(0, 1fr); } }
 
+/* Keep the news panel heading inside its narrow phone column. */
+#news-view-panel-title { overflow-wrap: anywhere; }
 .news-feed-status { padding: 1rem; border: 1px solid var(--border); border-radius: 0.5rem; overflow-wrap: anywhere; color: var(--text); background: var(--bg-card); }
 .contact-form-fields { border: 0; margin: 0; padding: 0; min-width: 0; }
 .contact-form-fields legend { margin-bottom: 1rem; }
