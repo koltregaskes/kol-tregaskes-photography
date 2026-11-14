@@ -32,3 +32,6 @@ jobs:
       - name: Crawl external links (bot denials require manual review)
         continue-on-error: true
         run: node scripts/security-check.mjs --external
+
+      - name: Crawl public digest and routed story destinations
+        run: node scripts/check-news-links.mjs
