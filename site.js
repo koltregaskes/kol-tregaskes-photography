@@ -44,7 +44,7 @@ function initNavigation() {
 
         if (event.key !== 'Tab') return;
 
-        const focusable = getFocusableElements(nav);
+        const focusable = [...getFocusableElements(nav), navToggle];
         if (focusable.length === 0) return;
 
         const first = focusable[0];
@@ -62,6 +62,7 @@ function initNavigation() {
     const closeNav = () => {
         nav.classList.remove('open');
         navToggle.setAttribute('aria-expanded', 'false');
+        navToggle.setAttribute('aria-label', 'Open navigation');
         document.body.classList.remove('nav-open');
         document.removeEventListener('keydown', handleNavKeydown);
         if (restoreTarget) {
@@ -73,6 +74,7 @@ function initNavigation() {
         restoreTarget = document.activeElement instanceof HTMLElement ? document.activeElement : navToggle;
         nav.classList.add('open');
         navToggle.setAttribute('aria-expanded', 'true');
+        navToggle.setAttribute('aria-label', 'Close navigation');
         document.body.classList.add('nav-open');
         document.addEventListener('keydown', handleNavKeydown);
         const [firstLink] = getFocusableElements(nav);
