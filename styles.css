@@ -1955,3 +1955,6 @@ main:focus { outline: none; }
 .news-sidebar input, .news-sidebar select { min-width: 0; max-width: 100%; }
 .news-source-toggle label, .news-card a { overflow-wrap: anywhere; }
 @media (max-width: 768px) { .news-hero-layout, .news-dashboard { grid-template-columns: minmax(0, 1fr); } }
+
+.contact-form-fields { border: 0; margin: 0; padding: 0; min-width: 0; }
+.contact-form-fields legend { margin-bottom: 1rem; }
