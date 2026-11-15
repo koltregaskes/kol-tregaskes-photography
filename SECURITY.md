@@ -26,7 +26,11 @@ The current host is GitHub Pages, publishing from the main branch. The public en
 
 `node scripts/security-check.mjs` scans tracked text for common private-key/token signatures and reports only counts. It skips .env paths and never prints matches. This bounded pattern scan is not a history scan or a comprehensive secret-detection service. It also rejects EXIF on raster images, preventing GPS EXIF publication. New image imports must strip metadata before entering this branch publishing pipeline.
 
-`node scripts/security-check.mjs --external` crawls external destinations and reports HTTP failures, network failures and HTTPS downgrades. Bot-denied destinations require human verification; they are not silently allowed. `npm audit --audit-level=moderate` is the dependency gate.
+`node scripts/check-external-links.mjs` is the external-link launch acceptance command. `node scripts/security-check.mjs --external` also uses that crawler after the existing signature/image checks. Tracked HTML destinations are checked with manual redirects, a maximum of eight redirects, loop detection and per-destination/crawl deadlines. Every start and hop rejects non-HTTP(S) schemes, URL credentials, local/private IP literals and hosts resolving to non-public addresses. An initial HTTP URL may upgrade to HTTPS; a final HTTP destination or any HTTPS-to-HTTP hop is unsafe. DNS lookup checks do not pin the subsequent fetch connection, so this is not a DNS-rebinding isolation boundary.
+
+The exit codes mirror PR #39's `link-crawl-acceptance.mjs`: **0** means non-empty, complete reachable coverage; **1** means a confirmed 404/410 or unsafe destination; **2** means empty, incomplete or unverified coverage. Bot denials, timeouts and other HTTP/network failures remain unverified and require further verification. They cannot accept a launch crawl. The gate has no manual-override input.
+
+CI's **External link launch acceptance** job fails on either non-zero outcome. The newer digest/routed-news crawl remains explicitly report-only, pending the separate news-link acceptance work in PR #39. The deterministic planted-404 check still records the expected failure outcome and success conclusion and verifies the saved 404 proof, even when external acceptance fails. These reports do not accept news destinations or prove live conversions. `npm audit --audit-level=moderate` remains the separate dependency gate.
 
 ## Launch public boundary
 
