@@ -6,8 +6,19 @@ export function referencedHosts(source) {
     // Include plain, protocol-relative and slash-escaped URLs, including CSS imports.
     const text = source.replaceAll('\\/', '/').replace(/&#(?:x([0-9a-f]+)|(\d+));/gi, (_, hex, dec) => String.fromCodePoint(parseInt(hex || dec, hex ? 16 : 10)));
     const hosts = new Set();
-    for (const match of text.matchAll(/(?:https?:)?\/\/([a-z0-9](?:[a-z0-9.-]*[a-z0-9])?(?::\d+)?)(?=[/\s"'<>`);,]|$)/gi)) {
-        if (match[1].includes('.')) hosts.add(new URL('https://' + match[1]).hostname);
+    // Bound candidates at source delimiters, then let URL split the authority at
+    // /, ?, # and : while handling userinfo, ports and Unicode/punycode hosts.
+    // The relative form must not start inside a scheme or a JS URL-pattern regex.
+    const candidates = text.matchAll(/(?:\bhttps?:\/\/|(?<![\w:/])\/\/)[^\s"'`),<>\\;]+/gi);
+    for (const [candidate] of candidates) {
+        try {
+            const url = new URL(candidate.startsWith('//') ? 'https:' + candidate : candidate);
+            if (!url.hostname) throw Error('Missing hostname');
+            hosts.add(url.hostname);
+        } catch {
+            // A malformed reference must not turn an incomplete scan into a pass.
+            throw Error('Cannot parse an external URL reference in public source');
+        }
     }
     return hosts;
 }
