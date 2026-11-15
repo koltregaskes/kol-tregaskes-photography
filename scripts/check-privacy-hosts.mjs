@@ -1,22 +1,22 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
+import {sourceReferences} from './privacy-source-references.mjs';
 
-export function referencedHosts(source) {
-    // Include plain, protocol-relative and slash-escaped URLs, including CSS imports.
-    const text = source.replaceAll('\\/', '/').replace(/&#(?:x([0-9a-f]+)|(\d+));/gi, (_, hex, dec) => String.fromCodePoint(parseInt(hex || dec, hex ? 16 : 10)));
+export function referencedHosts(source, {kind='url',baseURL='https://koltregaskesphotography.com/'}={}) {
+    const references=sourceReferences(source,kind);
+    let base;
+    try {base=new URL(references.base ?? baseURL,baseURL);} catch {throw Error('Cannot parse the page base reference');}
     const hosts = new Set();
-    // Bound candidates at source delimiters, then let URL split the authority at
-    // /, ?, # and : while handling userinfo, ports and Unicode/punycode hosts.
-    // The relative form must not start inside a scheme or a JS URL-pattern regex.
-    const candidates = text.matchAll(/(?:\bhttps?:\/\/|(?<![\w:/])\/\/)[^\s"'`),<>\\;]+/gi);
-    for (const [candidate] of candidates) {
+    for (const value of references.values) {
+        // WHATWG URL handles internal ASCII tabs/newlines, C0/space trimming,
+        // backslashes, userinfo, ports, IDNs and relative references as a unit.
+        const clean=value.replace(/[\t\n\r]/g,'').replace(/^[\x00-\x20]+|[\x00-\x20]+$/g,'');
         try {
-            const url = new URL(candidate.startsWith('//') ? 'https:' + candidate : candidate);
-            if (!url.hostname) throw Error('Missing hostname');
-            hosts.add(url.hostname);
+            const url=new URL(value,base);
+            if(!url.hostname&&/^(?:https?:|[\\/]{2})/i.test(clean))throw Error('Missing hostname');
+            if(url.hostname)hosts.add(url.hostname);
         } catch {
-            // A malformed reference must not turn an incomplete scan into a pass.
             throw Error('Cannot parse an external URL reference in public source');
         }
     }
@@ -27,7 +27,8 @@ export async function inspectPrivacyHosts(root) {
     const privacy = await fs.readFile(path.join(root, 'privacy.html'), 'utf8');
     const allowed = new Set([...privacy.matchAll(/<code\b[^>]*data-privacy-host="([a-z0-9.-]+)"[^>]*>\s*\1\s*<\/code>/g)].map(m => m[1]));
     if (!allowed.size) throw Error('Privacy notice must visibly list its external hosts');
-    const own = new URL(JSON.parse(await fs.readFile(path.join(root, 'seo-config.json'), 'utf8')).base).hostname;
+    const siteBase = new URL(JSON.parse(await fs.readFile(path.join(root, 'seo-config.json'), 'utf8')).base);
+    const own = siteBase.hostname;
     const files = [], errors = [];
     async function walk(dir) {
         for (const item of await fs.readdir(dir, {withFileTypes:true})) {
@@ -41,17 +42,26 @@ export async function inspectPrivacyHosts(root) {
     await walk(root);
     for (const file of files) {
         const source = await fs.readFile(file, 'utf8');
-        for (const host of referencedHosts(source)) {
-            if (host !== own && !allowed.has(host)) errors.push(path.relative(root,file)+': unlisted external host '+host);
-        }
+        try {
+            const kind=path.extname(file).slice(1).toLowerCase();
+            const baseURL=new URL(path.relative(root,file).split(path.sep).map(encodeURIComponent).join('/'),siteBase).href;
+            for (const host of referencedHosts(source,{kind,baseURL})) {
+                if (host !== own && !allowed.has(host)) errors.push(path.relative(root,file)+': unlisted external host '+host);
+            }
+        } catch {errors.push(path.relative(root,file)+': cannot parse complete public references');}
         if (file.endsWith('.html') && !/<footer\b[\s\S]*?<a\b[^>]*href="privacy\.html"[^>]*>Privacy notice<\/a>[\s\S]*?<\/footer>/i.test(source)) errors.push(path.relative(root,file)+': missing privacy footer link');
     }
     return {files:files.length, hosts:allowed.size, errors};
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-    const root = path.resolve(process.argv[2] || path.join(path.dirname(fileURLToPath(import.meta.url)), '..'));
-    const result = await inspectPrivacyHosts(root);
-    console.log('Privacy host check: '+result.files+' public HTML/CSS/JS files, '+result.hosts+' listed hosts, '+result.errors.length+' failures');
-    if (result.errors.length) {console.error(result.errors.join('\n'));process.exitCode=1;}
+    try {
+        const root = path.resolve(process.argv[2] || path.join(path.dirname(fileURLToPath(import.meta.url)), '..'));
+        const result = await inspectPrivacyHosts(root);
+        console.log('Privacy host check: '+result.files+' public HTML/CSS/JS files, '+result.hosts+' listed hosts, '+result.errors.length+' failures');
+        if (result.errors.length) {console.error(result.errors.join('\n'));process.exitCode=1;}
+    } catch {
+        console.error('Privacy host check failed: cannot inspect public references');
+        process.exitCode=1;
+    }
 }

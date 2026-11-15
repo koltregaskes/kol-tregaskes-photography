@@ -26,7 +26,7 @@ for(const [file,source] of [
 test('declared fonts and same-origin references pass',async()=>{
     assert.deepEqual((await inspectPrivacyHosts(await fixture('site.css','@import url(https://fonts.gstatic.com/font.css);a{background:url(https://site.invalid/local.png)}'))).errors,[]);
 });
-test('numeric HTML entities cannot conceal a new external host',()=>assert.ok(referencedHosts('https:&#47;&#47;surprise.invalid/a').has('surprise.invalid')));
+test('numeric HTML entities cannot conceal a new external host',()=>assert.ok(referencedHosts('<img src="https:&#47;&#47;surprise.invalid/a">',{kind:'html'}).has('surprise.invalid')));
 test('a public HTML page missing its footer privacy link fails',async()=>assert.ok((await inspectPrivacyHosts(await fixture('page.html','<main>Missing link</main>'))).errors.some(e=>e.includes('footer'))));
 
 const footer='<footer><a href="privacy.html">Privacy notice</a></footer>';
@@ -59,7 +59,7 @@ function cli(dir) {
 for (const [form,url,host] of forms) for (const [context,file,render] of contexts) {
     test(`${context} rejects undeclared ${form} through the API and CLI`,async()=>{
         const dir=await fixture(file,render(url));
-        assert.deepEqual([...referencedHosts(render(url))],[host]);
+        assert.ok(referencedHosts(render(url),{kind:path.extname(file).slice(1),baseURL:'https://site.invalid/'}).has(host));
         const result=await inspectPrivacyHosts(dir);
         assert.ok(result.errors.some(e=>e===`${file}: unlisted external host ${host}`));
         const processResult=cli(dir);
@@ -72,7 +72,11 @@ for (const [label,suffix] of [
     ['space',' '],['tab','\t'],['newline','\n'],['double quote','"'],['single quote',"'"],
     ['backtick','`'],['closing parenthesis',')'],['comma',','],['less than','<'],
     ['greater than','>'],['backslash','\\'],['semicolon',';'],
-])test(`hostname ends at ${label}`,()=>assert.deepEqual([...referencedHosts('https://surprise.invalid'+suffix)],['surprise.invalid']));
+])test(`a complete URL with ${label} uses WHATWG parsing without truncation`,()=>{
+    const value='https://surprise.invalid'+suffix,baseURL='https://site.invalid/';
+    let url;try{url=new URL(value,baseURL);}catch{assert.throws(()=>referencedHosts(value,{baseURL}));return;}
+    assert.deepEqual([...referencedHosts(value,{baseURL})],[url.hostname]);
+});
 test('bare authorities and single-label hosts are parsed without an ASCII-domain assumption',()=>{
     for(const url of ['https://surprise.invalid','//surprise.invalid'])assert.deepEqual([...referencedHosts(url)],['surprise.invalid']);
     assert.deepEqual([...referencedHosts('https://reader@host:8443?image=1')],['host']);
