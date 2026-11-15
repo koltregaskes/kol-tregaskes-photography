@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import {pathToFileURL} from 'node:url';
 import {checkExternalDestination} from './external-link-policy.mjs';
-import {crawlExitCode} from './external-link-acceptance.mjs';
+import {crawlExitCode} from './link-crawl-acceptance.mjs';
 
 export function extractExternalUrls(html) {
     const urls = new Set();

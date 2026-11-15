@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {crawlExternalLinks, extractExternalUrls} from '../scripts/check-external-links.mjs';
-import {crawlExitCode} from '../scripts/external-link-acceptance.mjs';
+import {crawlExitCode} from '../scripts/link-crawl-acceptance.mjs';
 
 const reachable = {destinations: 1, inactiveSources: 0, reachable: 1, broken: 0, unsafe: 0, unverified: 0};
 const options = status => ({resolveHost: async () => [{address: '93.184.216.34'}], fetchImpl: async () => new Response(null, {status})});
