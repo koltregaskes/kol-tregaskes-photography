@@ -61,6 +61,35 @@ function cssIdentifier(source,start) {
     return {value,end:i};
 }
 
+function cssFunctionEnd(source,start) {
+    let i=start,depth=1;
+    while(i<source.length){
+        if(source.startsWith('/*',i)){i=skipCommentsAndSpace(source,i);continue;}
+        if(source[i]==='"'||source[i]==="'"){i=stringAt(source,i,'css').end;continue;}
+        if(source[i]==='\\'){i=escapeValue(source,i,'css')[1];continue;}
+        if(source[i]==='(')depth++;
+        if(source[i]===')'&&!--depth)return i;
+        i++;
+    }
+    fail();
+}
+
+function imageSetReferences(body) {
+    const values=cssReferences(body);let start=0,i=0;
+    while(i<=body.length){
+        if(i===body.length||body[i]===','){
+            const first=skipCommentsAndSpace(body,start);
+            if(body[first]==='"'||body[first]==="'")values.push(stringAt(body,first,'css').value);
+            start=++i;continue;
+        }
+        if(body[i]==='"'||body[i]==="'"){i=stringAt(body,i,'css').end;continue;}
+        if(body[i]==='('){i=cssFunctionEnd(body,i+1)+1;continue;}
+        if(body.startsWith('/*',i)){i=skipCommentsAndSpace(body,i);continue;}
+        i++;
+    }
+    return values;
+}
+
 export function cssReferences(source) {
     const values=[];let i=0;
     while(i<source.length){
@@ -71,6 +100,10 @@ export function cssReferences(source) {
             if(name.value.toLowerCase()==='import'){i=skipCommentsAndSpace(source,name.end);if(source[i]==='"'||source[i]==="'"){const part=stringAt(source,i,'css');values.push(part.value);i=part.end;continue;}}
         }
         const name=cssIdentifier(source,i),open=skipCommentsAndSpace(source,name.end);
+        if(['image-set','-webkit-image-set'].includes(name.value.toLowerCase())&&source[open]==='('){
+            const end=cssFunctionEnd(source,open+1);
+            values.push(...imageSetReferences(source.slice(open+1,end)));i=end+1;continue;
+        }
         if(name.value.toLowerCase()==='url'&&source[open]==='('){
             i=skipCommentsAndSpace(source,open+1);
             let value='';
@@ -99,7 +132,8 @@ export function jsReferences(source) {
         if(source.startsWith('/*',i)){const end=source.indexOf('*/',i+2);if(end<0)fail();i=end+2;continue;}
         if(char==='"'||char==="'"||char==='`'){
             const raw=char==='`'&&/\bString\s*\.\s*raw\s*$/.test(source.slice(0,i));
-            const part=stringAt(source,i,raw?'raw':'js');
+            const part=char==='`'?templateAt(source,i,raw):stringAt(source,i,raw?'raw':'js');
+            for(const expression of part.expressions||[])values.push(...jsReferences(expression));
             // Protocol labels in an explicit URL.protocol comparison are data,
             // not attempted requests. Do not exempt the same literal in fetch().
             const protocolComparison=/^https?:$/i.test(part.value)
@@ -119,6 +153,35 @@ export function jsReferences(source) {
         canStartRegex=!/[\w)\]}]/.test(char);i++;
     }
     return values;
+}
+
+function interpolationEnd(source,start) {
+    let i=start,depth=1;
+    while(i<source.length){
+        if(source.startsWith('//',i)){const end=source.indexOf('\n',i+2);if(end<0)fail();i=end+1;continue;}
+        if(source.startsWith('/*',i)){i=skipCommentsAndSpace(source,i);continue;}
+        if(source[i]==='"'||source[i]==="'"){i=stringAt(source,i,'js').end;continue;}
+        if(source[i]==='`'){i=templateAt(source,i,false).end;continue;}
+        if(source[i]==='{')depth++;
+        if(source[i]==='}'&&!--depth)return i;
+        i++;
+    }
+    fail();
+}
+
+function templateAt(source,start,raw) {
+    let i=start+1,value='';const expressions=[];
+    while(i<source.length){
+        if(source[i]==='`')return {value,end:i+1,expressions};
+        if(source.startsWith('${',i)){
+            const end=interpolationEnd(source,i+2);expressions.push(source.slice(i+2,end));value+='${}';i=end+1;continue;
+        }
+        if(source[i]==='\\'){
+            if(raw){value+=source.slice(i,i+2);i+=2;}
+            else {const [part,end]=escapeValue(source,i,'js');value+=part;i=end;}
+        } else value+=source[i++];
+    }
+    fail();
 }
 
 export function srcsetReferences(source) {
@@ -143,8 +206,27 @@ export function sourceReferences(source,kind) {
     if(kind==='url')return {base:null,values:[source]};
     if(kind==='srcset')return {base:null,values:srcsetReferences(source)};
     if(kind!=='html')fail();
-    const result=spawnSync(process.platform==='win32'?'python':'python3',[htmlHelper],{input:source,encoding:'utf8',maxBuffer:16*1024*1024});
+    const parsed=runHtmlHelper(source);
+    return {base:parsed.base,values:parsed.references.filter(ref=>ref.kind!=='html').flatMap(ref=>sourceReferences(ref.value,ref.kind).values),documents:parsed.references.filter(ref=>ref.kind==='html').map(ref=>ref.value),decodedText:parsed.decodedText};
+}
+
+const exactKeys=(value,keys)=>value!==null&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).sort().join('|')===[...keys].sort().join('|');
+export function validateHtmlHelperOutput(parsed,decodeOnly=false) {
+    if(!exactKeys(parsed,decodeOnly?['decodedText']:['base','references','decodedText'])||typeof parsed.decodedText!=='string')fail();
+    if(!decodeOnly){
+        if(parsed.base!==null&&typeof parsed.base!=='string'||!Array.isArray(parsed.references))fail();
+        for(const ref of parsed.references)if(!exactKeys(ref,['kind','value'])||!['url','srcset','css','js','html'].includes(ref.kind)||typeof ref.value!=='string')fail();
+    }
+    return parsed;
+}
+
+function runHtmlHelper(source,decodeOnly=false) {
+    const result=spawnSync(process.platform==='win32'?'python':'python3',[htmlHelper,...(decodeOnly?['--decode-text']:[])],{input:source,encoding:'utf8',maxBuffer:16*1024*1024});
     if(result.status!==0)throw Error('Cannot extract HTML references; Python 3 is required');
     let parsed;try{parsed=JSON.parse(result.stdout);}catch{fail();}
-    return {base:parsed.base,values:parsed.references.flatMap(ref=>sourceReferences(ref.value,ref.kind).values)};
+    validateHtmlHelperOutput(parsed,decodeOnly);
+    if(source.length&&parsed.decodedText.length===0)fail();
+    return parsed;
 }
+
+export const decodeReferenceText=source=>runHtmlHelper(source,true).decodedText;

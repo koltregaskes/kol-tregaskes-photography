@@ -57,10 +57,21 @@ class References(HTMLParser):
                 self.references.extend({"kind": "url", "value": v} for v in re.split(r"[\t\n\f\r ]+", value.strip()) if v)
             elif name == "style":
                 self.references.append({"kind": "css", "value": value})
+            elif name == "srcdoc":
+                self.references.append({"kind": "html", "value": value})
             elif name.startswith("on"):
                 self.references.append({"kind": "js", "value": value})
         if tag == "meta" and attrs.get("property", attrs.get("name", "")).lower() in {"og:url", "og:image", "twitter:image", "twitter:url"}:
             self.references.append({"kind": "url", "value": attrs.get("content", "")})
+        if tag == "meta" and attrs.get("http-equiv", "").lower() == "refresh":
+            refresh = re.match(r"^\s*[0-9]+(?:\.[0-9]+)?\s*;\s*(?:url\s*=\s*)?(.*)$", attrs.get("content", ""), re.I | re.S)
+            if refresh:
+                destination = refresh[1].strip()
+                if destination.startswith(('"', "'")):
+                    if len(destination) < 2 or destination[-1] != destination[0]:
+                        raise ValueError("Invalid refresh argument")
+                    destination = destination[1:-1]
+                self.references.append({"kind": "url", "value": destination})
         if tag in {"script", "style"}:
             self.raw_kind = "js" if tag == "script" else "css"
             self.raw_parts = []
@@ -82,10 +93,26 @@ class References(HTMLParser):
 
 
 try:
-    parser = References()
-    parser.feed(sys.stdin.buffer.read().decode("utf-8"))
-    parser.close()
-    print(json.dumps({"base": parser.base, "references": parser.references}))
+    source = sys.stdin.buffer.read().decode("utf-8")
+    # The backstop deliberately decodes entity-looking text in every context,
+    # including comments and standalone CSS/JS. It is broader than request parsing.
+    decoded = source
+    for _ in range(16):
+        following = html.unescape(decoded)
+        if following == decoded:
+            break
+        decoded = following
+    else:
+        raise ValueError("Entity nesting exceeds the inspection limit")
+    if sys.argv[1:] == ["--decode-text"]:
+        print(json.dumps({"decodedText": decoded}))
+    elif not sys.argv[1:]:
+        parser = References()
+        parser.feed(source)
+        parser.close()
+        print(json.dumps({"base": parser.base, "references": parser.references, "decodedText": decoded}))
+    else:
+        raise ValueError("Unknown helper mode")
 except Exception:
     # No parser exception or input value may disclose a URL or credentials.
     print("Cannot extract HTML references", file=sys.stderr)

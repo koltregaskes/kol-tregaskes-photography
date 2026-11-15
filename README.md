@@ -59,6 +59,14 @@ What they do:
 - `validate` checks the generated files, runs JavaScript syntax checks, verifies `CNAME`, and confirms internal file references exist.
 - `gallery.html` stays out of the navigation and sitemap until real photographs replace the unused placeholder files in `images/`.
 
+## Privacy source guard
+
+`npm run privacy:check` catches accidental or unreviewed third-party references in the site's own HTML, CSS and JavaScript. Structured extraction reads reference values, including nested HTML and template expressions. An independent backstop sweeps the entire text after HTML entity and JS/CSS escape normalisation, including comments and prose. Both use WHATWG URL parsing and the privacy page's declared hosts. Malformed references or helper output fail closed. Python 3 is required for the standard-library HTML parser/entity table; no extra Python packages are used.
+
+The guard is not a sandbox against deliberately obfuscated code, for example a host assembled from string fragments at runtime. Runtime verification is the browser check's job. Passing this offline source guard is not a browser request trace.
+
+Only reviewed, inert text may use `privacy-non-request-mentions.json`: each entry needs `kind: "non-request mention"`, an exact relative file, an exact hostname and a reason. Review the source and reason in the PR. Entries cannot exempt a host found by structured request extraction; unused entries fail. Do not use this file to approve an active third-party resource: update the privacy notice and review the integration instead.
+
 ## Automation
 
 `.github/workflows/refresh-routed-feed.yml` fetches every entry in the shared `sources.json` at 05:15 UTC, applies the photography filter in `site-filters.json`, and commits `news-digests/news-feed-latest.json`. A successful fetch that matches nothing writes a fresh empty article list and exits 0. Partial source failures warn by name and the successful sources still write. All-source failure preserves the previous feed and fails. After validation and a push to main, the workflow explicitly requests the existing branch-based Pages build through the Pages API, because workflow-token pushes do not trigger it automatically. The first scheduled run must verify completed deployment and public feed readback. `news.html` reads that file when it has articles, and otherwise keeps the digest archive. This job does not run a second scraper. The 06:30 UTC freshness check alarms only on feed generation time; article dates are informational. It does not fetch articles.

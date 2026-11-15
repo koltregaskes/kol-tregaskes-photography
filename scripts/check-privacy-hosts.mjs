@@ -2,9 +2,15 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {sourceReferences} from './privacy-source-references.mjs';
+import {backstopHosts,validateMentions} from './privacy-backstop.mjs';
 
 export function referencedHosts(source, {kind='url',baseURL='https://koltregaskesphotography.com/'}={}) {
     const references=sourceReferences(source,kind);
+    return structuredReferenceHosts(references,{baseURL});
+}
+
+function structuredReferenceHosts(references,{baseURL},depth=0) {
+    if(depth>32)throw Error('Nested HTML exceeds the inspection limit');
     let base;
     try {base=new URL(references.base ?? baseURL,baseURL);} catch {throw Error('Cannot parse the page base reference');}
     const hosts = new Set();
@@ -20,6 +26,9 @@ export function referencedHosts(source, {kind='url',baseURL='https://koltregaske
             throw Error('Cannot parse an external URL reference in public source');
         }
     }
+    for(const document of references.documents||[]){
+        for(const host of structuredReferenceHosts(sourceReferences(document,'html'),{baseURL:base.href},depth+1))hosts.add(host);
+    }
     return hosts;
 }
 
@@ -30,6 +39,9 @@ export async function inspectPrivacyHosts(root) {
     const siteBase = new URL(JSON.parse(await fs.readFile(path.join(root, 'seo-config.json'), 'utf8')).base);
     const own = siteBase.hostname;
     const files = [], errors = [];
+    let mentions=[];
+    try {mentions=validateMentions(JSON.parse(await fs.readFile(path.join(root,'privacy-non-request-mentions.json'),'utf8')));}catch(error){if(error.code!=='ENOENT')throw Error('Cannot validate non-request mention allowlist');}
+    const usedMentions=new Set();
     async function walk(dir) {
         for (const item of await fs.readdir(dir, {withFileTypes:true})) {
             if (item.name.startsWith('.') || item.name === 'node_modules') continue;
@@ -45,12 +57,22 @@ export async function inspectPrivacyHosts(root) {
         try {
             const kind=path.extname(file).slice(1).toLowerCase();
             const baseURL=new URL(path.relative(root,file).split(path.sep).map(encodeURIComponent).join('/'),siteBase).href;
-            for (const host of referencedHosts(source,{kind,baseURL})) {
+            const extracted=sourceReferences(source,kind);
+            const structured=structuredReferenceHosts(extracted,{baseURL});
+            for (const host of structured) {
                 if (host !== own && !allowed.has(host)) errors.push(path.relative(root,file)+': unlisted external host '+host);
+            }
+            for(const host of backstopHosts(source,{baseURL,decodedText:extracted.decodedText})){
+                if(host===own||allowed.has(host))continue;
+                const relative=path.relative(root,file).split(path.sep).join('/');
+                const mention=mentions.find(entry=>entry.file===relative&&entry.host===host);
+                if(mention&&!structured.has(host))usedMentions.add(mention);
+                else if(!structured.has(host))errors.push(relative+': backstop found unlisted host '+host);
             }
         } catch {errors.push(path.relative(root,file)+': cannot parse complete public references');}
         if (file.endsWith('.html') && !/<footer\b[\s\S]*?<a\b[^>]*href="privacy\.html"[^>]*>Privacy notice<\/a>[\s\S]*?<\/footer>/i.test(source)) errors.push(path.relative(root,file)+': missing privacy footer link');
     }
+    for(const mention of mentions)if(!usedMentions.has(mention))errors.push(mention.file+': unused or active non-request mention entry');
     return {files:files.length, hosts:allowed.size, errors};
 }
 
