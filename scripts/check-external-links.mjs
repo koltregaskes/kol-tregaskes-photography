@@ -5,6 +5,7 @@ import {checkExternalDestination} from './external-link-policy.mjs';
 import {crawlExitCode} from './link-crawl-acceptance.mjs';
 
 const localBase = 'https://ktp-local.invalid/';
+const maxSrcdocDepth = 4; // Outer document is depth 0; deeper content remains unverified.
 const incomplete = () => ({status: 'unverified', reason: 'unsupported or unparseable HTML reference'});
 
 function tokeniseHtml(html, executeHelper = spawnSync) {
@@ -17,7 +18,7 @@ function tokeniseHtml(html, executeHelper = spawnSync) {
     catch { throw new Error('Invalid HTML reference helper output'); }
     if (!parsed || parsed.version !== 1 || !(parsed.base === null || typeof parsed.base === 'string') ||
         !Number.isSafeInteger(parsed.problems) || parsed.problems < 0 || !Array.isArray(parsed.references) ||
-        parsed.references.some(ref => !ref || !['href', 'src', 'srcset', 'imagesrcset'].includes(ref.attribute) || typeof ref.value !== 'string')) {
+        parsed.references.some(ref => !ref || !['href', 'src', 'srcset', 'imagesrcset', 'srcdoc'].includes(ref.attribute) || typeof ref.value !== 'string')) {
         throw new Error('Invalid HTML reference helper output');
     }
     return parsed;
@@ -52,31 +53,41 @@ function srcsetReferences(value) {
 }
 
 export function extractExternalUrls(html, {executeHelper} = {}) {
-    const parsed = tokeniseHtml(html, executeHelper);
     const urls = new Set();
-    let base;
-    try { base = new URL(parsed.base ?? localBase, localBase); }
-    catch { base = null; urls.add(incomplete()); }
-    if (parsed.problems) urls.add(incomplete());
-    for (const ref of parsed.references) {
-        const values = ['srcset', 'imagesrcset'].includes(ref.attribute) ? srcsetReferences(ref.value) : [ref.value];
-        for (const value of values) {
-            if (typeof value !== 'string') { urls.add(value); continue; }
-            let url, absolute = false;
-            try {
-                try { url = new URL(value); absolute = true; }
-                catch { if (!base) throw new Error(); url = new URL(value, base); }
-            } catch { urls.add(incomplete()); continue; }
-            if (ref.attribute === 'href' && ['mailto:', 'tel:'].includes(url.protocol)) continue;
-            if (['http:', 'https:'].includes(url.protocol)) {
-                // Local routes/fragments stay with the separate internal-link gate.
-                if (!absolute && url.origin === new URL(localBase).origin) continue;
-                urls.add(url.href);
-            } else if (['javascript:', 'data:', 'file:'].includes(url.protocol)) {
-                urls.add(url.href); // Known unsafe schemes retain the existing exit 1 policy.
-            } else urls.add(incomplete());
+    function collectDocument(source, inheritedBase, depth) {
+        const parsed = tokeniseHtml(source, executeHelper);
+        let base = inheritedBase;
+        if (parsed.base !== null) {
+            try { base = new URL(parsed.base, inheritedBase ?? undefined); }
+            catch { base = null; urls.add(incomplete()); }
+        }
+        if (parsed.problems) urls.add(incomplete());
+        for (const ref of parsed.references) {
+            if (ref.attribute === 'srcdoc') {
+                if (depth >= maxSrcdocDepth) urls.add(incomplete());
+                else collectDocument(ref.value, base, depth + 1);
+                continue;
+            }
+            const values = ['srcset', 'imagesrcset'].includes(ref.attribute) ? srcsetReferences(ref.value) : [ref.value];
+            for (const value of values) {
+                if (typeof value !== 'string') { urls.add(value); continue; }
+                let url, absolute = false;
+                try {
+                    try { url = new URL(value); absolute = true; }
+                    catch { if (!base) throw new Error(); url = new URL(value, base); }
+                } catch { urls.add(incomplete()); continue; }
+                if (ref.attribute === 'href' && ['mailto:', 'tel:'].includes(url.protocol)) continue;
+                if (['http:', 'https:'].includes(url.protocol)) {
+                    // Local routes/fragments stay with the separate internal-link gate.
+                    if (!absolute && url.origin === new URL(localBase).origin) continue;
+                    urls.add(url.href);
+                } else if (['javascript:', 'data:', 'file:'].includes(url.protocol)) {
+                    urls.add(url.href); // Known unsafe schemes retain the existing exit 1 policy.
+                } else urls.add(incomplete());
+            }
         }
     }
+    collectDocument(html, new URL(localBase), 0);
     return [...urls];
 }
 

@@ -93,6 +93,8 @@ class References(HTMLParser):
         for name, value in attrs:
             if name in {"href", "src", "srcset", "imagesrcset"} and not (hint and name == "href"):
                 self.references.append({"attribute": name, "value": value})
+            elif tag == "iframe" and name == "srcdoc":
+                self.references.append({"attribute": name, "value": value})
 
     def handle_startendtag(self, tag, attrs):
         self.handle_starttag(tag, attrs)
