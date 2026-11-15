@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import {execFileSync} from 'node:child_process';
 import assert from 'node:assert/strict';
 import sharp from 'sharp';
-import {collectExternalUrls, runExternalCheck} from './check-external-links.mjs';
+import {runCollectedExternalCheck} from './check-external-links.mjs';
 const files=execFileSync('git',['ls-files','-z'],{encoding:'utf8'}).split('\0').filter(Boolean).filter(f=>!/(^|\/)\.env(?:\.|$)/.test(f));
 const patterns=[/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/,/gh[pousr]_[A-Za-z0-9]{36,}/,/AKIA[0-9A-Z]{16}/,/\bsk-[A-Za-z0-9_-]{40,}\b/];
 assert(patterns[0].test('-----BEGIN '+'PRIVATE KEY-----'),'Scanner self-test failed');
@@ -20,5 +20,5 @@ for(const file of files){
 console.log(`Secret pattern scan: ${findings} affected files (values redacted); image metadata: ${images} files checked`);
 assert.equal(findings,0,'Secret pattern findings require private investigation');
 if(process.argv.includes('--external')){
- await runExternalCheck(await collectExternalUrls());
+ await runCollectedExternalCheck();
 }

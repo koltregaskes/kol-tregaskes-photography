@@ -1,27 +1,90 @@
 import fs from 'node:fs/promises';
-import {execFileSync} from 'node:child_process';
-import {pathToFileURL} from 'node:url';
+import {execFileSync, spawnSync} from 'node:child_process';
+import {fileURLToPath, pathToFileURL} from 'node:url';
 import {checkExternalDestination} from './external-link-policy.mjs';
 import {crawlExitCode} from './link-crawl-acceptance.mjs';
 
-export function extractExternalUrls(html) {
+const localBase = 'https://ktp-local.invalid/';
+const incomplete = () => ({status: 'unverified', reason: 'unsupported or unparseable HTML reference'});
+
+function tokeniseHtml(html, executeHelper = spawnSync) {
+    const result = executeHelper(process.platform === 'win32' ? 'python' : 'python3',
+        ['-B', fileURLToPath(new URL('./external-html-references.py', import.meta.url))],
+        {input: html, encoding: 'utf8', timeout: 10000, maxBuffer: 32 * 1024 * 1024, windowsHide: true});
+    if (result.error || result.status !== 0) throw new Error('HTML reference helper unavailable');
+    let parsed;
+    try { parsed = JSON.parse(result.stdout); }
+    catch { throw new Error('Invalid HTML reference helper output'); }
+    if (!parsed || parsed.version !== 1 || !(parsed.base === null || typeof parsed.base === 'string') ||
+        !Number.isSafeInteger(parsed.problems) || parsed.problems < 0 || !Array.isArray(parsed.references) ||
+        parsed.references.some(ref => !ref || !['href', 'src', 'srcset', 'imagesrcset'].includes(ref.attribute) || typeof ref.value !== 'string')) {
+        throw new Error('Invalid HTML reference helper output');
+    }
+    return parsed;
+}
+
+// Follow srcset URL boundaries: commas inside a URL (e.g. data:) are not
+// separators. Keep every URL even when its descriptor cannot be interpreted.
+function srcsetReferences(value) {
+    const references = [];
+    let pos = 0;
+    while (pos < value.length) {
+        while (/[\t\n\f\r ]/.test(value[pos] ?? '') && pos < value.length) pos++;
+        if (pos === value.length) break;
+        if (value[pos] === ',') { references.push(incomplete()); pos++; continue; }
+        const start = pos;
+        while (pos < value.length && !/[\t\n\f\r ]/.test(value[pos])) pos++;
+        let url = value.slice(start, pos);
+        if (url.endsWith(',')) {
+            if (url.endsWith(',,')) references.push(incomplete());
+            url = url.replace(/,+$/, '');
+            references.push(url);
+            continue;
+        }
+        const descriptorStart = pos;
+        while (pos < value.length && value[pos] !== ',') pos++;
+        const descriptor = value.slice(descriptorStart, pos).replace(/^[\t\n\f\r ]+|[\t\n\f\r ]+$/g, '');
+        references.push(url);
+        if (descriptor && !/^(?:[1-9]\d*w|(?:\d+(?:\.\d+)?|\.\d+)x)$/.test(descriptor)) references.push(incomplete());
+        if (pos < value.length) pos++;
+    }
+    return references;
+}
+
+export function extractExternalUrls(html, {executeHelper} = {}) {
+    const parsed = tokeniseHtml(html, executeHelper);
     const urls = new Set();
-    for (const tag of html.matchAll(/<[^>]+>/g)) {
-        if (/rel=["'](?:preconnect|dns-prefetch)["']/.test(tag[0])) continue;
-        for (const match of tag[0].matchAll(/\s(?:href|src)\s*=\s*["']([^"']+)/gi)) {
-            const value = match[1].replaceAll('&amp;', '&').trim();
-            if (value.startsWith('//')) urls.add('https:' + value);
-            else if (/^[a-z][a-z\d+.-]*:/i.test(value) && !/^(?:mailto|tel):/i.test(value)) urls.add(value);
+    let base;
+    try { base = new URL(parsed.base ?? localBase, localBase); }
+    catch { base = null; urls.add(incomplete()); }
+    if (parsed.problems) urls.add(incomplete());
+    for (const ref of parsed.references) {
+        const values = ['srcset', 'imagesrcset'].includes(ref.attribute) ? srcsetReferences(ref.value) : [ref.value];
+        for (const value of values) {
+            if (typeof value !== 'string') { urls.add(value); continue; }
+            let url, absolute = false;
+            try {
+                try { url = new URL(value); absolute = true; }
+                catch { if (!base) throw new Error(); url = new URL(value, base); }
+            } catch { urls.add(incomplete()); continue; }
+            if (ref.attribute === 'href' && ['mailto:', 'tel:'].includes(url.protocol)) continue;
+            if (['http:', 'https:'].includes(url.protocol)) {
+                // Local routes/fragments stay with the separate internal-link gate.
+                if (!absolute && url.origin === new URL(localBase).origin) continue;
+                urls.add(url.href);
+            } else if (['javascript:', 'data:', 'file:'].includes(url.protocol)) {
+                urls.add(url.href); // Known unsafe schemes retain the existing exit 1 policy.
+            } else urls.add(incomplete());
         }
     }
     return [...urls];
 }
 
-export async function collectExternalUrls() {
+export async function collectExternalUrls(options) {
     // Read only tracked HTML, never environment files, credentials or other text.
     const files = execFileSync('git', ['ls-files', '-z', '--', '*.html'], {encoding: 'utf8'}).split('\0').filter(Boolean);
     const urls = new Set();
-    for (const file of files) for (const url of extractExternalUrls(await fs.readFile(file, 'utf8'))) urls.add(url);
+    for (const file of files) for (const url of extractExternalUrls(await fs.readFile(file, 'utf8'), options)) urls.add(url);
     return [...urls];
 }
 
@@ -33,7 +96,7 @@ export async function crawlExternalLinks(urls, options = {}) {
         while (cursor < queue.length) {
             const index = cursor++, url = queue[index];
             const remaining = deadline - Date.now();
-            const result = remaining <= 0 ? {status: 'unverified', reason: 'crawl deadline'} :
+            const result = typeof url !== 'string' ? incomplete() : remaining <= 0 ? {status: 'unverified', reason: 'crawl deadline'} :
                 await checkExternalDestination(url, {...options, timeout: Math.min(options.timeout ?? 15000, remaining)});
             let destination = '(invalid or non-HTTP(S) URL)';
             try {
@@ -62,7 +125,9 @@ export async function runExternalCheck(urls, options) {
     return report;
 }
 
-if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-    try { await runExternalCheck(await collectExternalUrls()); }
+export async function runCollectedExternalCheck(options) {
+    try { return await runExternalCheck(await collectExternalUrls(options), options); }
     catch { console.error('External crawl could not complete; acceptance is unverified.'); process.exitCode = 2; }
 }
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await runCollectedExternalCheck();
