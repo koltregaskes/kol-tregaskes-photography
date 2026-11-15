@@ -12,6 +12,8 @@
 - [About](/about.html): About Kol Tregaskes
 - [Contact](/contact.html): Archive, print, and licensing contact only
 
+- [Privacy](/privacy.html): Hosting, fonts, contact drafts, browser storage, external links and UK data protection rights
+
 ## About
 
 Kol Tregaskes is a UK-based photographer working across landscape, architecture, urban, and documentary photography. The standalone gallery is not linked from the public navigation or listed in the sitemap.

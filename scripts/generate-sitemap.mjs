@@ -19,7 +19,8 @@ const pages = [
   { file: 'blog-portfolio-sync-note.html', loc: '/blog-portfolio-sync-note.html' },
   { file: 'blog-welcome.html', loc: '/blog-welcome.html' },
   { file: 'about.html', loc: '/about.html' },
-  { file: 'contact.html', loc: '/contact.html' }
+  { file: 'contact.html', loc: '/contact.html' },
+  { file: 'privacy.html', loc: '/privacy.html' }
 ];
 
 function formatDate(date) {
