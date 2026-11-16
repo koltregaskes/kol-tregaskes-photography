@@ -176,15 +176,18 @@ test('seeded production entry point requests every URL and reports the three dis
     const moduleUrl = new URL('../scripts/check-external-links.mjs', import.meta.url).href;
     const source = `import assert from 'node:assert/strict';
         import {runCollectedExternalCheck} from ${JSON.stringify(moduleUrl)};
-        const blocked=new Map([['https://www.redbubble.com/people/koltregaskes',403],['https://x.com/koltregaskespho',403],['https://www.instagram.com/koltregaskes',429]]);
+        const blocked=new Map([['https://www.redbubble.com/people/koltregaskes',403],['https://x.com/koltregaskespho',403],['https://www.instagram.com/koltregaskes',302]]);
+        const login='https://www.instagram.com/accounts/login/';
         const requested=[];
         const report=await runCollectedExternalCheck({today:'2026-11-16',
             resolveHost:async()=>[{address:'93.184.216.34'}],
             fetchImpl:async url=>{requested.push(url);
-                return new Response(null,{status:blocked.get(url)??200});}});
+                if(url===login)return new Response(null,{status:429});
+                const status=blocked.get(url)??200;
+                return new Response(null,status===302?{status,headers:{location:login}}:{status});}});
         assert.ok(report.destinations>=3);assert.equal(report.reachable,report.destinations-3);
         assert.equal(report.acceptedByDisposition,3);assert.equal(report.observedUnverified,3);
-        assert.equal(report.unverified,0);assert.equal(requested.length,report.destinations);
+        assert.equal(report.unverified,0);assert.equal(requested.length,report.destinations+1);assert.ok(requested.includes(login));
         for(const url of blocked.keys())assert.ok(requested.includes(url));`;
     const result = spawnSync(process.execPath, ['--input-type=module', '-e', source], {encoding: 'utf8'});
     assert.equal(result.status, 0, result.stderr);

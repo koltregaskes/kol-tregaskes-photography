@@ -17,9 +17,9 @@
   },
   {
     "destination": "https://www.instagram.com/koltregaskes",
-    "finalDestination": "https://www.instagram.com/koltregaskes",
+    "finalDestination": "https://www.instagram.com/accounts/login/",
     "disposition": "manually-verified-live",
-    "evidence": "Checked by Claude (agent, real Chrome browser session) on 2026-11-16: live profile 'Kol Tregaskes (@koltregaskes)', 281 posts, bio links to kolt.at/links. GitHub-hosted runners repeatedly get HTTP 429 (rate limited) at the profile URL (CI runs 2026-11-16, several attempts), so the crawler cannot verify it.",
+    "evidence": "Checked by Claude (agent, real Chrome browser session) on 2026-11-16: live profile 'Kol Tregaskes (@koltregaskes)', 281 posts, bio links to kolt.at/links. Automated requests from GitHub-hosted runners are redirected on the same host to /accounts/login/ and get HTTP 429 there (CI runs 2026-11-16), so the crawler's final destination is the login page.",
     "verifiedOn": "2026-11-16",
     "expiresOn": "2026-12-16"
   }
