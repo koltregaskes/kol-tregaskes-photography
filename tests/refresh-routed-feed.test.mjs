@@ -12,6 +12,15 @@ import {
   refreshRoutedFeed,
 } from '../scripts/refresh-routed-feed.mjs'
 
+import { compileRegistry } from '../source-permissions.mjs'
+const fixtureRegistry = compileRegistry({ sources: [
+  ['VentureBeat AI', 'https://venturebeat.com/category/ai/feed/'],
+  ['arXiv cs.AI', 'https://export.arxiv.org/rss/cs.AI'],
+  ['TechCrunch AI', 'https://techcrunch.com/category/artificial-intelligence/feed/'],
+  ['Working', 'https://example.com/good'],
+  ['Failed', 'https://example.com/bad'],
+].map(([label, endpoint]) => ({ label, endpoints: [endpoint], status: 'permitted', evidence: 'https://example.test/fixture-permission - fictional test fixture only', attribution_required: 'Fixture source', permitted_fields: ['headline','link','excerpt'], max_excerpt_length: 700, retention: 'Fixture only', rate_limit: 'Fixture only', takedown_contact: 'Fixture only' })) })
+
 const siteFilter = {
   name: "Kol Tregaskes Photography",
   include_tags: ['product_launch', 'open_source'],
@@ -91,6 +100,7 @@ test('a source that cannot be fetched fails by name and does not write', async (
   }])
 
   const result = await refreshRoutedFeed({
+    registry: fixtureRegistry,
     pipelineDir: dir,
     outputPath,
     retries: 1,
@@ -129,6 +139,7 @@ test('an empty match writes a fresh empty feed and a matched item is written', a
     'https://techcrunch.com/category/artificial-intelligence/feed/': '<rss version="2.0"><channel><item><title>Grok clip</title><link>https://techcrunch.com/2026/10/25/grok/</link><pubDate>Sun, 25 Oct 2026 21:31:16 +0000</pubDate><description>Fetched from the feed.</description></item></channel></rss>',
   }
   const missed = await refreshRoutedFeed({
+    registry: fixtureRegistry,
     pipelineDir: dir,
     outputPath,
     now: new Date('2026-10-26T00:10:00.000Z'),
@@ -148,6 +159,7 @@ test('an empty match writes a fresh empty feed and a matched item is written', a
   assert.deepEqual(emptyFeed.articles, [])
 
   const result = await refreshRoutedFeed({
+    registry: fixtureRegistry,
     pipelineDir: dir,
     outputPath,
     now: new Date('2026-10-26T00:10:00.000Z'),
@@ -219,6 +231,7 @@ test('a thrown timeout uses the remaining retries', async () => {
   }])
   let calls = 0
   const result = await refreshRoutedFeed({
+    registry: fixtureRegistry,
     pipelineDir: dir,
     outputPath,
     now: new Date('2026-10-26T00:10:00.000Z'),
@@ -249,6 +262,7 @@ test('a non-retryable HTTP response fails immediately and names the source', asy
   }])
   let calls = 0
   const result = await refreshRoutedFeed({
+    registry: fixtureRegistry,
     pipelineDir: dir,
     outputPath,
     retries: 3,
@@ -293,7 +307,8 @@ test('one failed source still publishes the successful source and reports failur
     {id:'failed',name:'Failed',url:'https://example.com/bad',adapter:'rss'},
   ])
   const outputPath=path.join(dir,'feed.json')
-  const result=await refreshRoutedFeed({pipelineDir:dir,outputPath,retries:1,now:new Date('2026-10-26T00:10:00Z'),fetchImpl:async url=>url.endsWith('/bad')?{ok:false,status:404,text:async()=>''}:{ok:true,status:200,text:async()=>'<rss><channel><item><title>Camera launch</title><link>https://example.com/camera</link><pubDate>Sun, 25 Oct 2026 21:31:16 GMT</pubDate></item></channel></rss>'}})
+  const result=await refreshRoutedFeed({
+    registry: fixtureRegistry,pipelineDir:dir,outputPath,retries:1,now:new Date('2026-10-26T00:10:00Z'),fetchImpl:async url=>url.endsWith('/bad')?{ok:false,status:404,text:async()=>''}:{ok:true,status:200,text:async()=>'<rss><channel><item><title>Camera launch</title><link>https://example.com/camera</link><pubDate>Sun, 25 Oct 2026 21:31:16 GMT</pubDate></item></channel></rss>'}})
   assert.equal(result.wrote,true)
   assert.equal(result.failures.length,1)
   assert.match(result.failures[0],/^failed/)

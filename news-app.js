@@ -158,6 +158,18 @@ class PhotographyNewsApp {
     }
 
     async loadArticles() {
+        try {
+            const [policy, response] = await Promise.all([import('./source-permissions.mjs'), fetch('launch/source-permissions.json', { cache: 'no-store' })]);
+            if (!response.ok) throw new Error('Source permissions unavailable');
+            this.sourceRegistry = policy.compileRegistry(await response.json());
+            this.applySourceRules = article => policy.applyFieldRules(article, this.sourceRegistry);
+        } catch {
+            this.articles = [];
+            this.filteredArticles = [];
+            if (this.feedStatus) this.feedStatus.textContent = 'Source permissions unavailable. News stories are withheld until the registry can be checked.';
+            if (this.loading) this.loading.hidden = true;
+            return;
+        }
         const filenames = await this.loadDigestList();
         const results = new Array(filenames.length);
         const workerCount = Math.min(8, filenames.length);
@@ -175,7 +187,13 @@ class PhotographyNewsApp {
         const routed = await this.loadRoutedArticles();
         const seen = new Set();
         this.articles = [];
-        for (const article of [...routed, ...results.flat().filter((article) => this.shouldDisplayArticle(article))]) {
+        for (const original of [...routed, ...results.flat()]) {
+            const fields = this.applySourceRules(original);
+            if (!fields) continue;
+            const article = { ...fields, score: original.score, dateKey: original.dateKey,
+                dateLabel: original.dateLabel, compactDateLabel: original.compactDateLabel,
+                summary: fields.summary || '' };
+            if (!this.shouldDisplayArticle(article)) continue;
             if (!article?.url || seen.has(article.url)) continue;
             seen.add(article.url);
             this.articles.push(article);
@@ -722,7 +740,7 @@ class PhotographyNewsApp {
 
         const topline = document.createElement('div');
         topline.className = 'news-card-topline';
-        topline.innerHTML = `<span>${this.escapeHtml(article.compactDateLabel)}</span>`;
+        topline.innerHTML = `<span>${this.escapeHtml(article.compactDateLabel)}</span><span>${this.escapeHtml(article.source || '')}</span>`;
 
         const heading = document.createElement('h3');
         const link = document.createElement(sourceUnavailable ? 'span' : 'a');
