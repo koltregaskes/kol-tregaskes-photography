@@ -6,9 +6,17 @@ import vm from 'node:vm'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 import { makeCoverage, validateCoverage, coverageMessage, coverageReport } from '../scripts/source-coverage.mjs'
-import { SITE_SLUG, refreshRoutedFeed } from '../scripts/refresh-routed-feed.mjs'
+import { SITE_SLUG, refreshRoutedFeed as refreshWithPermissions } from '../scripts/refresh-routed-feed.mjs'
 import { assessRoutedFeedFreshness, formatReport } from '../scripts/check-routed-feed-freshness.mjs'
 import { collectFeedProof, DESTINATION } from '../scripts/check-public-feed-proof.mjs'
+
+import { compileRegistry } from '../source-permissions.mjs'
+const fixtureRegistry = compileRegistry({ sources: sources().map(source => ({
+  label: source.name, endpoints: [source.url], status: 'link-only', evidence: 'permission unverified',
+  attribution_required: 'Fixture source and link', permitted_fields: ['headline','link'], max_excerpt_length: 0,
+  retention: 'Fixture only', rate_limit: 'Fixture only', takedown_contact: 'Fixture only',
+})) })
+const refreshRoutedFeed = options => refreshWithPermissions({ ...options, registry: fixtureRegistry })
 
 const cases = JSON.parse(fs.readFileSync('tests/fixtures/source-coverage.json'))
 const now = new Date('2026-10-26T06:30:00Z')
