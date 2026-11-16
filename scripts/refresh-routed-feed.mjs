@@ -384,7 +384,7 @@ function loadPipeline(pipelineDir, registry = loadPermissions()) {
     return allowed
   })
   if (!sources.length) console.error('::warning title=Source permissions::No reviewed source endpoints are eligible for acquisition. Review launch/source-permissions.json; the previous feed is preserved.')
-  return { filters, sources }
+  return { filters, sources, configured: sourcesDoc.sources.length }
 }
 
 function loadPermissions() {
@@ -507,7 +507,7 @@ async function refreshRoutedFeed({
   registry = loadPermissions(),
   statusPath = null,
 }) {
-  const { filters, sources } = loadPipeline(pipelineDir, registry)
+  const { filters, sources, configured } = loadPipeline(pipelineDir, registry)
   const siteFilter = filters.sites[siteSlug]
   if (!siteFilter?.name) throw new Error(`Site filter ${siteSlug} is missing from site-filters.json.`)
   const failures = []
@@ -526,7 +526,7 @@ async function refreshRoutedFeed({
       console.error(`::warning title=Source fetch failed::${message}`)
     }
   }
-  const coverage = validateCoverage(makeCoverage(outcomes))
+  const coverage = validateCoverage(makeCoverage(outcomes, configured))
   if (statusPath && write) {
     fs.mkdirSync(path.dirname(statusPath), { recursive: true })
     fs.writeFileSync(statusPath, `${JSON.stringify({ attemptedAt: new Date(now).toISOString(), coverage }, null, 2)}\n`, 'utf8')

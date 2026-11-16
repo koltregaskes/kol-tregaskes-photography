@@ -166,7 +166,15 @@ class PhotographyNewsApp {
         } catch {
             this.articles = [];
             this.filteredArticles = [];
-            if (this.feedStatus) this.feedStatus.textContent = 'Source permissions unavailable. News stories are withheld until the registry can be checked.';
+            this.feedAssessment = {
+                state: 'unavailable', articles: [],
+                message: 'Source permissions unavailable. News stories are withheld until the registry can be checked.'
+            };
+            if (this.feedStatus) {
+                this.feedStatus.textContent = this.feedAssessment.message;
+                this.feedStatus.dataset.state = this.feedAssessment.state;
+                this.feedStatus.hidden = false;
+            }
             if (this.loading) this.loading.hidden = true;
             return;
         }
