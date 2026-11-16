@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import {crawlExitCode} from './link-crawl-acceptance.mjs';
 
-const fields = ['destination', 'disposition', 'evidence', 'verifiedOn', 'expiresOn'];
+const fields = ['destination', 'finalDestination', 'disposition', 'evidence', 'verifiedOn', 'expiresOn'];
 const dayMs = 86400000;
 const denialStatuses = new Set([401, 402, 403, 429]);
 
@@ -29,9 +29,9 @@ export function validateDispositions(document, today = new Date().toISOString().
         let reason;
         if (!entry || Array.isArray(entry) || typeof entry !== 'object' ||
             Object.keys(entry).length !== fields.length || fields.some(field => !Object.hasOwn(entry, field) || typeof entry[field] !== 'string')) {
-            reason = 'entry must contain exactly the five required string fields';
-        } else if (normaliseDestination(entry.destination) !== entry.destination) {
-            reason = 'destination must be an exact normalised HTTP(S) URL without credentials or fragment';
+            reason = 'entry must contain exactly the six required string fields';
+        } else if (normaliseDestination(entry.destination) !== entry.destination || normaliseDestination(entry.finalDestination) !== entry.finalDestination) {
+            reason = 'destination and finalDestination must be exact normalised HTTP(S) URLs without credentials or fragment';
         } else if (entry.disposition !== 'manually-verified-live' || !entry.evidence.trim()) {
             reason = 'entry needs manually-verified-live and non-empty evidence';
         } else {
@@ -55,7 +55,7 @@ export async function loadDispositions(file = new URL('../launch/link-dispositio
     catch { return {document: [], errors: [{reason: 'disposition file unavailable or invalid JSON'}]}; }
 }
 
-export function applyDispositions(report, urls, {dispositions = [], dispositionLoadErrors = [], today} = {}) {
+export function applyDispositions(report, urls, {dispositions = [], dispositionLoadErrors = [], today} = {}, traces = []) {
     const {entries, errors} = validateDispositions(dispositions, today);
     errors.push(...dispositionLoadErrors);
     if (errors.length) entries.clear();
@@ -63,13 +63,23 @@ export function applyDispositions(report, urls, {dispositions = [], dispositionL
     for (const [index, result] of report.results.entries()) {
         const destination = typeof urls[index] === 'string' ? normaliseDestination(urls[index]) : null;
         const entry = entries.get(destination);
+        const trace = traces[index];
+        if (entry && trace) {
+            const final = new URL(trace.finalDestination);
+            result.finalDestination = final.origin + final.pathname;
+            result.finalFetchSent = trace.finalFetchSent;
+            result.stayedOnStartingHost = trace.stayedOnStartingHost;
+        }
         // An ordinary outage, missing DNS answer, incomplete HTML or skipped
         // crawl coverage is not a bot denial or a timed-out check.
-        if (!entry || result.status !== 'unverified' || !(denialStatuses.has(result.http) || result.timeout === true)) continue;
+        if (!entry || result.status !== 'unverified' || !trace?.finalFetchSent || !trace.stayedOnStartingHost ||
+            normaliseDestination(trace.finalDestination) !== entry.finalDestination ||
+            !(denialStatuses.has(result.http) || result.timeout === true)) continue;
         used.add(destination);
         result.observedStatus = 'unverified';
         result.status = 'accepted-by-disposition';
-        dispositionedDestinations.push({destination: result.destination, verifiedOn: entry.verifiedOn, expiresOn: entry.expiresOn,
+        dispositionedDestinations.push({destination: result.destination, finalDestination: result.finalDestination,
+            verifiedOn: entry.verifiedOn, expiresOn: entry.expiresOn,
             ...(result.http ? {http: result.http} : {timeout: true})});
     }
     for (const [destination, entry] of entries) {

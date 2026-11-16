@@ -9,10 +9,10 @@ import {externalCrawlExitCode, loadDispositions, validateDispositions} from '../
 
 const url = 'https://example.org/checked';
 const today = '2026-11-16';
-const entry = (changes = {}) => ({destination: url, disposition: 'manually-verified-live',
+const entry = (changes = {}) => ({destination: url, finalDestination: changes.destination ?? url, disposition: 'manually-verified-live',
     evidence: 'Checked by a reviewer in a real browser: the intended page and content are live.',
     verifiedOn: '2026-11-16', expiresOn: '2026-12-16', ...changes});
-const options = (status = 403, changes = {}) => ({today, dispositions: [entry()],
+const options = (status = 403, changes = {}) => ({today, dispositions: [entry()], minimumDestinationBudget: 1,
     resolveHost: async () => [{address: '93.184.216.34'}],
     fetchImpl: async () => new Response(null, {status}), ...changes});
 
@@ -37,7 +37,7 @@ for (const http of [401, 402, 403, 429]) {
 
 test('a timed-out attempted request can use a disposition', async () => {
     let requests = 0;
-    const report = await crawlExternalLinks([url], options(403, {timeout: 10, fetchImpl: () => {
+    const report = await crawlExternalLinks([url], options(403, {timeout: 100, fetchImpl: () => {
         requests++; return new Promise(() => {});
     }}));
     assert.equal(requests, 1);
@@ -177,17 +177,170 @@ test('seeded production entry point requests every URL and reports the two dispo
     const source = `import assert from 'node:assert/strict';
         import {runCollectedExternalCheck} from ${JSON.stringify(moduleUrl)};
         const blocked=new Set(['https://www.redbubble.com/people/koltregaskes','https://x.com/koltregaskespho']);
-        const requested=[];
+        const requested=[], shop='https://www.redbubble.com/people/koltregaskes/shop';
         const report=await runCollectedExternalCheck({today:'2026-11-16',
             resolveHost:async()=>[{address:'93.184.216.34'}],
-            fetchImpl:async url=>{requested.push(url);return new Response(null,{status:blocked.has(url)?403:200});}});
+            fetchImpl:async url=>{requested.push(url);
+                if(url==='https://www.redbubble.com/people/koltregaskes')return new Response(null,{status:301,headers:{location:shop}});
+                return new Response(null,{status:blocked.has(url)||url===shop?403:200});}});
         assert.ok(report.destinations>=2);assert.equal(report.reachable,report.destinations-2);
         assert.equal(report.acceptedByDisposition,2);assert.equal(report.observedUnverified,2);
-        assert.equal(report.unverified,0);assert.equal(requested.length,report.destinations);
+        assert.equal(report.unverified,0);assert.equal(requested.length,report.destinations+1);
+        assert.ok(requested.includes(shop));
         for(const url of blocked)assert.ok(requested.includes(url));`;
     const result = spawnSync(process.execPath, ['--input-type=module', '-e', source], {encoding: 'utf8'});
     assert.equal(result.status, 0, result.stderr);
     const report = JSON.parse(result.stdout.split('\n')[0]);
     assert.equal(report.dispositionedDestinations.length, 2);
     assert.equal(result.stdout.match(/ACCEPTED BY DISPOSITION:/g)?.length, 2);
+});
+
+test('hanging DNS with zero fetches is never dispositionable', async () => {
+    let fetches = 0;
+    const report = await crawlExternalLinks([url], options(403, {timeout: 15, minimumDestinationBudget: 1,
+        resolveHost: () => new Promise(() => {}), fetchImpl: async () => {fetches++; return new Response(null, {status: 403});}}));
+    assert.equal(fetches, 0);
+    assert.equal(report.acceptedByDisposition, 0);
+    assert.equal(externalCrawlExitCode(report), 2);
+});
+
+test('a zero per-destination budget is skipped without a fetch or disposition', async () => {
+    let fetches = 0;
+    const report = await crawlExternalLinks([url], options(403, {timeout: 0,
+        fetchImpl: async () => {fetches++; return new Response(null, {status: 403});}}));
+    assert.equal(fetches, 0);
+    assert.equal(report.acceptedByDisposition, 0);
+    assert.equal(report.results[0].skipped, true);
+    assert.equal(externalCrawlExitCode(report), 2);
+});
+
+test('a late queued destination cannot inherit less than the guaranteed budget', async () => {
+    const urls = [...Array.from({length: 6}, (_, i) => `https://example.org/first-${i}`), url];
+    let clock = 0, fetches = 0, lateFetches = 0;
+    const report = await crawlExternalLinks(urls, options(403, {
+        crawlNow: () => clock, minimumDestinationBudget: 10000,
+        fetchImpl: async value => {
+            if (value === url) {lateFetches++; throw new DOMException('Timed out', 'TimeoutError');}
+            if (++fetches === 6) clock = 175000; // Only five seconds of the 180-second crawl remain.
+            return new Response(null, {status: 200});
+        }
+    }));
+    assert.equal(report.reachable, 6);
+    assert.equal(lateFetches, 0);
+    assert.equal(report.acceptedByDisposition, 0);
+    assert.equal(report.results[6].skipped, true);
+    assert.equal(externalCrawlExitCode(report), 2);
+});
+
+test('a final URL changed by a same-host redirect cannot use starting-URL evidence', async () => {
+    const report = await crawlExternalLinks([url], options(403, {fetchImpl: async value => value === url ?
+        new Response(null, {status: 301, headers: {location: '/parked'}}) : new Response(null, {status: 403})}));
+    assert.equal(report.acceptedByDisposition, 0);
+    assert.equal(externalCrawlExitCode(report), 2);
+});
+
+test('a redirect to a parked domain denial cannot be dispositioned', async () => {
+    let calls = 0;
+    const report = await crawlExternalLinks([url], options(403, {fetchImpl: async () => {
+        if (++calls === 1) return new Response(null, {status: 301, headers: {location: 'https://parked-domain.example/parking'}});
+        return new Response(null, {status: 403});
+    }}));
+    assert.equal(calls, 2);
+    assert.equal(report.acceptedByDisposition, 0);
+    assert.equal(externalCrawlExitCode(report), 2);
+});
+
+test('a redirect followed by hanging DNS cannot reuse the previous hop fetch', async () => {
+    let lookups = 0, fetches = 0;
+    const finalDestination = 'https://example.org/final';
+    const report = await crawlExternalLinks([url], options(403, {timeout: 100,
+        dispositions: [entry({finalDestination})],
+        resolveHost: () => ++lookups === 1 ? Promise.resolve([{address: '93.184.216.34'}]) : new Promise(() => {}),
+        fetchImpl: async () => {fetches++; return new Response(null, {status: 301, headers: {location: finalDestination}});}
+    }));
+    assert.equal(fetches, 1);
+    assert.equal(report.results[0].finalFetchSent, false);
+    assert.notEqual(report.results[0].timeout, true);
+    assert.equal(report.acceptedByDisposition, 0);
+    assert.equal(externalCrawlExitCode(report), 2);
+});
+
+test('a sent final-hop fetch timeout can use matching final-destination evidence', async () => {
+    let fetches = 0;
+    const finalDestination = 'https://example.org/final';
+    const report = await crawlExternalLinks([url], options(403, {timeout: 100,
+        dispositions: [entry({finalDestination})], fetchImpl: value => {
+            fetches++;
+            return value === url ? Promise.resolve(new Response(null, {status: 301, headers: {location: finalDestination}})) : new Promise(() => {});
+        }
+    }));
+    assert.equal(fetches, 2);
+    assert.equal(report.results[0].finalFetchSent, true);
+    assert.equal(report.results[0].timeout, true);
+    assert.equal(report.acceptedByDisposition, 1);
+    assert.equal(externalCrawlExitCode(report), 0);
+});
+
+test('a matching same-host final URL is accepted with full-URL matching and redacted reporting', async () => {
+    for (const finalDestination of ['https://example.org/final', 'https://example.org/final?private=synthetic']) {
+        const report = await crawlExternalLinks([url], options(403, {dispositions: [entry({finalDestination})],
+            fetchImpl: async value => value === url ? new Response(null, {status: 301, headers: {location: finalDestination}}) : new Response(null, {status: 403})
+        }));
+        assert.equal(report.acceptedByDisposition, 1);
+        assert.equal(report.dispositionedDestinations[0].finalDestination, 'https://example.org/final');
+        assert.doesNotMatch(JSON.stringify(report), /synthetic/);
+        assert.equal(externalCrawlExitCode(report), 0);
+    }
+});
+
+test('even a declared parked final URL cannot authorise leaving the starting host', async () => {
+    const finalDestination = 'https://parked-domain.example/parking';
+    const report = await crawlExternalLinks([url], options(403, {dispositions: [entry({finalDestination})],
+        fetchImpl: async value => value === url ? new Response(null, {status: 301, headers: {location: finalDestination}}) : new Response(null, {status: 403})
+    }));
+    assert.equal(report.results[0].finalDestination, finalDestination);
+    assert.equal(report.results[0].stayedOnStartingHost, false);
+    assert.equal(report.acceptedByDisposition, 0);
+    assert.equal(externalCrawlExitCode(report), 2);
+});
+
+test('a chain that leaves the starting host and later returns remains ineligible', async () => {
+    const finalDestination = 'https://example.org/final';
+    let fetches = 0;
+    const report = await crawlExternalLinks([url], options(403, {dispositions: [entry({finalDestination})], fetchImpl: async () => {
+        if (++fetches === 1) return new Response(null, {status: 301, headers: {location: 'https://parked-domain.example/parking'}});
+        if (fetches === 2) return new Response(null, {status: 301, headers: {location: finalDestination}});
+        return new Response(null, {status: 403});
+    }}));
+    assert.equal(fetches, 3);
+    assert.equal(report.results[0].finalFetchSent, true);
+    assert.equal(report.results[0].stayedOnStartingHost, false);
+    assert.equal(report.acceptedByDisposition, 0);
+    assert.equal(externalCrawlExitCode(report), 2);
+});
+
+test('hostname changes fail closed across multi-label suffixes, tenant domains and subdomains', async () => {
+    for (const [destination, finalDestination] of [
+        ['https://a.co.uk/', 'https://b.co.uk/'],
+        ['https://tenant-a.github.io/', 'https://tenant-b.github.io/'],
+        ['https://www.example.org/', 'https://shop.example.org/']
+    ]) {
+        const report = await crawlExternalLinks([destination], options(403, {dispositions: [entry({destination, finalDestination})],
+            fetchImpl: async value => value === destination ? new Response(null, {status: 301, headers: {location: finalDestination}}) : new Response(null, {status: 403})
+        }));
+        assert.equal(report.acceptedByDisposition, 0);
+        assert.equal(report.results[0].stayedOnStartingHost, false);
+        assert.equal(externalCrawlExitCode(report), 2);
+    }
+});
+
+test('finalDestination is required and must be an exact normalised string URL', async () => {
+    const missing = entry(); delete missing.finalDestination;
+    for (const disposition of [missing, entry({finalDestination: 123}), entry({finalDestination: 'https://EXAMPLE.org/final'}),
+        entry({finalDestination: 'https://[invalid'}), entry({finalDestination: url + '#fragment'})]) {
+        const report = await crawlExternalLinks([url], options(403, {dispositions: [disposition]}));
+        assert.ok(report.dispositionErrors.length);
+        assert.equal(report.acceptedByDisposition, 0);
+        assert.equal(externalCrawlExitCode(report), 2);
+    }
 });

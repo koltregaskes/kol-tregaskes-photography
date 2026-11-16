@@ -70,15 +70,19 @@ export async function checkExternalDestination(value, {
     fetchImpl = globalThis.fetch,
     resolveHost = host => lookup(host, {all: true}),
     timeout = 15000,
-    maxRedirects = 8
+    maxRedirects = 8,
+    onDispositionTrace
 } = {}) {
     const deadline = Date.now() + timeout;
     const visited = new Set();
     let current;
     try { current = inspectUrl(value); }
     catch (error) { return {status: 'unsafe', reason: error.message}; }
+    const startingHost = current.hostname;
+    let finalFetchSent = false, stayedOnStartingHost = true;
     try {
         for (let hop = 0; ; hop++) {
+            finalFetchSent = false; // A previous hop's fetch cannot authorise this hop's DNS/deadline failure.
             if (visited.has(current.href)) return {status: 'unsafe', reason: 'redirect loop'};
             visited.add(current.href);
             const host = current.hostname.replace(/^\[|\]$/g, '').replace(/\.$/, '');
@@ -90,9 +94,11 @@ export async function checkExternalDestination(value, {
                 }
             }
             const remaining = Math.max(1, deadline - Date.now());
-            const response = await withinDeadline(() => fetchImpl(current.href, {
-                redirect: 'manual', signal: AbortSignal.timeout(remaining)
-            }), deadline);
+            const response = await withinDeadline(() => {
+                const signal = AbortSignal.timeout(remaining);
+                finalFetchSent = true;
+                return fetchImpl(current.href, {redirect: 'manual', signal});
+            }, deadline);
             // Body cleanup must not hide a confirmed HTTP or unsafe redirect result.
             response.body?.cancel()?.catch(() => {});
             // A supplied fetch implementation must not conceal an automatic redirect.
@@ -106,6 +112,7 @@ export async function checkExternalDestination(value, {
                 try { next = inspectUrl(new URL(location, current).href, current); }
                 catch (error) { return {status: 'unsafe', reason: error.message}; }
                 if (hop >= maxRedirects) return {status: 'unsafe', reason: 'redirect hop limit'};
+                stayedOnStartingHost &&= next.hostname === startingHost;
                 current = next;
                 continue;
             }
@@ -114,6 +121,8 @@ export async function checkExternalDestination(value, {
         }
     } catch (error) {
         const timeout = Date.now() >= deadline || error?.name === 'TimeoutError' || error?.message === 'request deadline';
-        return {status: 'unverified', reason: 'network, DNS or request deadline failure', ...(timeout ? {timeout: true} : {})};
+        return {status: 'unverified', reason: 'network, DNS or request deadline failure', ...(timeout && finalFetchSent ? {timeout: true} : {})};
+    } finally {
+        onDispositionTrace?.({finalDestination: current.href, finalFetchSent, stayedOnStartingHost});
     }
 }

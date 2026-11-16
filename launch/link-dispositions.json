@@ -1,15 +1,17 @@
 [
   {
     "destination": "https://www.redbubble.com/people/koltregaskes",
+    "finalDestination": "https://www.redbubble.com/people/koltregaskes/shop",
     "disposition": "manually-verified-live",
-    "evidence": "Checked by Claude (Samsung Book session) in a real Chrome browser: redirects to /people/koltregaskes/shop, 'Kol Tregaskes Shop | Redbubble', 48 products listed. Automated requests get HTTP 403.",
+    "evidence": "Checked by Claude (agent, real Chrome browser session) on 2026-11-16: redirects to /people/koltregaskes/shop, 'Kol Tregaskes Shop | Redbubble', 48 products listed. Automated requests get HTTP 403.",
     "verifiedOn": "2026-11-16",
     "expiresOn": "2026-12-16"
   },
   {
     "destination": "https://x.com/koltregaskespho",
+    "finalDestination": "https://x.com/koltregaskespho",
     "disposition": "manually-verified-live",
-    "evidence": "Checked by Claude (Samsung Book session) in a real Chrome browser: live profile 'Kol Tregaskes Photography (@koltregaskespho)', 729 posts. Automated requests get HTTP 403 (402 to some fetchers).",
+    "evidence": "Checked by Claude (agent, real Chrome browser session) on 2026-11-16: live profile 'Kol Tregaskes Photography (@koltregaskespho)', 729 posts. Automated requests get HTTP 403 (402 to some fetchers).",
     "verifiedOn": "2026-11-16",
     "expiresOn": "2026-12-16"
   }

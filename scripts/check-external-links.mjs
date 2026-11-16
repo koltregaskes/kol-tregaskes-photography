@@ -100,15 +100,19 @@ export async function collectExternalUrls(options) {
 }
 
 export async function crawlExternalLinks(urls, options = {}) {
-    const queue = [...new Set(urls)], results = [];
-    const deadline = Date.now() + (options.crawlTimeout ?? 180000);
+    const queue = [...new Set(urls)], results = [], traces = [];
+    const now = options.crawlNow ?? Date.now;
+    const deadline = now() + (options.crawlTimeout ?? 180000);
+    const minimumBudget = options.minimumDestinationBudget ?? 10000;
     let cursor = 0;
     await Promise.all(Array.from({length: 6}, async () => {
         while (cursor < queue.length) {
             const index = cursor++, url = queue[index];
-            const remaining = deadline - Date.now();
-            const result = typeof url !== 'string' ? incomplete() : remaining <= 0 ? {status: 'unverified', reason: 'crawl deadline'} :
-                await checkExternalDestination(url, {...options, timeout: Math.min(options.timeout ?? 15000, remaining)});
+            const allocated = Math.min(options.timeout ?? 15000, deadline - now());
+            const enoughBudget = Number.isFinite(allocated) && Number.isFinite(minimumBudget) && minimumBudget >= 1 && allocated >= minimumBudget;
+            const result = typeof url !== 'string' ? incomplete() : !enoughBudget ?
+                {status: 'unverified', reason: 'insufficient destination budget', skipped: true} :
+                await checkExternalDestination(url, {...options, timeout: allocated, onDispositionTrace: trace => {traces[index] = trace;}});
             let destination = '(invalid or non-HTTP(S) URL)';
             try {
                 const parsed = new URL(url);
@@ -125,14 +129,14 @@ export async function crawlExternalLinks(urls, options = {}) {
         unverified: results.filter(r => r.status === 'unverified').length,
         // No URL queries or response bodies in reports.
         results
-    }, queue, options);
+    }, queue, options, traces);
 }
 
 export async function runExternalCheck(urls, options) {
     const report = await crawlExternalLinks(urls, options);
     console.log(JSON.stringify(report));
     for (const entry of report.dispositionedDestinations) {
-        console.log(`ACCEPTED BY DISPOSITION: ${entry.destination}; observed ${entry.http ? 'HTTP ' + entry.http : 'timeout'}; verified ${entry.verifiedOn}; expires ${entry.expiresOn}`);
+        console.log(`ACCEPTED BY DISPOSITION: ${entry.destination} -> ${entry.finalDestination}; observed ${entry.http ? 'HTTP ' + entry.http : 'timeout'}; verified ${entry.verifiedOn}; expires ${entry.expiresOn}`);
     }
     for (const error of report.dispositionErrors) console.error(`Disposition rejected${error.entry ? ' at entry ' + error.entry : ''}: ${error.reason}`);
     console.log('Only reachable or validly dispositioned destinations accept; other unverified coverage requires further verification.');
