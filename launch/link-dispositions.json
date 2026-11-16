@@ -1,9 +1,9 @@
 [
   {
     "destination": "https://www.redbubble.com/people/koltregaskes",
-    "finalDestination": "https://www.redbubble.com/people/koltregaskes/shop",
+    "finalDestination": "https://www.redbubble.com/people/koltregaskes",
     "disposition": "manually-verified-live",
-    "evidence": "Checked by Claude (agent, real Chrome browser session) on 2026-11-16: redirects to /people/koltregaskes/shop, 'Kol Tregaskes Shop | Redbubble', 48 products listed. Automated requests get HTTP 403.",
+    "evidence": "Checked by Claude (agent, real Chrome browser session) on 2026-11-16: in a browser it redirects to /people/koltregaskes/shop, 'Kol Tregaskes Shop | Redbubble', 48 products listed. Automated requests get HTTP 403 at the profile URL itself, before any redirect (CI run 2026-11-16), so the crawler's final destination is the profile URL.",
     "verifiedOn": "2026-11-16",
     "expiresOn": "2026-12-16"
   },
