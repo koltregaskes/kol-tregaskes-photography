@@ -172,25 +172,25 @@ test('matching uses complete normalised URLs while reports redact queries', asyn
     assert.equal(externalCrawlExitCode(mismatch), 2);
 });
 
-test('seeded production entry point requests every URL and reports the two dispositions separately', () => {
+test('seeded production entry point requests every URL and reports the three dispositions separately', () => {
     const moduleUrl = new URL('../scripts/check-external-links.mjs', import.meta.url).href;
     const source = `import assert from 'node:assert/strict';
         import {runCollectedExternalCheck} from ${JSON.stringify(moduleUrl)};
-        const blocked=new Set(['https://www.redbubble.com/people/koltregaskes','https://x.com/koltregaskespho']);
+        const blocked=new Map([['https://www.redbubble.com/people/koltregaskes',403],['https://x.com/koltregaskespho',403],['https://www.instagram.com/koltregaskes',429]]);
         const requested=[];
         const report=await runCollectedExternalCheck({today:'2026-11-16',
             resolveHost:async()=>[{address:'93.184.216.34'}],
             fetchImpl:async url=>{requested.push(url);
-                return new Response(null,{status:blocked.has(url)?403:200});}});
-        assert.ok(report.destinations>=2);assert.equal(report.reachable,report.destinations-2);
-        assert.equal(report.acceptedByDisposition,2);assert.equal(report.observedUnverified,2);
+                return new Response(null,{status:blocked.get(url)??200});}});
+        assert.ok(report.destinations>=3);assert.equal(report.reachable,report.destinations-3);
+        assert.equal(report.acceptedByDisposition,3);assert.equal(report.observedUnverified,3);
         assert.equal(report.unverified,0);assert.equal(requested.length,report.destinations);
-        for(const url of blocked)assert.ok(requested.includes(url));`;
+        for(const url of blocked.keys())assert.ok(requested.includes(url));`;
     const result = spawnSync(process.execPath, ['--input-type=module', '-e', source], {encoding: 'utf8'});
     assert.equal(result.status, 0, result.stderr);
     const report = JSON.parse(result.stdout.split('\n')[0]);
-    assert.equal(report.dispositionedDestinations.length, 2);
-    assert.equal(result.stdout.match(/ACCEPTED BY DISPOSITION:/g)?.length, 2);
+    assert.equal(report.dispositionedDestinations.length, 3);
+    assert.equal(result.stdout.match(/ACCEPTED BY DISPOSITION:/g)?.length, 3);
 });
 
 test('hanging DNS with zero fetches is never dispositionable', async () => {
