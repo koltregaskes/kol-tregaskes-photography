@@ -286,10 +286,11 @@ test('the refresh workflow fetches the shared config and commits only the feed',
   assert.doesNotMatch(workflow, /secrets\.[A-Z0-9_]*(?:PAT|TOKEN)/)
 })
 
-test('one failed source still publishes the successful source and reports failure', async () => {
+test('one of three failed sources still publishes successful sources and reports failure', async () => {
   const dir=fs.mkdtempSync(path.join(os.tmpdir(),'ktp-partial-feed-'))
   pipeline(dir,[
     {id:'working',name:'Working',url:'https://example.com/good',adapter:'rss',tags:['product_launch']},
+    {id:'also-working',name:'Also working',url:'https://example.com/also-good',adapter:'rss',tags:['product_launch']},
     {id:'failed',name:'Failed',url:'https://example.com/bad',adapter:'rss'},
   ])
   const outputPath=path.join(dir,'feed.json')

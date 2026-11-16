@@ -236,6 +236,8 @@ class PhotographyNewsApp {
                     url: article.url,
                     source: article.source,
                     score: Number(article.importance) || null,
+                    sourceDate: date,
+                    digestDate: null,
                     date,
                     dateKey: Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10),
                     dateLabel: this.formatDateLabel(date),
@@ -352,11 +354,15 @@ class PhotographyNewsApp {
             title
         ) || embeddedSummary;
 
+        const sourceDate = this.parseSourceDate(sourceMatch?.[2]);
         return {
             title,
             url,
             source,
             score,
+            sourceDate,
+            digestDate,
+            sourceDatePrecision: sourceDate ? 'day' : null,
             date: digestDate,
             dateKey: digestDate.toISOString().slice(0, 10),
             dateLabel: this.formatDateLabel(digestDate),
@@ -364,6 +370,14 @@ class PhotographyNewsApp {
             summary,
             tags
         };
+    }
+
+    parseSourceDate(value) {
+        const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value || '');
+        if (!match) return null;
+        const [, day, month, year] = match.map(Number);
+        const date = new Date(Date.UTC(year, month - 1, day));
+        return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? date : null;
     }
 
     extractDigestDate(markdown, filename) {
@@ -722,7 +736,9 @@ class PhotographyNewsApp {
 
         const topline = document.createElement('div');
         topline.className = 'news-card-topline';
-        topline.innerHTML = `<span>${this.escapeHtml(article.compactDateLabel)}</span>`;
+        const sourceLabel = article.sourceDate ? `Source: ${this.formatCardDate(article.sourceDate)}` : 'Source date unavailable';
+        const digestLabel = article.digestDate ? `; Digest: ${this.formatCardDate(article.digestDate)}` : '';
+        topline.innerHTML = `<span>${this.escapeHtml(sourceLabel + digestLabel)}</span>`;
 
         const heading = document.createElement('h3');
         const link = document.createElement(sourceUnavailable ? 'span' : 'a');

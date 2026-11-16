@@ -1,0 +1,6 @@
+[
+  { "failed": 0, "expected": "healthy", "level": "notice", "exitCode": 0 },
+  { "failed": 1, "expected": "degraded", "level": "warning", "exitCode": 0 },
+  { "failed": 2, "expected": "failed", "level": "error", "exitCode": 1 },
+  { "failed": 4, "expected": "failed", "level": "error", "exitCode": 1 }
+]
