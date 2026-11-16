@@ -10,6 +10,9 @@ export async function collectFeedProof(expected, { now = new Date(), fetchImpl =
   const feed = JSON.parse(expected.toString());
   const assessment = assessRoutedFeedFreshness(feed, now);
   report.generatedAt = assessment.generatedAt;
+  report.acquisition = assessment.coverage;
+  report.coverageStatus = assessment.coverage?.status || 'unrecorded';
+  if (assessment.coverage?.status === 'failed') throw new Error('Source coverage lost');
   report.empty = feed.articles.length === 0;
   report.articleCount = feed.articles.length;
   report.sourceTimestampBasis = 'feed.articles[].date as declared by the fetched sources, not independently authenticated';
@@ -26,7 +29,7 @@ export async function collectFeedProof(expected, { now = new Date(), fetchImpl =
  } catch(error) {
   // Fixed reasons only. Do not print responses, source titles, query strings or
   // exception text from the network/provider in an operational report.
-  report.reason = ['Committed generation is at least 24 hours old','Public feed HTTP status or destination is unverified','Public feed does not match committed feed'].includes(error.message) ? error.message : 'Feed validation or public readback failed';
+  report.reason = ['Source coverage lost','Committed generation is at least 24 hours old','Public feed HTTP status or destination is unverified','Public feed does not match committed feed'].includes(error.message) ? error.message : 'Feed validation or public readback failed';
  }
  return report;
 }
