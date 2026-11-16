@@ -112,7 +112,8 @@ export async function checkExternalDestination(value, {
             const status = classifyExternalResponse(response.status, value, current.href);
             return {status: status === 'ok' ? 'reachable' : status, http: response.status};
         }
-    } catch {
-        return {status: 'unverified', reason: 'network, DNS or request deadline failure'};
+    } catch (error) {
+        const timeout = Date.now() >= deadline || error?.name === 'TimeoutError' || error?.message === 'request deadline';
+        return {status: 'unverified', reason: 'network, DNS or request deadline failure', ...(timeout ? {timeout: true} : {})};
     }
 }

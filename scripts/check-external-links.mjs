@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import {execFileSync, spawnSync} from 'node:child_process';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {checkExternalDestination} from './external-link-policy.mjs';
-import {crawlExitCode} from './link-crawl-acceptance.mjs';
+import {applyDispositions, externalCrawlExitCode, loadDispositions} from './link-dispositions.mjs';
 
 const localBase = 'https://ktp-local.invalid/';
 const maxSrcdocDepth = 4; // Outer document is depth 0; deeper content remains unverified.
@@ -117,7 +117,7 @@ export async function crawlExternalLinks(urls, options = {}) {
             results[index] = {item: index + 1, destination, ...result};
         }
     }));
-    return {
+    return applyDispositions({
         destinations: queue.length, inactiveSources: 0,
         reachable: results.filter(r => r.status === 'reachable').length,
         broken: results.filter(r => r.status === 'broken').length,
@@ -125,19 +125,26 @@ export async function crawlExternalLinks(urls, options = {}) {
         unverified: results.filter(r => r.status === 'unverified').length,
         // No URL queries or response bodies in reports.
         results
-    };
+    }, queue, options);
 }
 
 export async function runExternalCheck(urls, options) {
     const report = await crawlExternalLinks(urls, options);
     console.log(JSON.stringify(report));
-    console.log('Bot denials and incomplete coverage require further verification; only exit 0 is accepted.');
-    process.exitCode = crawlExitCode(report);
+    for (const entry of report.dispositionedDestinations) {
+        console.log(`ACCEPTED BY DISPOSITION: ${entry.destination}; observed ${entry.http ? 'HTTP ' + entry.http : 'timeout'}; verified ${entry.verifiedOn}; expires ${entry.expiresOn}`);
+    }
+    for (const error of report.dispositionErrors) console.error(`Disposition rejected${error.entry ? ' at entry ' + error.entry : ''}: ${error.reason}`);
+    console.log('Only reachable or validly dispositioned destinations accept; other unverified coverage requires further verification.');
+    process.exitCode = externalCrawlExitCode(report);
     return report;
 }
 
-export async function runCollectedExternalCheck(options) {
-    try { return await runExternalCheck(await collectExternalUrls(options), options); }
+export async function runCollectedExternalCheck(options = {}) {
+    try {
+        const loaded = await loadDispositions(options.dispositionFile);
+        return await runExternalCheck(await collectExternalUrls(options), {...options, dispositions: loaded.document, dispositionLoadErrors: loaded.errors});
+    }
     catch { console.error('External crawl could not complete; acceptance is unverified.'); process.exitCode = 2; }
 }
 
