@@ -76,7 +76,7 @@ for(const source of [
     '<!-- ftp://evil.invalid/x -->',
 ])test('backstop normalisation case '+[...source].reduce((n,c)=>n+c.codePointAt(0),0),()=>assert.ok(backstopHosts(source).has('evil.invalid')));
 
-const valid={base:null,references:[{kind:'url',value:'/local'}],decodedText:'<img src="/local">'};
+const valid={base:null,references:[{kind:'url',value:'/local'}],contexts:[],decodedText:'<img src="/local">'};
 for(const [name,mutant] of [
     ['null',null],['array',[]],['missing base',{references:[],decodedText:'x'}],
     ['false base',{base:false,references:[],decodedText:'x'}],['missing references',{base:null,decodedText:'x'}],

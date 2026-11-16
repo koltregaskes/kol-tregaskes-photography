@@ -1,42 +1,64 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath, pathToFileURL} from 'node:url';
-import {sourceReferences} from './privacy-source-references.mjs';
+import {sourceReferences,referenceContexts} from './privacy-source-references.mjs';
 import {backstopHosts,validateMentions} from './privacy-backstop.mjs';
 import {decodeDataURL,MAX_DOCUMENT_DEPTH} from './privacy-data-documents.mjs';
 
 export function referencedHosts(source, {kind='url',baseURL='https://koltregaskesphotography.com/'}={}) {
     const references=sourceReferences(source,kind);
-    return structuredReferenceHosts(references,{baseURL});
+    return new Set(referenceEvidence(references,{baseURL}).hosts.keys());
 }
 
-function structuredReferenceHosts(references,{baseURL},depth=0,resources=new Set()) {
-    if(depth>MAX_DOCUMENT_DEPTH)throw Error('Nested HTML exceeds the inspection limit');
+function referenceEvidence(references,{baseURL,sweep=false},depth=0) {
+    if(depth>MAX_DOCUMENT_DEPTH)throw Error('Nested document exceeds the inspection limit');
     let base;
     try {base=new URL(references.base ?? baseURL,baseURL);} catch {throw Error('Cannot parse the page base reference');}
-    const hosts = new Set();
-    for (const value of references.values) {
+    const hosts = new Map(), backstop = new Set(), accounted = new Set(), inert = new Set(), unaccounted = new Set();
+    const merge=child=>{
+        for(const [host,roles] of child.hosts){if(!hosts.has(host))hosts.set(host,new Set());for(const role of roles)hosts.get(host).add(role);}
+        for(const host of child.backstop)backstop.add(host);
+        for(const host of child.accounted)accounted.add(host);
+        for(const host of child.inert)inert.add(host);
+        for(const host of child.unaccounted)unaccounted.add(host);
+    };
+    if(sweep&&references.decodedText!==undefined)for(const host of backstopHosts(references.decodedText,{baseURL:base.href,decodedText:references.decodedText}))backstop.add(host);
+    for (const request of references.requests) {
+        const {value,role}=request;
         // WHATWG URL handles internal ASCII tabs/newlines, C0/space trimming,
         // backslashes, userinfo, ports, IDNs and relative references as a unit.
         const clean=value.replace(/[\t\n\r]/g,'').replace(/^[\x00-\x20]+|[\x00-\x20]+$/g,'');
         try {
             const url=new URL(value,base);
             if(!url.hostname&&/^(?:https?:|[\\/]{2})/i.test(clean))throw Error('Missing hostname');
-            if(url.hostname){hosts.add(url.hostname);if(references.resourceValues?.includes(value))resources.add(url.hostname);}
+            if(url.hostname){if(!hosts.has(url.hostname))hosts.set(url.hostname,new Set());hosts.get(url.hostname).add(role);}
+            if(url.protocol==='data:'){
+                const document=decodeDataURL(url.href,{required:request.document});
+                if(document.kind)merge(referenceEvidence(sourceReferences(document.source,document.kind),{baseURL:base.href,sweep},depth+1));
+            }
         } catch {
             throw Error('Cannot parse an external URL reference in public source');
         }
     }
-    for(const value of references.documentURLs||[]){
-        const url=new URL(value,base);
-        if(url.protocol!=='data:')continue;
-        const embedded=decodeDataURL(url.href);
-        if(embedded.kind)for(const host of structuredReferenceHosts(sourceReferences(embedded.source,embedded.kind),{baseURL:base.href},depth+1,resources))hosts.add(host);
-    }
     for(const document of references.documents||[]){
-        for(const host of structuredReferenceHosts(sourceReferences(document,'html'),{baseURL:base.href},depth+1,resources))hosts.add(host);
+        merge(referenceEvidence(sourceReferences(document,'html'),{baseURL:base.href,sweep},depth+1));
     }
-    return hosts;
+    if(sweep)for(const context of referenceContexts(references)){
+        if(context.kind==='html')continue; // Recursed above as its own document.
+        const hits=backstopHosts(context.value,{baseURL:base.href,decodedText:context.decodedText});
+        for(const host of hits)backstop.add(host);
+        if(context.kind==='inert'){for(const host of hits)inert.add(host);continue;}
+        if(context.kind==='unknown'){for(const host of hits)unaccounted.add(host);continue;}
+        const primary=referenceEvidence(sourceReferences(context.value,context.kind),{baseURL:base.href},depth);
+        merge(primary); // Recovered references must carry their roles into policy validation.
+        for(const host of hits){
+            // Matching roles are established within THIS source context, not by
+            // an unrelated anchor or metadata reference elsewhere in the file.
+            if(primary.hosts.has(host))accounted.add(host);
+            else unaccounted.add(host);
+        }
+    }
+    return {hosts,backstop,accounted,inert,unaccounted};
 }
 
 export async function inspectPrivacyHosts(root) {
@@ -66,18 +88,19 @@ export async function inspectPrivacyHosts(root) {
             const kind=path.extname(file).slice(1).toLowerCase();
             const baseURL=new URL(path.relative(root,file).split(path.sep).map(encodeURIComponent).join('/'),siteBase).href;
             const extracted=sourceReferences(source,kind);
-            const resources=new Set();
-            const structured=structuredReferenceHosts(extracted,{baseURL},0,resources);
-            for (const host of structured) {
-                if (host !== own && !allowed.has(host)) errors.push(path.relative(root,file)+': unlisted external host '+host);
+            const evidence=referenceEvidence(extracted,{baseURL,sweep:true});
+            for(const host of backstopHosts(source,{baseURL,decodedText:extracted.decodedText}))evidence.backstop.add(host);
+            for(const [host,roles] of evidence.hosts){
+                if(host===own)continue;
+                if(!allowed.has(host))errors.push(path.relative(root,file)+': unlisted external host '+host);
+                else if(roles.has('load')&&!resourceHosts.has(host))errors.push(path.relative(root,file)+': navigation host cannot authorise a resource load '+host);
             }
-            for(const host of resources)if(host!==own&&!resourceHosts.has(host))errors.push(path.relative(root,file)+': navigation host cannot authorise a resource load '+host);
-            for(const host of backstopHosts(source,{baseURL,decodedText:extracted.decodedText})){
-                if(host===own||allowed.has(host))continue;
+            for(const host of evidence.backstop){
                 const relative=path.relative(root,file).split(path.sep).join('/');
                 const mention=mentions.find(entry=>entry.file===relative&&entry.host===host);
-                if(mention&&!structured.has(host))usedMentions.add(mention);
-                else if(!structured.has(host))errors.push(relative+': backstop found unlisted host '+host);
+                if(evidence.unaccounted.has(host)||!evidence.accounted.has(host)&&!evidence.inert.has(host))errors.push(relative+': backstop found unaccounted active host '+host);
+                else if(mention&&evidence.inert.has(host))usedMentions.add(mention);
+                else if(!evidence.accounted.has(host))errors.push(relative+': backstop found unlisted host '+host);
             }
         } catch {errors.push(path.relative(root,file)+': cannot parse complete public references');}
         if (file.endsWith('.html') && !/<footer\b[\s\S]*?<a\b[^>]*href="privacy\.html"[^>]*>Privacy notice<\/a>[\s\S]*?<\/footer>/i.test(source)) errors.push(path.relative(root,file)+': missing privacy footer link');

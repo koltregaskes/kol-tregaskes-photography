@@ -13,14 +13,16 @@ function percentBytes(value) {
     return Buffer.concat(chunks);
 }
 
-export function decodeDataURL(value) {
+export function decodeDataURL(value,{required=false}={}) {
     let url;try{url=new URL(value);}catch{throw Error('Malformed data URL');}
     if(url.protocol!=='data:')return null;
     const path=url.pathname,comma=path.indexOf(',');
     if(comma<0||path.length>MAX_BYTES)throw Error('Malformed or oversized data URL');
     const parts=path.slice(0,comma).split(';').map(part=>part.trim().toLowerCase());
     const type=parts.shift()||'text/plain';
+    if(type==='text/css'||/^(?:text|application)\/(?:x-)?(?:javascript(?:1\.[0-5])?|ecmascript|jscript|livescript)$/.test(type))throw Error('Data CSS and JavaScript documents are forbidden');
     const document=type==='text/html'||type==='image/svg+xml';
+    if(required&&!document)throw Error('Unsupported data document type');
     const base64=parts.at(-1)==='base64';
     if(base64)parts.pop();
     if(parts.some(part=>part==='base64'))throw Error('Unsupported data URL encoding');
