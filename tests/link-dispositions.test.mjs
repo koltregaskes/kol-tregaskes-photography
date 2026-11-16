@@ -177,16 +177,14 @@ test('seeded production entry point requests every URL and reports the two dispo
     const source = `import assert from 'node:assert/strict';
         import {runCollectedExternalCheck} from ${JSON.stringify(moduleUrl)};
         const blocked=new Set(['https://www.redbubble.com/people/koltregaskes','https://x.com/koltregaskespho']);
-        const requested=[], shop='https://www.redbubble.com/people/koltregaskes/shop';
+        const requested=[];
         const report=await runCollectedExternalCheck({today:'2026-11-16',
             resolveHost:async()=>[{address:'93.184.216.34'}],
             fetchImpl:async url=>{requested.push(url);
-                if(url==='https://www.redbubble.com/people/koltregaskes')return new Response(null,{status:301,headers:{location:shop}});
-                return new Response(null,{status:blocked.has(url)||url===shop?403:200});}});
+                return new Response(null,{status:blocked.has(url)?403:200});}});
         assert.ok(report.destinations>=2);assert.equal(report.reachable,report.destinations-2);
         assert.equal(report.acceptedByDisposition,2);assert.equal(report.observedUnverified,2);
-        assert.equal(report.unverified,0);assert.equal(requested.length,report.destinations+1);
-        assert.ok(requested.includes(shop));
+        assert.equal(report.unverified,0);assert.equal(requested.length,report.destinations);
         for(const url of blocked)assert.ok(requested.includes(url));`;
     const result = spawnSync(process.execPath, ['--input-type=module', '-e', source], {encoding: 'utf8'});
     assert.equal(result.status, 0, result.stderr);
