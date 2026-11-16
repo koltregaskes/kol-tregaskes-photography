@@ -9,6 +9,7 @@
  * A successful fetch writes the feed even when nothing matches: a fresh
  * generated timestamp and an empty article list.
  */
+import { compileRegistry, acquisitionAllowed, applyFieldRules, assertPublishedItem } from '../source-permissions.mjs'
 import { makeCoverage, validateCoverage, reportSourceStatus } from './source-coverage.mjs'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -363,7 +364,7 @@ function capEntries(entries, maxItems) {
   return dated.slice(0, limit)
 }
 
-function loadPipeline(pipelineDir) {
+function loadPipeline(pipelineDir, registry = loadPermissions()) {
   const filtersPath = path.join(pipelineDir, 'site-filters.json')
   const sourcesPath = path.join(pipelineDir, 'config', 'sources.json')
   let filters
@@ -377,7 +378,17 @@ function loadPipeline(pipelineDir) {
   if (!filters?.sites || !Array.isArray(sourcesDoc?.sources)) {
     throw new Error(`News pipeline config at ${pipelineDir} is missing sites or sources.`)
   }
-  return { filters, sources: sourcesDoc.sources }
+  const sources = sourcesDoc.sources.filter(source => {
+    const allowed = acquisitionAllowed(source, registry)
+    if (!allowed) console.error(`::warning title=Source permissions::Skipping ${source.name || source.id}: excluded, unregistered or endpoint unverified.`)
+    return allowed
+  })
+  if (!sources.length) console.error('::warning title=Source permissions::No reviewed source endpoints are eligible for acquisition. Review launch/source-permissions.json; the previous feed is preserved.')
+  return { filters, sources, configured: sourcesDoc.sources.length }
+}
+
+function loadPermissions() {
+  return compileRegistry(JSON.parse(fs.readFileSync(new URL('../launch/source-permissions.json', import.meta.url), 'utf8')))
 }
 
 function applySiteFilter(items, siteFilter, now) {
@@ -427,7 +438,8 @@ async function fetchText(url, fetchImpl, retries) {
     for (const userAgent of USER_AGENTS) {
       try {
         const response = await fetchImpl(url, {
-          redirect: 'follow',
+          // An approved endpoint does not authorise following another route.
+          redirect: 'error',
           headers: { ...FETCH_HEADERS, 'user-agent': userAgent },
           signal: AbortSignal.timeout(20000),
         })
@@ -492,9 +504,10 @@ async function refreshRoutedFeed({
   now = new Date(),
   write = true,
   retries = 3,
+  registry = loadPermissions(),
   statusPath = null,
 }) {
-  const { filters, sources } = loadPipeline(pipelineDir)
+  const { filters, sources, configured } = loadPipeline(pipelineDir, registry)
   const siteFilter = filters.sites[siteSlug]
   if (!siteFilter?.name) throw new Error(`Site filter ${siteSlug} is missing from site-filters.json.`)
   const failures = []
@@ -513,7 +526,7 @@ async function refreshRoutedFeed({
       console.error(`::warning title=Source fetch failed::${message}`)
     }
   }
-  const coverage = validateCoverage(makeCoverage(outcomes))
+  const coverage = validateCoverage(makeCoverage(outcomes, configured))
   if (statusPath && write) {
     fs.mkdirSync(path.dirname(statusPath), { recursive: true })
     fs.writeFileSync(statusPath, `${JSON.stringify({ attemptedAt: new Date(now).toISOString(), coverage }, null, 2)}\n`, 'utf8')
@@ -521,8 +534,9 @@ async function refreshRoutedFeed({
   if (coverage.status === 'failed') {
     return { wrote: false, failures, coverage, feed: null }
   }
-  const articles = applySiteFilter(tagged, siteFilter, now)
+  const articles = applySiteFilter(tagged, siteFilter, now).map(article => applyFieldRules(article, registry)).filter(Boolean)
   const feed = buildFeedDocument(siteFilter, articles, now, coverage)
+  for (const article of feed.articles) assertPublishedItem(article, registry)
   if (write) {
     fs.mkdirSync(path.dirname(outputPath), { recursive: true })
     fs.writeFileSync(outputPath, `${JSON.stringify(feed, null, 2)}\n`, 'utf8')

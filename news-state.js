@@ -1,12 +1,12 @@
 (() => {
- function makeCoverage(sources) {
+ function makeCoverage(sources, configured = sources.length) {
   const attempted = sources.length;
   const failed = sources.filter(source => source.outcome === 'failure').length;
   const succeeded = attempted - failed;
   const lostRequired = sources.some(source => source.required && source.outcome === 'failure');
   const status = !attempted || failed >= Math.ceil(attempted / 2) || lostRequired
    ? 'failed' : failed ? 'degraded' : 'healthy';
-  return {status, attempted, succeeded, failed, sources};
+  return {status, attempted, succeeded, failed, sources, configured};
  }
  function validateCoverage(coverage) {
   if (!coverage || !Array.isArray(coverage.sources)) throw new Error('Invalid source coverage metadata.');
@@ -17,7 +17,8 @@
     || !['success','failure'].includes(source.outcome)) throw new Error('Invalid source outcome metadata.');
    ids.add(source.id);
   }
-  const expected = makeCoverage(coverage.sources);
+  const expected = makeCoverage(coverage.sources, coverage.configured);
+  if (!Number.isInteger(expected.configured) || expected.configured < expected.attempted) throw new Error('Invalid configured source count.');
   for (const key of ['status','attempted','succeeded','failed']) {
    if (coverage[key] !== expected[key]) throw new Error('Source coverage totals or status do not match outcomes.');
   }
@@ -27,7 +28,9 @@
   if (!coverage) return 'Source availability: not recorded for this feed.';
   const checked = validateCoverage(coverage);
   if (checked.status === 'healthy') return '';
-  if (!checked.attempted) return 'Source coverage lost: no sources were configured.';
+  if (!checked.attempted) return checked.configured
+   ? 'Source coverage lost: sources were configured but none is permitted for acquisition.'
+   : 'Source coverage lost: no sources were configured.';
   return `Some sources unavailable: ${checked.failed} of ${checked.attempted} sources failed during this feed refresh. Coverage is reduced.`;
  }
  function assessRoutedFeed(feed, now = Date.now()) {

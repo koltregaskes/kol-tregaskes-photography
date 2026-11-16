@@ -6,9 +6,17 @@ import vm from 'node:vm'
 import { spawnSync } from 'node:child_process'
 import test from 'node:test'
 import { makeCoverage, validateCoverage, coverageMessage, coverageReport } from '../scripts/source-coverage.mjs'
-import { SITE_SLUG, refreshRoutedFeed } from '../scripts/refresh-routed-feed.mjs'
+import { SITE_SLUG, refreshRoutedFeed as refreshWithPermissions } from '../scripts/refresh-routed-feed.mjs'
 import { assessRoutedFeedFreshness, formatReport } from '../scripts/check-routed-feed-freshness.mjs'
 import { collectFeedProof, DESTINATION } from '../scripts/check-public-feed-proof.mjs'
+
+import { compileRegistry } from '../source-permissions.mjs'
+const fixtureRegistry = compileRegistry({ sources: sources().map(source => ({
+  label: source.name, endpoints: [source.url], status: 'link-only', evidence: 'permission unverified',
+  attribution_required: 'Fixture source and link', permitted_fields: ['headline','link'], max_excerpt_length: 0,
+  retention: 'Fixture only', rate_limit: 'Fixture only', takedown_contact: 'Fixture only',
+})) })
+const refreshRoutedFeed = options => refreshWithPermissions({ ...options, registry: fixtureRegistry })
 
 const cases = JSON.parse(fs.readFileSync('tests/fixtures/source-coverage.json'))
 const now = new Date('2026-10-26T06:30:00Z')
@@ -152,4 +160,35 @@ test('workflow always reports the attempt before any publishing step', () => {
   assert.match(workflow, /Report source coverage[^\n]*\n\s+if: always\(\)\n\s+run: node scripts\/report-source-status\.mjs/)
   assert.ok(workflow.indexOf('Report source coverage') < workflow.indexOf('Validate before publishing'))
   assert.doesNotMatch(workflow, /continue-on-error/)
+})
+
+test('configured but unpermitted sources have an honest failure report and preserve feed bytes', async () => {
+  const configured = sources(1).map(source => ({ ...source, url: 'https://example.test/unreviewed' }))
+  const dir = pipeline(configured), outputPath = path.join(dir, 'feed.json'), statusPath = path.join(dir, 'status.json')
+  const previous = Buffer.from('previous feed bytes\r\n')
+  fs.writeFileSync(outputPath, previous)
+  const result = await refreshRoutedFeed({ pipelineDir: dir, outputPath, statusPath, now,
+    fetchImpl: async () => { assert.fail('An unreviewed endpoint must not be fetched') } })
+  assert.equal(result.coverage.configured, 1)
+  assert.equal(result.coverage.attempted, 0)
+  assert.equal(result.coverage.status, 'failed')
+  assert.equal(result.wrote, false)
+  assert.deepEqual(fs.readFileSync(outputPath), previous)
+  const message = 'Source coverage lost: sources were configured but none is permitted for acquisition.'
+  assert.equal(coverageReport(result.coverage).text, message)
+  const cli = spawnSync(process.execPath, ['scripts/report-source-status.mjs', statusPath], { encoding: 'utf8' })
+  assert.equal(cli.status, 1)
+  assert.ok(cli.stdout.includes(`::error title=Routed feed source coverage::${message}`))
+  assert.doesNotMatch(cli.stdout, /no sources were configured/)
+  const view = globalThis.KTPNewsState.assessRoutedFeed({ site: 'Kol Tregaskes Photography', generated: now.toISOString(), articles: [], acquisition: result.coverage }, now.getTime())
+  assert.equal(view.state, 'unavailable')
+  assert.ok(view.message.startsWith(message))
+  assert.equal(coverageMessage(makeCoverage([])), 'Source coverage lost: no sources were configured.')
+})
+
+test('configured source counts are validated while earlier coverage metadata remains readable', () => {
+  const current = makeCoverage(outcome(0))
+  const { configured, ...legacy } = current
+  assert.equal(validateCoverage(legacy).configured, 4)
+  for (const invalid of [-1, 3, 4.5, '4', null]) assert.throws(() => validateCoverage({ ...current, configured: invalid }), /configured source count/)
 })
