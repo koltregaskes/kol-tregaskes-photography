@@ -172,25 +172,25 @@ test('matching uses complete normalised URLs while reports redact queries', asyn
     assert.equal(externalCrawlExitCode(mismatch), 2);
 });
 
-test('seeded production entry point requests every URL and reports the two dispositions separately', () => {
+test('seeded production entry point requests every URL and reports the three dispositions separately', () => {
     const moduleUrl = new URL('../scripts/check-external-links.mjs', import.meta.url).href;
     const source = `import assert from 'node:assert/strict';
         import {runCollectedExternalCheck} from ${JSON.stringify(moduleUrl)};
-        const blocked=new Set(['https://www.redbubble.com/people/koltregaskes','https://x.com/koltregaskespho']);
+        const blocked=new Set(['https://www.redbubble.com/people/koltregaskes','https://x.com/koltregaskespho','https://www.instagram.com/koltregaskes']);
         const requested=[];
         const report=await runCollectedExternalCheck({today:'2026-11-16',
             resolveHost:async()=>[{address:'93.184.216.34'}],
             fetchImpl:async url=>{requested.push(url);
-                return new Response(null,{status:blocked.has(url)?403:200});}});
-        assert.ok(report.destinations>=2);assert.equal(report.reachable,report.destinations-2);
-        assert.equal(report.acceptedByDisposition,2);assert.equal(report.observedUnverified,2);
+                return new Response(null,{status:url==='https://www.instagram.com/koltregaskes'?429:blocked.has(url)?403:200});}});
+        assert.ok(report.destinations>=3);assert.equal(report.reachable,report.destinations-3);
+        assert.equal(report.acceptedByDisposition,3);assert.equal(report.observedUnverified,3);
         assert.equal(report.unverified,0);assert.equal(requested.length,report.destinations);
         for(const url of blocked)assert.ok(requested.includes(url));`;
     const result = spawnSync(process.execPath, ['--input-type=module', '-e', source], {encoding: 'utf8'});
     assert.equal(result.status, 0, result.stderr);
     const report = JSON.parse(result.stdout.split('\n')[0]);
-    assert.equal(report.dispositionedDestinations.length, 2);
-    assert.equal(result.stdout.match(/ACCEPTED BY DISPOSITION:/g)?.length, 2);
+    assert.equal(report.dispositionedDestinations.length, 3);
+    assert.equal(result.stdout.match(/ACCEPTED BY DISPOSITION:/g)?.length, 3);
 });
 
 test('hanging DNS with zero fetches is never dispositionable', async () => {
@@ -341,4 +341,90 @@ test('finalDestination is required and must be an exact normalised string URL', 
         assert.equal(report.acceptedByDisposition, 0);
         assert.equal(externalCrawlExitCode(report), 2);
     }
+});
+
+const instagram = 'https://www.instagram.com/koltregaskes';
+const login = 'https://www.instagram.com/accounts/login/';
+const instagramEntry = (changes = {}) => entry({destination: instagram, ...changes});
+const instagramOptions = (changes = {}) => options(429, {dispositions: [instagramEntry()], ...changes});
+
+for (const query of ['', '?next=%2Fkoltregaskes%2F', '?next=synthetic&changed=2']) {
+    for (const http of [200, 401, 402, 403, 429]) {
+        test(`Instagram one-hop login wall ${http} accepts with query ${query}`, async () => {
+            const calls = [];
+            const report = await crawlExternalLinks([instagram], instagramOptions({fetchImpl: async value => {
+                calls.push(value);
+                return value === instagram ? new Response(null, {status: 302, headers: {location: login + query}}) : new Response(null, {status: http});
+            }}));
+            assert.deepEqual(calls, [instagram, login + query]);
+            assert.equal(externalCrawlExitCode(report), 0);
+            assert.equal(report.reachable, 0);
+            assert.equal(report.observedUnverified, 1);
+            assert.equal(report.acceptedByDisposition, 1);
+            assert.equal(report.dispositionedDestinations[0].reason, 'bot login wall');
+            assert.equal(report.dispositionedDestinations[0].finalDestination, login);
+            assert.doesNotMatch(JSON.stringify(report), /synthetic|changed=|next=/);
+        });
+    }
+}
+
+test('Instagram direct 429 accepts only the exact profile with a current entry', async () => {
+    const report = await crawlExternalLinks([instagram], instagramOptions());
+    assert.equal(externalCrawlExitCode(report), 0);
+    assert.equal(report.dispositionedDestinations[0].reason, 'bot rate limit');
+    for (const destination of ['https://example.org/other', 'https://www.instagram.com/another',
+        instagram + '/', instagram + '?other=1', 'https://instagram.com.evil.example/koltregaskes']) {
+        const denied = await crawlExternalLinks([destination], instagramOptions());
+        assert.equal(denied.acceptedByDisposition, 0);
+        assert.equal(externalCrawlExitCode(denied), 2);
+    }
+});
+
+test('Instagram exception rejects other origins, paths, schemes and extra hops', async () => {
+    for (const target of ['https://example.org/accounts/login/', 'https://instagram.com.evil.example/accounts/login/',
+        'https://www.instagram.com.evil.example/accounts/login/', 'https://www.instagram.com:444/accounts/login/',
+        'https://www.instagram.com/accounts/login', 'https://www.instagram.com/accounts/login/other',
+        'https://www.instagram.com/other', 'http://www.instagram.com/accounts/login/',
+        'javascript:alert(1)', 'data:text/plain,test', 'file:///accounts/login/',
+        'https://synthetic@www.instagram.com/accounts/login/']) {
+        const report = await crawlExternalLinks([instagram], instagramOptions({fetchImpl: async value =>
+            value === instagram ? new Response(null, {status: 302, headers: {location: target}}) : new Response(null, {status: 403})}));
+        assert.equal(report.acceptedByDisposition, 0, target);
+        assert.notEqual(externalCrawlExitCode(report), 0, target);
+    }
+    for (const middle of ['https://www.instagram.com/intermediate', 'https://example.org/intermediate']) {
+        const report = await crawlExternalLinks([instagram], instagramOptions({fetchImpl: async value =>
+            new Response(null, value === login ? {status: 403} : {status: 302, headers: {location: value === instagram ? middle : login}})}));
+        assert.equal(report.acceptedByDisposition, 0);
+        assert.equal(externalCrawlExitCode(report), 2);
+    }
+});
+
+test('Instagram login exception requires the exact allowlisted profile and valid evidence', async () => {
+    for (const [destination, dispositions, date] of [
+        [instagram, [], today], [instagram, [instagramEntry()], '2026-12-16'],
+        ['https://www.instagram.com/another', [instagramEntry()], today],
+        ['https://www.instagram.com/another', [entry({destination: 'https://www.instagram.com/another', finalDestination: login})], today]
+    ]) {
+        const report = await crawlExternalLinks([destination], instagramOptions({today: date, dispositions,
+            fetchImpl: async value => value === destination ? new Response(null, {status: 302, headers: {location: login + '?next=synthetic'}}) : new Response(null, {status: 403})}));
+        assert.equal(report.acceptedByDisposition, 0);
+        assert.equal(externalCrawlExitCode(report), 2);
+    }
+    const expired429 = await crawlExternalLinks([instagram], instagramOptions({today: '2026-12-16'}));
+    assert.equal(expired429.acceptedByDisposition, 0);
+    assert.equal(externalCrawlExitCode(expired429), 2);
+});
+
+test('Instagram login 404/410, server errors and missing evidence never pass', async () => {
+    for (const http of [404, 410, 500]) {
+        const report = await crawlExternalLinks([instagram], instagramOptions({fetchImpl: async value =>
+            value === instagram ? new Response(null, {status: 302, headers: {location: login}}) : new Response(null, {status: http})}));
+        assert.equal(report.acceptedByDisposition, 0);
+        assert.equal(externalCrawlExitCode(report), http === 500 ? 2 : 1);
+    }
+    const report = await crawlExternalLinks([instagram], instagramOptions({dispositions: [], fetchImpl: async value =>
+        value === instagram ? new Response(null, {status: 302, headers: {location: login}}) : new Response(null, {status: 200})}));
+    assert.equal(report.reachable, 0);
+    assert.equal(externalCrawlExitCode(report), 2);
 });

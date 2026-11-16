@@ -14,5 +14,13 @@
     "evidence": "Checked by Claude (agent, real Chrome browser session) on 2026-11-16: live profile 'Kol Tregaskes Photography (@koltregaskespho)', 729 posts. Automated requests get HTTP 403 (402 to some fetchers).",
     "verifiedOn": "2026-11-16",
     "expiresOn": "2026-12-16"
+  },
+  {
+    "destination": "https://www.instagram.com/koltregaskes",
+    "finalDestination": "https://www.instagram.com/koltregaskes",
+    "disposition": "manually-verified-live",
+    "evidence": "Claude reported a real Chrome browser check on 2026-11-16 in PR #46: live profile Kol Tregaskes (@koltregaskes), 281 posts and a link to kolt.at/links. This is attributed evidence from that PR, not a fresh browser check. GitHub runners observe HTTP 429 at the profile or a same-host redirect to /accounts/login/ with a changing query.",
+    "verifiedOn": "2026-11-16",
+    "expiresOn": "2026-12-16"
   }
 ]

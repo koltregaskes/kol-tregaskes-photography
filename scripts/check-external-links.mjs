@@ -136,7 +136,7 @@ export async function runExternalCheck(urls, options) {
     const report = await crawlExternalLinks(urls, options);
     console.log(JSON.stringify(report));
     for (const entry of report.dispositionedDestinations) {
-        console.log(`ACCEPTED BY DISPOSITION: ${entry.destination} -> ${entry.finalDestination}; observed ${entry.http ? 'HTTP ' + entry.http : 'timeout'}; verified ${entry.verifiedOn}; expires ${entry.expiresOn}`);
+        console.log(`ACCEPTED BY DISPOSITION: ${entry.reason ? entry.reason + '; ' : ''}${entry.destination} -> ${entry.finalDestination}; observed ${entry.http ? 'HTTP ' + entry.http : 'timeout'}; verified ${entry.verifiedOn}; expires ${entry.expiresOn}`);
     }
     for (const error of report.dispositionErrors) console.error(`Disposition rejected${error.entry ? ' at entry ' + error.entry : ''}: ${error.reason}`);
     console.log('Only reachable or validly dispositioned destinations accept; other unverified coverage requires further verification.');
