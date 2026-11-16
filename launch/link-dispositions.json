@@ -1,0 +1,18 @@
+[
+  {
+    "destination": "https://www.redbubble.com/people/koltregaskes",
+    "finalDestination": "https://www.redbubble.com/people/koltregaskes",
+    "disposition": "manually-verified-live",
+    "evidence": "Checked by Claude (agent, real Chrome browser session) on 2026-11-16: in a browser it redirects to /people/koltregaskes/shop, 'Kol Tregaskes Shop | Redbubble', 48 products listed. Automated requests get HTTP 403 at the profile URL itself, before any redirect (CI run 2026-11-16), so the crawler's final destination is the profile URL.",
+    "verifiedOn": "2026-11-16",
+    "expiresOn": "2026-12-16"
+  },
+  {
+    "destination": "https://x.com/koltregaskespho",
+    "finalDestination": "https://x.com/koltregaskespho",
+    "disposition": "manually-verified-live",
+    "evidence": "Checked by Claude (agent, real Chrome browser session) on 2026-11-16: live profile 'Kol Tregaskes Photography (@koltregaskespho)', 729 posts. Automated requests get HTTP 403 (402 to some fetchers).",
+    "verifiedOn": "2026-11-16",
+    "expiresOn": "2026-12-16"
+  }
+]

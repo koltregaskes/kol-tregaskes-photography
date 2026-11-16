@@ -158,6 +158,26 @@ class PhotographyNewsApp {
     }
 
     async loadArticles() {
+        try {
+            const [policy, response] = await Promise.all([import('./source-permissions.mjs'), fetch('launch/source-permissions.json', { cache: 'no-store' })]);
+            if (!response.ok) throw new Error('Source permissions unavailable');
+            this.sourceRegistry = policy.compileRegistry(await response.json());
+            this.applySourceRules = article => policy.applyFieldRules(article, this.sourceRegistry);
+        } catch {
+            this.articles = [];
+            this.filteredArticles = [];
+            this.feedAssessment = {
+                state: 'unavailable', articles: [],
+                message: 'Source permissions unavailable. News stories are withheld until the registry can be checked.'
+            };
+            if (this.feedStatus) {
+                this.feedStatus.textContent = this.feedAssessment.message;
+                this.feedStatus.dataset.state = this.feedAssessment.state;
+                this.feedStatus.hidden = false;
+            }
+            if (this.loading) this.loading.hidden = true;
+            return;
+        }
         const filenames = await this.loadDigestList();
         const results = new Array(filenames.length);
         const workerCount = Math.min(8, filenames.length);
@@ -175,7 +195,15 @@ class PhotographyNewsApp {
         const routed = await this.loadRoutedArticles();
         const seen = new Set();
         this.articles = [];
-        for (const article of [...routed, ...results.flat().filter((article) => this.shouldDisplayArticle(article))]) {
+        for (const original of [...routed, ...results.flat()]) {
+            const fields = this.applySourceRules(original);
+            if (!fields) continue;
+            const article = { ...fields, score: original.score, dateKey: original.dateKey,
+                dateLabel: original.dateLabel, compactDateLabel: original.compactDateLabel,
+                sourceDate: original.sourceDate, digestDate: original.digestDate,
+                sourceDatePrecision: original.sourceDatePrecision,
+                summary: fields.summary || '' };
+            if (!this.shouldDisplayArticle(article)) continue;
             if (!article?.url || seen.has(article.url)) continue;
             seen.add(article.url);
             this.articles.push(article);
@@ -236,6 +264,8 @@ class PhotographyNewsApp {
                     url: article.url,
                     source: article.source,
                     score: Number(article.importance) || null,
+                    sourceDate: date,
+                    digestDate: null,
                     date,
                     dateKey: Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10),
                     dateLabel: this.formatDateLabel(date),
@@ -243,7 +273,7 @@ class PhotographyNewsApp {
                     summary: article.summary || article.title,
                     tags
                 };
-            }).filter((article) => article.title && /^https?:\/\//i.test(article.url || '') && !Number.isNaN(article.date.getTime()) && this.shouldDisplayArticle(article));
+            }).filter((article) => article.title && /^https?:\/\//i.test(article.url || '') && !Number.isNaN(article.date.getTime()));
         } catch {
             this.feedAssessment = globalThis.KTPNewsState?.assessRoutedFeed?.(null) ?? this.unknownRefreshState(null);
             return [];
@@ -352,11 +382,15 @@ class PhotographyNewsApp {
             title
         ) || embeddedSummary;
 
+        const sourceDate = this.parseSourceDate(sourceMatch?.[2]);
         return {
             title,
             url,
             source,
             score,
+            sourceDate,
+            digestDate,
+            sourceDatePrecision: sourceDate ? 'day' : null,
             date: digestDate,
             dateKey: digestDate.toISOString().slice(0, 10),
             dateLabel: this.formatDateLabel(digestDate),
@@ -364,6 +398,14 @@ class PhotographyNewsApp {
             summary,
             tags
         };
+    }
+
+    parseSourceDate(value) {
+        const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(value || '');
+        if (!match) return null;
+        const [, day, month, year] = match.map(Number);
+        const date = new Date(Date.UTC(year, month - 1, day));
+        return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? date : null;
     }
 
     extractDigestDate(markdown, filename) {
@@ -722,7 +764,9 @@ class PhotographyNewsApp {
 
         const topline = document.createElement('div');
         topline.className = 'news-card-topline';
-        topline.innerHTML = `<span>${this.escapeHtml(article.compactDateLabel)}</span>`;
+        const sourceLabel = article.sourceDate ? `Source: ${this.formatCardDate(article.sourceDate)}` : 'Source date unavailable';
+        const digestLabel = article.digestDate ? `; Digest: ${this.formatCardDate(article.digestDate)}` : '';
+        topline.innerHTML = `<span>${this.escapeHtml(sourceLabel + digestLabel)}</span><span>${this.escapeHtml(article.source || '')}</span>`;
 
         const heading = document.createElement('h3');
         const link = document.createElement(sourceUnavailable ? 'span' : 'a');

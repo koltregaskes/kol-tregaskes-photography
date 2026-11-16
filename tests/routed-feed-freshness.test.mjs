@@ -41,7 +41,7 @@ test('a fresh empty feed does not warn', () => {
   }, now)
 
   assert.equal(assessment.warn, false)
-  assert.equal(assessment.newestItemAt, generated)
+  assert.equal(assessment.newestItemAt, null)
 })
 
 test('a one-day-old feed warns before it is three days old', () => {

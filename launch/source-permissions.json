@@ -1,0 +1,639 @@
+{
+  "basis": "Supplied launch audit source matrix only. No source has verified reuse permission. Empty endpoints are deliberate, not wildcard permission.",
+  "sources": [
+    {
+      "label": "Aligned News (Scoble)",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Apple ML Research",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "BBC AI",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Camera Jabber",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Camera Labs",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Canon Rumors",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Capture One Blog",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Cognitive Revolution",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "CryptoSlate",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "DIY Photography",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "DPReview",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "excluded",
+      "evidence": "https://www.dpreview.com/terms-of-use/ - Audit matrix: section 6 requires written consent for automated extraction; none supplied. Contributor rights remain unverified.",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Digital Camera World",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "excluded",
+      "evidence": "https://futureplc.com/terms-and-conditions-uk/ - Audit matrix: Future UK reserves commercial reuse and restricts automated collection. No applicable feed permission supplied.",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Effective Altruism Forum",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Fight Aging Newsletter",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Flipboard AI",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Fstoppers",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "https://fstoppers.com/terms - Audit matrix: restricted reproduction and personal non-commercial use; no permission for these excerpts supplied.",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Fuji Rumors",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Hacker News",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "LensRentals Blog",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "LessWrong",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Longevity Technology",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "MIT News AI",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Nikon Rumors",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "PetaPixel",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Photofocus",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Photography Life",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Reddit r/ClaudeAI",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "https://redditinc.com/policies/data-api-terms - Audit matrix: authorised access, limits, attribution and retention addressed; actual access/approval unproved. permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Reddit r/LocalLLaMA",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "https://redditinc.com/policies/data-api-terms - Audit matrix: authorised access, limits, attribution and retention addressed; actual access/approval unproved. permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Reddit r/MachineLearning",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "https://redditinc.com/policies/data-api-terms - Audit matrix: authorised access, limits, attribution and retention addressed; actual access/approval unproved. permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Rohan Paul",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Shutterbug",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Simon Willison's Blog",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Sony Alpha Rumors",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "Superpower Daily",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "TechCrunch AI",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "The Guardian (Culture)",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "The Phoblographer",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "The Verge AI",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "X search / Agent workflows",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    },
+    {
+      "label": "arXiv CS.AI",
+      "endpoints": [],
+      "endpoint_review": "Exact feed/API endpoints not supplied by the audit; acquisition blocked until reviewed.",
+      "status": "link-only",
+      "evidence": "permission unverified",
+      "attribution_required": "Source name and original story link; any individual author obligations unverified.",
+      "permitted_fields": [
+        "headline",
+        "link"
+      ],
+      "max_excerpt_length": 0,
+      "retention": "No excerpt or image retention permitted. Existing digest files retained as provenance; public cards apply field rules. Link metadata retention unverified.",
+      "rate_limit": "Unverified; no acquisition until exact endpoint and collection terms are reviewed.",
+      "takedown_contact": "Unverified; publisher contact must be established before acquisition approval."
+    }
+  ]
+}

@@ -6,6 +6,7 @@
  * workflow is what fetches sources and commits the feed. This check does not
  * fetch or invent articles.
  */
+import { validateCoverage, coverageMessage } from './source-coverage.mjs'
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -13,7 +14,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 const FEED_PATH = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'news-digests', 'news-feed-latest.json')
 const WARN_AFTER_DAYS = 1
 const HARD_MAX_DAYS = 3
-const MISSING_SOURCE = 'The 05:15 UTC refresh fetches every source in the shared news sources.json and commits this file after a successful fetch, including an empty article list when nothing matches. Partial source failures warn by name and successful sources still write. Only all-source failure or invalid configuration prevents refresh. This check means the committed feed was not replaced. Shared routing lists Kol Tregaskes Photography as a destination (sites/kol-tregaskes-photography/news-digests).'
+const MISSING_SOURCE = 'The 05:15 UTC refresh fetches every source in the shared news sources.json and commits this file after a successful fetch, including an empty article list when nothing matches. Partial source failures warn by name. At least half of sources failing, any required source failing, zero configured sources or invalid configuration prevents refresh and preserves the last feed. This check means the committed feed was not replaced. Shared routing lists Kol Tregaskes Photography as a destination (sites/kol-tregaskes-photography/news-digests).'
 
 export function assessRoutedFeedFreshness(feed, now = new Date()) {
   if (!feed || typeof feed !== 'object' || !Array.isArray(feed.articles)) {
@@ -38,13 +39,15 @@ export function assessRoutedFeedFreshness(feed, now = new Date()) {
     return time
   })
   if ([generatedMs, ...itemTimes].some(time => time > nowMs + 300000)) throw new Error('Routed feed timestamp is in the future.');
-  const newestMs = itemTimes.length ? Math.max(...itemTimes) : generatedMs
+  const newestMs = itemTimes.length ? Math.max(...itemTimes) : null
+  const coverage = feed.acquisition === undefined ? null : validateCoverage(feed.acquisition)
   const ageDays = (nowMs - generatedMs) / 86_400_000
 
   return {
     ageDays,
     generatedAt: new Date(generatedMs).toISOString(),
-    newestItemAt: new Date(newestMs).toISOString(),
+    newestItemAt: newestMs === null ? null : new Date(newestMs).toISOString(),
+    coverage,
     warn: ageDays >= WARN_AFTER_DAYS,
     hardFail: ageDays > HARD_MAX_DAYS,
   }
@@ -52,8 +55,9 @@ export function assessRoutedFeedFreshness(feed, now = new Date()) {
 
 export function formatReport(assessment) {
   return [
-    `Routed feed generation is ${assessment.ageDays.toFixed(1)} days old (generated ${assessment.generatedAt}, newest item ${assessment.newestItemAt}, informational only).`,
+    `Routed feed generation is ${assessment.ageDays.toFixed(1)} days old (generated ${assessment.generatedAt}, newest item ${assessment.newestItemAt || 'not available; no source timestamp is claimed'}, informational only).`,
     `This check fails at ${WARN_AFTER_DAYS} day so a missed refresh is visible before a ${HARD_MAX_DAYS}-day age.`,
+    coverageMessage(assessment.coverage),
     `Missing source: ${MISSING_SOURCE}`,
   ].join(' ')
 }
@@ -62,6 +66,12 @@ function main() {
   const feed = JSON.parse(fs.readFileSync(FEED_PATH, 'utf8'))
   const assessment = assessRoutedFeedFreshness(feed)
   const report = formatReport(assessment)
+  if (assessment.coverage?.status === 'failed') {
+    console.error(`::error title=Source coverage lost::${report}`)
+    process.exitCode = 1
+    return
+  }
+  if (assessment.coverage?.status === 'degraded') console.error(`::warning title=Some sources unavailable::${coverageMessage(assessment.coverage)}`)
   if (assessment.warn) {
     console.error(`::error title=Routed feed is going stale::${report}`)
     process.exitCode = 1

@@ -44,6 +44,10 @@ jobs:
       - name: Fetch sources and apply the Kol Tregaskes Photography filter
         run: node scripts/refresh-routed-feed.mjs --pipeline .news-pipeline/shared/website-tools/pipelines/news
 
+      - name: Report source coverage (warning on partial loss, failure on lost coverage)
+        if: always()
+        run: node scripts/report-source-status.mjs .local/routed-feed-status.json
+
       - name: Validate before publishing
         run: |
           npm run build

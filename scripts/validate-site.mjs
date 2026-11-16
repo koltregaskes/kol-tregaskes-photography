@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { checkSourcePermissions } from './check-source-permissions.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -293,6 +294,7 @@ async function ensureFragmentTargets() {
 }
 
 async function main() {
+  checkSourcePermissions();
   await ensureRequiredFiles();
   await ensureCname();
   await ensureGeneratedArtifacts();
