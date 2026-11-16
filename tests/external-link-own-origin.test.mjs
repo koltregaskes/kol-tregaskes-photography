@@ -149,3 +149,25 @@ test('an unrelated HTTP 429 stays unverified after a local page handoff', () => 
     assert.equal(result.report.unverified, 1);
     assert.equal(result.report.results[0].http, 429);
 });
+
+for (const rawPath of ['/./privacy.html', '/x/../privacy.html', '/x/%2e%2e/privacy.html',
+    '/x/%2E%2E/privacy.html', '/x/.%2E/privacy.html', '/x/%2e./privacy.html',
+    '/%2e/privacy.html', '/%2E/privacy.html', '/privacy.html?', '/privacy.html#']) {
+    test(`raw alias or empty marker stays live: ${rawPath}`, () => {
+        // A plain sibling reference must not let the normalised URL set waive
+        // the alias in the extraction pass either.
+        for (const plainSibling of [false, true]) {
+            const rawUrl = origin + rawPath;
+            const root = fixture({
+                'index.html': external + `<a href="${rawUrl}">Raw reference</a>` +
+                    (plainSibling ? `<link rel="canonical" href="${origin}/privacy.html">` : ''),
+                'privacy.html': '<main>Privacy</main>',
+            });
+            const result = run(root), expected = new URL(rawUrl);
+            expected.hash = '';
+            assert.equal(result.status, 1, result.stderr);
+            assert.ok(result.calls.includes(expected.href), `${rawPath}, plain sibling: ${plainSibling}`);
+            assert.equal(result.report.broken, 1);
+        }
+    });
+}

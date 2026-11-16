@@ -9,6 +9,14 @@ const localBase = 'https://ktp-local.invalid/';
 const maxSrcdocDepth = 4; // Outer document is depth 0; deeper content remains unverified.
 const incomplete = () => ({status: 'unverified', reason: 'unsupported or unparseable HTML reference'});
 
+function isPlainAbsoluteHtmlReference(reference) {
+    // Inspect the decoded HTML attribute BEFORE URL parsing removes dot
+    // segments or turns empty query/fragment markers into empty properties.
+    if (/[?#\\\u0000-\u0020\u007f]/.test(reference)) return false;
+    const rawPath = /^[a-z][a-z0-9+.-]*:\/\/[^/]+(\/.*)$/i.exec(reference)?.[1];
+    return Boolean(rawPath && !rawPath.split('/').some(segment => /^(?:\.|%2e){1,2}$/i.test(segment)));
+}
+
 function tokeniseHtml(html, executeHelper = spawnSync) {
     const result = executeHelper(process.platform === 'win32' ? 'python' : 'python3',
         ['-B', fileURLToPath(new URL('./external-html-references.py', import.meta.url))],
@@ -72,6 +80,7 @@ export function extractExternalUrls(html, {executeHelper, internalHtmlUrls = new
             const values = ['srcset', 'imagesrcset'].includes(ref.attribute) ? srcsetReferences(ref.value) : [ref.value];
             for (const value of values) {
                 if (typeof value !== 'string') { urls.add(value); continue; }
+                const plainReference = isPlainAbsoluteHtmlReference(value);
                 let url, absolute = false;
                 try {
                     try { url = new URL(value); absolute = true; }
@@ -83,7 +92,7 @@ export function extractExternalUrls(html, {executeHelper, internalHtmlUrls = new
                     if (!absolute && url.origin === new URL(localBase).origin) continue;
                     // Only a top-level href/src verified in this document by
                     // the internal gate can replace a pre-deployment request.
-                    if (depth === 0 && absolute && ['href', 'src'].includes(ref.attribute) && internalHtmlUrls.has(url.href)) continue;
+                    if (depth === 0 && absolute && plainReference && ['href', 'src'].includes(ref.attribute) && internalHtmlUrls.has(url.href)) continue;
                     urls.add(url.href);
                 } else if (['javascript:', 'data:', 'file:'].includes(url.protocol)) {
                     urls.add(url.href); // Known unsafe schemes retain the existing exit 1 policy.
@@ -102,6 +111,7 @@ export async function collectExternalUrls(options) {
     const internal = await inspectSite('.', canonicalOrigin, {onLocalHtmlReference({source, reference, attribute, url, target}) {
         // Exact HTTPS origin, plain tracked .html path, and an inspected source
         // document. Queries, fragments, credentials and path aliases stay live.
+        if (!isPlainAbsoluteHtmlReference(reference)) return;
         try { new URL(reference); } catch { return; }
         if (!['href', 'src'].includes(attribute) || url.origin !== canonicalOrigin || url.username || url.password ||
             url.search || url.hash || url.pathname !== '/' + target || !target.endsWith('.html') ||
