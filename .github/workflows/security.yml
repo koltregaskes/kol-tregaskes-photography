@@ -21,6 +21,7 @@ jobs:
       - name: Check public static policy and data collection boundary
         run: node scripts/check-public-boundary.mjs
   external-links:
+    name: External link launch acceptance
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -28,17 +29,19 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 24
-      - run: npm ci
-      - name: Crawl external links (report only; bot denials require manual review)
+      - name: Test external link acceptance offline
+        run: node --test tests/external-link-policy.test.mjs tests/external-link-acceptance.test.mjs tests/external-link-html.test.mjs tests/link-dispositions.test.mjs
+      - name: Crawl external links (launch acceptance; exits 1 and 2 fail)
         id: external
-        continue-on-error: true
-        run: node scripts/security-check.mjs --external
+        run: node scripts/check-external-links.mjs
 
       - name: Crawl public digest and routed story destinations (report only)
+        if: always()
         id: news
         continue-on-error: true
         run: node scripts/check-news-links.mjs
       - name: Planted external 404 (expected report-only failure)
+        if: always()
         id: planted404
         continue-on-error: true
         run: node scripts/prove-external-report-only.mjs
@@ -50,7 +53,7 @@ jobs:
           EXTERNAL_OUTCOME: ${{ steps.external.outcome }}
           NEWS_OUTCOME: ${{ steps.news.outcome }}
         run: |
-          echo "External crawl: $EXTERNAL_OUTCOME (report only)" >> "$GITHUB_STEP_SUMMARY"
+          echo "External crawl: $EXTERNAL_OUTCOME (launch acceptance; only exit 0 accepted)" >> "$GITHUB_STEP_SUMMARY"
           echo "News crawl: $NEWS_OUTCOME (report only)" >> "$GITHUB_STEP_SUMMARY"
           echo "Planted 404: $PLANT_OUTCOME, conclusion $PLANT_CONCLUSION (expected)" >> "$GITHUB_STEP_SUMMARY"
           node -e "const p=require('./.local/external-404-proof.json'); if(p.status!=='broken'||p.http!==404) process.exit(1)"
