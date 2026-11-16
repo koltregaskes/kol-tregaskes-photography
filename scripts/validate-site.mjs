@@ -95,6 +95,10 @@ function extractReferences(filePath, content) {
   const refs = [];
   const relativePath = path.relative(repoRoot, filePath).split(path.sep).join('/');
 
+  // Regression payloads intentionally contain malformed/escaped HTML and CSS.
+  // They are test data, not rendered site references; their tests parse them.
+  if (relativePath.startsWith('tests/fixtures/')) return refs;
+
   if (relativePath === 'news-digests/index.json') {
     try {
       const payload = JSON.parse(content);

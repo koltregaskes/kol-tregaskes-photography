@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "mentions": [
+    {
+      "kind": "non-request mention",
+      "file": "news-app.js",
+      "host": "g",
+      "reason": "Reviewed carriage-return removal regexp: escape normalisation turns its pattern and global flag into a URL-like token. The flag is not a host or request; structured extraction finds no request to it."
+    },
+    {
+      "kind": "non-request mention",
+      "file": "styles.css",
+      "host": "*",
+      "reason": "Reviewed adjacent CSS comment delimiters: newline removal produces a URL-like token whose literal hostname is the asterisk. These delimiters do not request a resource. This entry matches only that literal hostname, never a wildcard."
+    }
+  ]
+}

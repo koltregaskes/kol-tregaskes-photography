@@ -59,6 +59,64 @@ What they do:
 - `validate` checks the generated files, runs JavaScript syntax checks, verifies `CNAME`, and confirms internal file references exist.
 - `gallery.html` stays out of the navigation and sitemap until real photographs replace the unused placeholder files in `images/`.
 
+## Privacy source guard
+
+`npm run privacy:check` catches accidental or unreviewed third-party references in the site's own HTML, CSS and JavaScript. Structured extraction reads reference values, including nested HTML and template expressions. An independent backstop sweeps the entire text after HTML entity and JS/CSS escape normalisation, including comments and prose. Both use WHATWG URL parsing and the privacy page's declared hosts. Malformed references or helper output fail closed. Python 3 is required for the standard-library HTML parser/entity table; no extra Python packages are used.
+
+HTML and SVG data: documents in iframe/frame, object and embed loading attributes are decoded and inspected recursively, including percent-encoded and base64 payloads. Unsupported encodings, malformed document bytes and excessive nesting fail closed. The independent sweep also inspects decoded data: text and percent escapes. Hosts marked `data-privacy-resource` in the notice permit automatic loads; navigation-only hosts cannot authorise SVG images, link resources, ping or direct fetch calls.
+Document decoding supports UTF-8 and ASCII; non-ASCII HTML requires an explicit UTF-8 charset, and unsupported charset/XML encodings fail explicitly.
+
+The HTML helper tracks SVG/MathML namespaces, integration points and breakout
+elements, so foreign style/script markup cannot hide an image load. CDATA in HTML
+is a bogus comment ending at the first `>`; in foreign content it remains text.
+SVG set/animate href and xlink:href targets, including each semicolon-separated
+values candidate, are resource loads. This is a bounded source grammar, not a
+claim to implement every HTML5 tree-building rule; unsupported active contexts
+fail closed.
+
+Data CSS and JavaScript documents are rejected rather than executed or silently
+skipped. A stylesheet link and a CSS import reject every data URL at the loading
+boundary. Every script element rejects data URLs in src, href and xlink:href in
+every namespace, including nested srcdoc, irrespective of MIME. Scheme checks
+remove URL-parser-ignored tabs/newlines; MIME checks normalise case and whitespace
+and cover JavaScript aliases. KT's existing 32-level document limit, 16 MiB byte
+limit and explicit charset/base64 validation remain in force.
+
+Each independent backstop hit needs structured evidence with the matching
+resource, navigation or metadata role in its own source context. A declared or
+own-origin host is not an automatic exemption; an unrelated anchor or metadata
+reference cannot account for an unclassified active token. Helper source-context
+records have an exact validated schema. The existing `data-privacy-resource`
+declarations remain the authority for automatic loads; ordinary declarations do
+not authorise them.
+
+KT's literal-only JavaScript `new Set(["..."])` lists are parsed as comparison
+metadata, preserving the source-suppression records without a file/host whitelist.
+Expressions and templates do not acquire that status; other URL strings are
+conservatively possible loads. The documented exclusion of indirect runtime URL
+use still applies to subsequent uses of comparison data. JSON-LD and HTML
+canonical/vocabulary references carry metadata roles separately from loads.
+
+The guard is not a sandbox against deliberately obfuscated code, for example a host assembled from string fragments at runtime. Indirect JavaScript targets such as `fetch(u)` and `img.src = u` remain outside this static guard's scope. Runtime verification is the browser check's job. Passing this offline source guard is not a browser request trace.
+
+Only reviewed, parser-proven inert text, lexer-proven comments or regexp literals
+may use `privacy-non-request-mentions.json`: each entry needs `kind: "non-request
+mention"`, an exact relative file, an exact hostname and a reason. Review the
+source and reason in the PR. An entry never exempts an active or unclassified
+reference, including one sharing a host with inert text. Unused entries fail.
+Adjacent inert spans may be joined only across whitespace, so normalisation of
+comment delimiters cannot hide intervening code. KT's existing two reviewed
+normalisation-artefact entries remain subject to this proof. Do not use this file
+to approve an active third-party resource: update the privacy notice and review
+the integration instead.
+
+The notice, declarations, helper and checker are trusted reviewed inputs.
+Third-party response contents, HTTP redirects, deliberately assembled runtime
+URLs, injected production content and provider-side behaviour are outside this
+offline source check. Coverage remains the site's HTML/CSS/JS files, including
+foreign markup and embedded documents within them. A successful check is neither
+an access control for branch-root publication nor a live request trace.
+
 ## Automation
 
 `.github/workflows/refresh-routed-feed.yml` fetches every entry in the shared `sources.json` at 05:15 UTC, applies the photography filter in `site-filters.json`, and commits `news-digests/news-feed-latest.json`. A successful fetch that matches nothing writes a fresh empty article list and exits 0. Partial source failures warn by name and the successful sources still write. All-source failure preserves the previous feed and fails. After validation and a push to main, the workflow explicitly requests the existing branch-based Pages build through the Pages API, because workflow-token pushes do not trigger it automatically. The first scheduled run must verify completed deployment and public feed readback. `news.html` reads that file when it has articles, and otherwise keeps the digest archive. This job does not run a second scraper. The 06:30 UTC freshness check alarms only on feed generation time; article dates are informational. It does not fetch articles.
