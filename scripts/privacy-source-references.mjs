@@ -123,7 +123,7 @@ export function cssReferences(source) {
     return values;
 }
 
-export function jsReferences(source) {
+export function jsReferences(source, roles=false) {
     const values=[];let i=0,canStartRegex=true;
     while(i<source.length){
         const char=source[i];
@@ -133,13 +133,13 @@ export function jsReferences(source) {
         if(char==='"'||char==="'"||char==='`'){
             const raw=char==='`'&&/\bString\s*\.\s*raw\s*$/.test(source.slice(0,i));
             const part=char==='`'?templateAt(source,i,raw):stringAt(source,i,raw?'raw':'js');
-            for(const expression of part.expressions||[])values.push(...jsReferences(expression));
+            for(const expression of part.expressions||[])values.push(...jsReferences(expression,roles));
             // Protocol labels in an explicit URL.protocol comparison are data,
             // not attempted requests. Do not exempt the same literal in fetch().
             const protocolComparison=/^https?:$/i.test(part.value)
                 && /\[\s*(?:(['"])https?:\1\s*,\s*)*$/.test(source.slice(0,i))
                 && /^(?:\s*,\s*(['"])https?:\1)*\s*\]\s*\.\s*includes\s*\(\s*[\w$.]+\.protocol\s*\)/.test(source.slice(part.end));
-            if(!protocolComparison)values.push(part.value);
+            if(!protocolComparison)values.push(roles ? {value:part.value,resource:/\b(?:fetch|sendBeacon|WebSocket|EventSource|import)\s*\(\s*$/.test(source.slice(0,i))} : part.value);
             i=part.end;canStartRegex=false;continue;
         }
         if(char==='/'&&canStartRegex){
@@ -201,13 +201,19 @@ export function srcsetReferences(source) {
 }
 
 export function sourceReferences(source,kind) {
-    if(kind==='css')return {base:null,values:cssReferences(source)};
-    if(kind==='js')return {base:null,values:jsReferences(source)};
-    if(kind==='url')return {base:null,values:[source]};
-    if(kind==='srcset')return {base:null,values:srcsetReferences(source)};
+    if(kind==='css'||kind==='srcset'){
+        const values=kind==='css'?cssReferences(source):srcsetReferences(source);
+        return {base:null,values,resourceValues:values};
+    }
+    if(kind==='js'){
+        const entries=jsReferences(source,true);
+        return {base:null,values:entries.map(entry=>entry.value),resourceValues:entries.filter(entry=>entry.resource).map(entry=>entry.value)};
+    }
+    if(['url','load-url','document-url'].includes(kind))return {base:null,values:[source],resourceValues:kind==='url'?[]:[source],documentURLs:kind==='document-url'?[source]:[]};
     if(kind!=='html')fail();
     const parsed=runHtmlHelper(source);
-    return {base:parsed.base,values:parsed.references.filter(ref=>ref.kind!=='html').flatMap(ref=>sourceReferences(ref.value,ref.kind).values),documents:parsed.references.filter(ref=>ref.kind==='html').map(ref=>ref.value),decodedText:parsed.decodedText};
+    const references=parsed.references.filter(ref=>ref.kind!=='html').map(ref=>sourceReferences(ref.value,ref.kind));
+    return {base:parsed.base,values:references.flatMap(ref=>ref.values),resourceValues:references.flatMap(ref=>ref.resourceValues||[]),documentURLs:references.flatMap(ref=>ref.documentURLs||[]),documents:parsed.references.filter(ref=>ref.kind==='html').map(ref=>ref.value),decodedText:parsed.decodedText};
 }
 
 const exactKeys=(value,keys)=>value!==null&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).sort().join('|')===[...keys].sort().join('|');
@@ -215,7 +221,7 @@ export function validateHtmlHelperOutput(parsed,decodeOnly=false) {
     if(!exactKeys(parsed,decodeOnly?['decodedText']:['base','references','decodedText'])||typeof parsed.decodedText!=='string')fail();
     if(!decodeOnly){
         if(parsed.base!==null&&typeof parsed.base!=='string'||!Array.isArray(parsed.references))fail();
-        for(const ref of parsed.references)if(!exactKeys(ref,['kind','value'])||!['url','srcset','css','js','html'].includes(ref.kind)||typeof ref.value!=='string')fail();
+        for(const ref of parsed.references)if(!exactKeys(ref,['kind','value'])||!['url','load-url','document-url','srcset','css','js','html'].includes(ref.kind)||typeof ref.value!=='string')fail();
     }
     return parsed;
 }

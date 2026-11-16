@@ -24,7 +24,7 @@ const contexts=[
 async function fixture(file,source,base='https://site.invalid/') {
     const dir=await fs.mkdtemp(path.join(os.tmpdir(),'ktp-privacy-r3-'));
     await fs.writeFile(path.join(dir,'seo-config.json'),JSON.stringify({base}));
-    await fs.writeFile(path.join(dir,'privacy.html'),'<code data-privacy-host="fonts.gstatic.com">fonts.gstatic.com</code>'+footer);
+    await fs.writeFile(path.join(dir,'privacy.html'),'<code data-privacy-resource data-privacy-host="fonts.gstatic.com">fonts.gstatic.com</code>'+footer);
     await fs.writeFile(path.join(dir,file),source);
     return dir;
 }

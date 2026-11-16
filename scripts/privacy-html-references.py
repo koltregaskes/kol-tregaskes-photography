@@ -12,6 +12,21 @@ URL_ATTRIBUTES = {"href", "src", "action", "formaction", "poster", "data", "cite
 ASCII_SPACE = "\t\n\f\r "
 
 
+def reference_kind(tag, name, attrs):
+    if (tag in {"iframe", "frame", "embed"} and name == "src") or (tag == "object" and name == "data"):
+        return "document-url"
+    if name in {"src", "poster", "data", "background", "manifest"}:
+        return "load-url"
+    if name in {"href", "xlink:href"} and tag in {"image", "feimage", "use", "script"}:
+        return "load-url"
+    if tag == "link" and name == "href" and set(attrs.get("rel", "").lower().split()) & {
+        "stylesheet", "apple-touch-icon", "apple-touch-icon-precomposed", "icon",
+        "modulepreload", "preload", "prefetch", "manifest", "preconnect", "dns-prefetch"
+    }:
+        return "load-url"
+    return "url"
+
+
 def refresh_destination(content):
     # Accept the supported declarative-refresh grammar explicitly. A syntax we
     # cannot classify must fail, never leave an active URL to a mention exception.
@@ -78,11 +93,11 @@ class References(HTMLParser):
             self.base = attrs["href"]
         for name, value in attrs.items():
             if name in URL_ATTRIBUTES:
-                self.references.append({"kind": "url", "value": value})
+                self.references.append({"kind": reference_kind(tag, name, attrs), "value": value})
             elif name in {"srcset", "imagesrcset"}:
                 self.references.append({"kind": "srcset", "value": value})
             elif name == "ping":
-                self.references.extend({"kind": "url", "value": v} for v in re.split(r"[\t\n\f\r ]+", value.strip()) if v)
+                self.references.extend({"kind": "load-url", "value": v} for v in re.split(r"[\t\n\f\r ]+", value.strip()) if v)
             elif name == "style":
                 self.references.append({"kind": "css", "value": value})
             elif name == "srcdoc":
@@ -92,7 +107,7 @@ class References(HTMLParser):
         if tag == "meta" and attrs.get("property", attrs.get("name", "")).lower() in {"og:url", "og:image", "twitter:image", "twitter:url"}:
             self.references.append({"kind": "url", "value": attrs.get("content", "")})
         if tag == "meta" and attrs.get("http-equiv", "").lower() == "refresh":
-            self.references.append({"kind": "url", "value": refresh_destination(attrs.get("content", ""))})
+            self.references.append({"kind": "load-url", "value": refresh_destination(attrs.get("content", ""))})
         if tag in {"script", "style"}:
             self.raw_kind = "js" if tag == "script" else "css"
             self.raw_parts = []

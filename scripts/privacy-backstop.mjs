@@ -1,3 +1,4 @@
+import {decodedTextViews,MAX_DOCUMENT_DEPTH} from './privacy-data-documents.mjs';
 import {decodeReferenceText} from './privacy-source-references.mjs';
 
 // This sweep is deliberately independent of HTML/CSS/JS reference recognition.
@@ -24,10 +25,21 @@ export function backstopHosts(source,{baseURL='https://koltregaskesphotography.c
             text=next;
         }
     }
+    const queue=[...views].map(text=>({text,depth:0}));
+    for(let index=0;index<queue.length;index++){
+        const {text,depth}=queue[index];
+        const candidates=[...decodedTextViews(text),normaliseEscapes(text,'js'),normaliseEscapes(text,'css')];
+        if(/&(?:#|[a-z])/i.test(text))candidates.push(decodeReferenceText(text));
+        for(const candidate of candidates){
+            if(views.has(candidate))continue;
+            if(depth>=MAX_DOCUMENT_DEPTH)throw Error('Data URL inspection exceeds the nesting limit');
+            views.add(candidate);queue.push({text:candidate,depth:depth+1});
+        }
+    }
     const hosts=new Set();
     for(const view of views){
         const text=view.replace(/[\t\n\r]/g,'');
-        const starts=/(?:\b[a-z][a-z0-9+.-]*:[\\/]{2}|(?<![\w:/\\])\/\/(?=[^\s/\\"'`<>]))/gi;
+        const starts=/(?:(?<![A-Za-z0-9+.-])[a-z][a-z0-9+.-]*:[\\/]{2}|(?<![\w:/\\])\/\/(?=[^\s/\\"'`<>]))/gi;
         for(const match of text.matchAll(starts)){
             let end=match.index+match[0].length;
             while(end<text.length&&!/[\s"'`<>]/.test(text[end]))end++;

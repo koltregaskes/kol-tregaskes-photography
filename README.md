@@ -63,7 +63,10 @@ What they do:
 
 `npm run privacy:check` catches accidental or unreviewed third-party references in the site's own HTML, CSS and JavaScript. Structured extraction reads reference values, including nested HTML and template expressions. An independent backstop sweeps the entire text after HTML entity and JS/CSS escape normalisation, including comments and prose. Both use WHATWG URL parsing and the privacy page's declared hosts. Malformed references or helper output fail closed. Python 3 is required for the standard-library HTML parser/entity table; no extra Python packages are used.
 
-The guard is not a sandbox against deliberately obfuscated code, for example a host assembled from string fragments at runtime. Runtime verification is the browser check's job. Passing this offline source guard is not a browser request trace.
+HTML and SVG data: documents in iframe/frame, object and embed loading attributes are decoded and inspected recursively, including percent-encoded and base64 payloads. Unsupported encodings, malformed document bytes and excessive nesting fail closed. The independent sweep also inspects decoded data: text and percent escapes. Hosts marked `data-privacy-resource` in the notice permit automatic loads; navigation-only hosts cannot authorise SVG images, link resources, ping or direct fetch calls.
+Document decoding supports UTF-8 and ASCII; non-ASCII HTML requires an explicit UTF-8 charset, and unsupported charset/XML encodings fail explicitly.
+
+The guard is not a sandbox against deliberately obfuscated code, for example a host assembled from string fragments at runtime. Indirect JavaScript targets such as `fetch(u)` and `img.src = u` remain outside this static guard's scope. Runtime verification is the browser check's job. Passing this offline source guard is not a browser request trace.
 
 Only reviewed, inert text may use `privacy-non-request-mentions.json`: each entry needs `kind: "non-request mention"`, an exact relative file, an exact hostname and a reason. Review the source and reason in the PR. Entries cannot exempt a host found by structured request extraction; unused entries fail. Do not use this file to approve an active third-party resource: update the privacy notice and review the integration instead.
 

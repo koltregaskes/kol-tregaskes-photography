@@ -17,7 +17,7 @@ const page=content=>comment+`<meta http-equiv=refresh content="${attr(content)}"
 async function fixture(source,base='https://site.invalid/'){
     const dir=await fs.mkdtemp(path.join(os.tmpdir(),'ktp-refresh-r5-'));
     await fs.writeFile(path.join(dir,'seo-config.json'),JSON.stringify({base}));
-    await fs.writeFile(path.join(dir,'privacy.html'),'<code data-privacy-host="fonts.gstatic.com">fonts.gstatic.com</code>'+footer);
+    await fs.writeFile(path.join(dir,'privacy.html'),'<code data-privacy-resource data-privacy-host="fonts.gstatic.com">fonts.gstatic.com</code>'+footer);
     await fs.writeFile(path.join(dir,'page.html'),source);
     await fs.writeFile(path.join(dir,'privacy-non-request-mentions.json'),JSON.stringify({version:1,mentions:[mention]}));
     return dir;
