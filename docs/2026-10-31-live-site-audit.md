@@ -2,7 +2,7 @@
 
 Live URL: https://koltregaskesphotography.com/ (from `CNAME` and the GitHub Pages settings). HTTPS is enforced, and the certificate covers the bare domain and `www`, expiring 7 Jan 2027. `www.`, `http://` and `koltregaskes.github.io/kol-tregaskes-photography/` all redirect to the live URL. An unknown path returns 404 with the custom page.
 
-The audit was run against GitHub `origin/main` and the live URL only. No W: or `#recycle` copies were used. It was read only: nothing was committed or pushed. Script: `D:\UserTemp\claude\W--\b7fe98cf-a1ee-4021-880a-b8f5849797d4\scratchpad\kt-audit\audit.mjs`. Raw results: `results.json` in the same folder.
+The audit was run against GitHub `origin/main` and the live URL only. No W: or `#recycle` copies were used. It was read only: nothing was committed or pushed. Script and raw results (`audit.mjs`, `results.json`) were kept in a local session scratchpad, not in this repo.
 
 ## Deploy
 

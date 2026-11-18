@@ -2,8 +2,8 @@
 
 **Status:** DRAFT — awaiting Kol's sign-off. Not yet committed.
 **Last updated:** 2026-05-16
-**Estate-wide policy:** `W:\Websites\AGENT-READINESS-ESTATE.md`
-**Repo:** `W:\Websites\sites\kol-tregaskes-photography`
+**Estate-wide policy:** the private estate-wide readiness policy (kept off GitHub)
+**Repo:** this repository (`koltregaskes/kol-tregaskes-photography`)
 **Domain:** koltregaskesphotography.com
 **Stack:** Static HTML + vanilla CSS/JS
 **Social handle (found in repo):** `x.com/koltregaskespho`
@@ -47,7 +47,7 @@ Recommendation: ship the structure stubs now (`Person`, `Organization`, `WebSite
     "https://github.com/koltregaskes",
     "<LinkedIn URL — Kol to provide>"
   ],
-  "email": "kol@koltregaskes.com"
+  "email": "contact@elusionworks.com"
 }
 ```
 
