@@ -47,7 +47,7 @@ Recommendation: ship the structure stubs now (`Person`, `Organization`, `WebSite
     "https://github.com/koltregaskes",
     "<LinkedIn URL — Kol to provide>"
   ],
-  "email": "kol@koltregaskes.com"
+  "email": "contact@elusionworks.com"
 }
 ```
 

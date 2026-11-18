@@ -407,7 +407,7 @@ function initContactForm() {
             'Note: this archive no longer accepts new photography commissions.'
         ].join('\n'));
 
-        const draftUrl = `mailto:kol@koltregaskes.com?subject=${mailSubject}&body=${mailBody}`;
+        const draftUrl = `mailto:contact@elusionworks.com?subject=${mailSubject}&body=${mailBody}`;
         if (draftUrl.length > 8000) {
             status.textContent = 'This draft is too long for the mail-app link. Please use the direct email link instead.';
             status.dataset.state = 'error';
