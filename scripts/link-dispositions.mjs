@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import {crawlExitCode} from './link-crawl-acceptance.mjs';
+import {instagramProfile, isInstagramLoginWall} from './external-link-policy.mjs';
 
 const fields = ['destination', 'finalDestination', 'disposition', 'evidence', 'verifiedOn', 'expiresOn'];
 const dayMs = 86400000;
@@ -72,13 +73,22 @@ export function applyDispositions(report, urls, {dispositions = [], dispositionL
         }
         // An ordinary outage, missing DNS answer, incomplete HTML or skipped
         // crawl coverage is not a bot denial or a timed-out check.
-        if (!entry || result.status !== 'unverified' || !trace?.finalFetchSent || !trace.stayedOnStartingHost ||
-            normaliseDestination(trace.finalDestination) !== entry.finalDestination ||
-            !(denialStatuses.has(result.http) || result.timeout === true)) continue;
+        if (!entry || result.status !== 'unverified' || !trace?.finalFetchSent || !trace.stayedOnStartingHost) continue;
+        const instagram = destination === instagramProfile;
+        const loginWall = instagram && entry.finalDestination === instagramProfile &&
+            isInstagramLoginWall(destination, trace.finalDestination, trace.redirectCount) &&
+            (result.http >= 200 && result.http < 300 || denialStatuses.has(result.http));
+        const directRateLimit = instagram && entry.finalDestination === instagramProfile &&
+            trace.finalDestination === instagramProfile && trace.redirectCount === 0 && result.http === 429;
+        const exactMatch = !instagram && normaliseDestination(trace.finalDestination) === entry.finalDestination &&
+            (denialStatuses.has(result.http) || result.timeout === true);
+        if (!(loginWall || directRateLimit || exactMatch)) continue;
         used.add(destination);
         result.observedStatus = 'unverified';
         result.status = 'accepted-by-disposition';
+        if (instagram) result.dispositionReason = loginWall ? 'bot login wall' : 'bot rate limit';
         dispositionedDestinations.push({destination: result.destination, finalDestination: result.finalDestination,
+            ...(instagram ? {reason: result.dispositionReason} : {}),
             verifiedOn: entry.verifiedOn, expiresOn: entry.expiresOn,
             ...(result.http ? {http: result.http} : {timeout: true})});
     }

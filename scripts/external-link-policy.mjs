@@ -3,6 +3,16 @@ import {isIP} from 'node:net';
 
 const redirects = new Set([301, 302, 303, 307, 308]);
 
+export const instagramProfile = 'https://www.instagram.com/koltregaskes';
+export function isInstagramLoginWall(destination, finalDestination, redirectCount) {
+    if (destination !== instagramProfile || redirectCount !== 1) return false;
+    try {
+        const final = new URL(finalDestination);
+        return final.origin === 'https://www.instagram.com' && final.pathname === '/accounts/login/' &&
+            !final.username && !final.password && !final.hash;
+    } catch { return false; }
+}
+
 export function isPublicAddress(address) {
     if (isIP(address) === 4) {
         const [a, b, c] = address.split('.').map(Number);
@@ -117,12 +127,13 @@ export async function checkExternalDestination(value, {
                 continue;
             }
             const status = classifyExternalResponse(response.status, value, current.href);
-            return {status: status === 'ok' ? 'reachable' : status, http: response.status};
+            const loginWall = isInstagramLoginWall(value, current.href, visited.size - 1);
+            return {status: status === 'ok' ? (loginWall ? 'unverified' : 'reachable') : status, http: response.status};
         }
     } catch (error) {
         const timeout = Date.now() >= deadline || error?.name === 'TimeoutError' || error?.message === 'request deadline';
         return {status: 'unverified', reason: 'network, DNS or request deadline failure', ...(timeout && finalFetchSent ? {timeout: true} : {})};
     } finally {
-        onDispositionTrace?.({finalDestination: current.href, finalFetchSent, stayedOnStartingHost});
+        onDispositionTrace?.({finalDestination: current.href, finalFetchSent, stayedOnStartingHost, redirectCount: visited.size - 1});
     }
 }
