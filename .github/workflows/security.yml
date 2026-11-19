@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: 24
       - name: Test external link acceptance offline
-        run: node --test tests/external-link-policy.test.mjs tests/external-link-acceptance.test.mjs tests/external-link-html.test.mjs tests/link-dispositions.test.mjs
+        run: node --test tests/external-link-policy.test.mjs tests/external-link-acceptance.test.mjs tests/external-link-html.test.mjs tests/link-dispositions.test.mjs tests/external-link-own-origin.test.mjs
       - name: Crawl external links (launch acceptance; exits 1 and 2 fail)
         id: external
         run: node scripts/check-external-links.mjs

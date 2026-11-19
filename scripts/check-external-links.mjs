@@ -3,10 +3,19 @@ import {execFileSync, spawnSync} from 'node:child_process';
 import {fileURLToPath, pathToFileURL} from 'node:url';
 import {checkExternalDestination} from './external-link-policy.mjs';
 import {applyDispositions, externalCrawlExitCode, loadDispositions} from './link-dispositions.mjs';
+import {canonicalOrigin, inspectSite} from './check-public-links.mjs';
 
 const localBase = 'https://ktp-local.invalid/';
 const maxSrcdocDepth = 4; // Outer document is depth 0; deeper content remains unverified.
 const incomplete = () => ({status: 'unverified', reason: 'unsupported or unparseable HTML reference'});
+
+function isPlainAbsoluteHtmlReference(reference) {
+    // Inspect the decoded HTML attribute BEFORE URL parsing removes dot
+    // segments or turns empty query/fragment markers into empty properties.
+    if (/[?#\\\u0000-\u0020\u007f]/.test(reference)) return false;
+    const rawPath = /^[a-z][a-z0-9+.-]*:\/\/[^/]+(\/.*)$/i.exec(reference)?.[1];
+    return Boolean(rawPath && !rawPath.split('/').some(segment => /^(?:\.|%2e){1,2}$/i.test(segment)));
+}
 
 function tokeniseHtml(html, executeHelper = spawnSync) {
     const result = executeHelper(process.platform === 'win32' ? 'python' : 'python3',
@@ -52,7 +61,7 @@ function srcsetReferences(value) {
     return references;
 }
 
-export function extractExternalUrls(html, {executeHelper} = {}) {
+export function extractExternalUrls(html, {executeHelper, internalHtmlUrls = new Set()} = {}) {
     const urls = new Set();
     function collectDocument(source, inheritedBase, depth) {
         const parsed = tokeniseHtml(source, executeHelper);
@@ -71,6 +80,7 @@ export function extractExternalUrls(html, {executeHelper} = {}) {
             const values = ['srcset', 'imagesrcset'].includes(ref.attribute) ? srcsetReferences(ref.value) : [ref.value];
             for (const value of values) {
                 if (typeof value !== 'string') { urls.add(value); continue; }
+                const plainReference = isPlainAbsoluteHtmlReference(value);
                 let url, absolute = false;
                 try {
                     try { url = new URL(value); absolute = true; }
@@ -80,6 +90,9 @@ export function extractExternalUrls(html, {executeHelper} = {}) {
                 if (['http:', 'https:'].includes(url.protocol)) {
                     // Local routes/fragments stay with the separate internal-link gate.
                     if (!absolute && url.origin === new URL(localBase).origin) continue;
+                    // Only a top-level href/src verified in this document by
+                    // the internal gate can replace a pre-deployment request.
+                    if (depth === 0 && absolute && plainReference && ['href', 'src'].includes(ref.attribute) && internalHtmlUrls.has(url.href)) continue;
                     urls.add(url.href);
                 } else if (['javascript:', 'data:', 'file:'].includes(url.protocol)) {
                     urls.add(url.href); // Known unsafe schemes retain the existing exit 1 policy.
@@ -94,8 +107,25 @@ export function extractExternalUrls(html, {executeHelper} = {}) {
 export async function collectExternalUrls(options) {
     // Read only tracked HTML, never environment files, credentials or other text.
     const files = execFileSync('git', ['ls-files', '-z', '--', '*.html'], {encoding: 'utf8'}).split('\0').filter(Boolean);
+    const tracked = new Set(files), internalHtmlUrls = new Map();
+    const internal = await inspectSite('.', canonicalOrigin, {onLocalHtmlReference({source, reference, attribute, url, target}) {
+        // Exact HTTPS origin, plain tracked .html path, and an inspected source
+        // document. Queries, fragments, credentials and path aliases stay live.
+        if (!isPlainAbsoluteHtmlReference(reference)) return;
+        try { new URL(reference); } catch { return; }
+        if (!['href', 'src'].includes(attribute) || url.origin !== canonicalOrigin || url.username || url.password ||
+            url.search || url.hash || url.pathname !== '/' + target || !target.endsWith('.html') ||
+            !tracked.has(source) || !tracked.has(target)) return;
+        if (!internalHtmlUrls.has(source)) internalHtmlUrls.set(source, new Set());
+        internalHtmlUrls.get(source).add(url.href);
+    }});
+    if (internalHtmlUrls.size && internal.errors.length) {
+        const error = new Error('Internal link validation failed before own-origin handoff.');
+        error.code = 'INTERNAL_LINK_FAILURE';
+        throw error;
+    }
     const urls = new Set();
-    for (const file of files) for (const url of extractExternalUrls(await fs.readFile(file, 'utf8'), options)) urls.add(url);
+    for (const file of files) for (const url of extractExternalUrls(await fs.readFile(file, 'utf8'), {...options, internalHtmlUrls: internalHtmlUrls.get(file)})) urls.add(url);
     return [...urls];
 }
 
@@ -149,7 +179,15 @@ export async function runCollectedExternalCheck(options = {}) {
         const loaded = await loadDispositions(options.dispositionFile);
         return await runExternalCheck(await collectExternalUrls(options), {...options, dispositions: loaded.document, dispositionLoadErrors: loaded.errors});
     }
-    catch { console.error('External crawl could not complete; acceptance is unverified.'); process.exitCode = 2; }
+    catch (error) {
+        if (error?.code === 'INTERNAL_LINK_FAILURE') {
+            console.error('Internal link validation failed before own-origin handoff; acceptance failed.');
+            process.exitCode = 1;
+        } else {
+            console.error('External crawl could not complete; acceptance is unverified.');
+            process.exitCode = 2;
+        }
+    }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await runCollectedExternalCheck();
