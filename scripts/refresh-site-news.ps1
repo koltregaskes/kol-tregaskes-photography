@@ -8,9 +8,9 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $repoRoot = Resolve-Path (Join-Path $PSScriptRoot '..')
-$estateRoot = 'W:\Websites'
-$scrapeScript = Join-Path $estateRoot 'scripts\run-news-scrape.ps1'
-$filterScript = Join-Path $estateRoot 'scripts\filter-articles-per-site.mjs'
+$estateScripts = 'D:\RoomsOS\scripts\websites'  # W:\Websites\scripts moved here (W: retired, Nov 2026)
+$scrapeScript = Join-Path $estateScripts 'run-news-scrape.ps1'
+$filterScript = Join-Path $estateScripts 'filter-articles-per-site.mjs'
 $publishScript = Join-Path $PSScriptRoot 'publish-digests.ps1'
 
 function Invoke-Step {
