@@ -1,0 +1,36 @@
+# Files and folders the live site serves. Everything else in this repo (docs,
+# design notes, tests, build scripts, configs, agent files) is not published.
+# A trailing slash publishes a whole folder.
+404.html
+about.html
+blog-portfolio-sync-note.html
+blog-welcome.html
+blog.html
+contact.html
+gallery.html
+index.html
+news.html
+topics.html
+site.js
+news-app.js
+news-link-status.js
+news-state.js
+source-permissions.mjs
+styles.css
+apple-touch-icon.png
+favicon-192.png
+favicon-512.png
+favicon.ico
+favicon.svg
+social-preview.png
+site.webmanifest
+robots.txt
+rss.xml
+sitemap.xml
+llms.txt
+CNAME
+.nojekyll
+.well-known/
+images/
+news-digests/
+launch/source-permissions.json
