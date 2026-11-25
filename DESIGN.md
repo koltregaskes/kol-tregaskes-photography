@@ -3,7 +3,7 @@
 **Version:** 4, adopted 10 November 2026 (hub issue koltregaskes/rooms-os-hub#1404).
 **Live:** https://koltregaskesphotography.com (GitHub Pages, CNAME)
 **Source of truth for values:** `styles.css`. This file sets the direction and the rules.
-**Supersedes:** `design/archive/DESIGN-v3-slate-blue-2026-05-17.md`. Keeps its slate-blue direction; fixes contrast, fonts and small text.
+**Supersedes:** the archived v3 slate-blue design (kept in the maintainer's private project notes). Keeps its slate-blue direction; fixes contrast, fonts and small text.
 **Shared estate rules:** accessibility and performance follow the estate base (WCAG 2.2 AA, 4.5:1 text, 12px floor, skip link, visible focus, reduced motion).
 
 ---
